@@ -1,4 +1,4 @@
-# Arch Linux System Architecture & Dotfiles
+# Arch Linux Dotfiles
 
 This repository tracks the operational environment and user configurations for an owner-grade Arch Linux machine. It utilizes a **Bare Git Repository** structure. This method avoids the friction of symlinking configurations across the filesystem by mapping the `$HOME` directory directly as the Git working tree.
 
