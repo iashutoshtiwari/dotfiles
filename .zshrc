@@ -23,6 +23,18 @@ plugins=(
 source $ZSH/oh-my-zsh.sh
 
 # 4. MULTIPLIER INTEGRATIONS
+
+# Node.js Version Manager (fnm)
+eval "$(fnm env --use-on-cd --shell zsh)"
+
+# Python Version Manager (pyenv)
+export PYENV_ROOT="$HOME/.pyenv"
+[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"
+
+# Python Application Runner (pipx)
+export PATH="$HOME/.local/bin:$PATH"
+
 # FZF: Universal fuzzy finder for history (Ctrl+R) and files (Ctrl+T)
 eval "$(fzf --zsh)"
 
