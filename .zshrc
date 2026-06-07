@@ -68,3 +68,15 @@ eval "$(starship init zsh)"
 
 # Print system metrics on new session launch
 fastfetch
+
+
+# Added by Antigravity CLI installer
+export PATH="/home/ashutosh/.local/bin:$PATH"
+
+# pnpm
+export PNPM_HOME="/home/ashutosh/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME/bin:"*) ;;
+  *) export PATH="$PNPM_HOME/bin:$PATH" ;;
+esac
+# pnpm end
