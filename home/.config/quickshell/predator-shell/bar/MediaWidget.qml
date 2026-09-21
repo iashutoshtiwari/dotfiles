@@ -1,80 +1,100 @@
 import QtQuick
+import QtQuick.Layouts
 
 import qs.theme
 import qs.services
+import qs.components
 
 Item {
     id: root
 
-    visible: MprisService.available
-             && MprisService.title.length > 0
+    property bool active: false
+    signal clicked()
 
+    visible: MprisService.available && MprisService.title.length > 0
     implicitWidth: visible ? 340 : 0
     implicitHeight: 28
 
-    Rectangle {
+    BarButtonBackground {
         anchors.fill: parent
+        active: root.active
+        hovered: mouse.containsMouse
+        pressed: mouse.pressed
+    }
 
-        color: mouse.containsMouse ? Theme.surface0 : Theme.mantle
+    RowLayout {
+        anchors.fill: parent
+        anchors.leftMargin: Theme.spacingSm
+        anchors.rightMargin: Theme.spacingSm
+        spacing: Theme.spacingSm
 
-        border.width: 1
-        border.color: Theme.surface0
+        Rectangle {
+            readonly property bool wideArtwork: artwork.status === Image.Ready
+                && artwork.sourceSize.height > 0
+                && artwork.sourceSize.width / artwork.sourceSize.height >= 1.35
 
-        radius: Theme.radius
+            Layout.preferredWidth: wideArtwork ? 32 : 20
+            Layout.preferredHeight: 20
+            color: Theme.surface0
+            clip: true
 
-        Row {
-            anchors.centerIn: parent
-
-            spacing: 8
+            Image {
+                id: artwork
+                anchors.fill: parent
+                source: MprisService.artwork
+                fillMode: Image.PreserveAspectCrop
+                asynchronous: true
+                visible: status === Image.Ready
+            }
 
             Text {
+                anchors.centerIn: parent
+                visible: !artwork.visible
                 text: "󰝚"
-
-                font.family: Theme.appFont
-                font.pixelSize: 13
-
+                font.family: Theme.shellFont
+                font.pixelSize: 12
                 color: Theme.lavender
-            }
-
-            Text {
-                width: 245
-
-                text: {
-                    if (!MprisService.artist)
-                        return MprisService.title;
-
-                    return MprisService.title
-                           + "  ·  "
-                           + MprisService.artist;
-                }
-
-                elide: Text.ElideRight
-
-                font.family: Theme.shellFont
-                font.pixelSize: 12
-                font.weight: Font.Medium
-
-                color: Theme.text
-            }
-
-            Text {
-                text: MprisService.playing ? "󰏤" : "󰐊"
-
-                font.family: Theme.shellFont
-                font.pixelSize: 12
-
-                color: Theme.subtext1
             }
         }
 
-        MouseArea {
-            id: mouse
-            anchors.fill: parent
+        Text {
+            Layout.maximumWidth: 175
+            text: MprisService.title
+            elide: Text.ElideRight
+            font.family: Theme.appFont
+            font.pixelSize: Theme.textBody
+            font.weight: Font.DemiBold
+            color: MprisService.playing ? Theme.text : Theme.subtext1
+        }
 
-            cursorShape: Qt.PointingHandCursor
-            hoverEnabled: true
+        Text {
+            Layout.fillWidth: true
+            text: MprisService.artist.length > 0 ? "—  " + MprisService.artist : ""
+            elide: Text.ElideRight
+            font.family: Theme.appFont
+            font.pixelSize: Theme.textSmall
+            color: MprisService.playing ? Theme.lavender : Theme.overlay1
+        }
 
-            onClicked: MprisService.toggle()
+        Text {
+            text: MprisService.playing ? "󰏤" : "󰐊"
+            font.family: Theme.shellFont
+            font.pixelSize: 12
+            color: MprisService.playing ? Theme.lavender : Theme.overlay1
+        }
+    }
+
+    MouseArea {
+        id: mouse
+        anchors.fill: parent
+        hoverEnabled: true
+        acceptedButtons: Qt.LeftButton | Qt.MiddleButton
+        cursorShape: Qt.PointingHandCursor
+        onClicked: event => {
+            if (event.button === Qt.MiddleButton)
+                MprisService.toggle();
+            else
+                root.clicked();
         }
     }
 }

@@ -10,7 +10,7 @@ configuration {
     matching: "fuzzy";
     sorting-method: "fzf";
 
-    font: "JetBrainsMono Nerd Font 11";
+    font: "JetBrainsMono Nerd Font 10";
 }
 
 @theme "theme"

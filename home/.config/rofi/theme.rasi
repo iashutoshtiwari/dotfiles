@@ -9,7 +9,7 @@
     accent: @lavender;
     urgent: @red;
 
-    font: "JetBrainsMono Nerd Font 11";
+    font: "JetBrainsMono Nerd Font 10";
 }
 
 window {

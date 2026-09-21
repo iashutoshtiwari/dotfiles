@@ -7,8 +7,12 @@ Singleton {
     id: root
 
     readonly property var players: Mpris.players.values
+    property var selectedPlayer: null
 
     readonly property var activePlayer: {
+        if (selectedPlayer && players.includes(selectedPlayer))
+            return selectedPlayer;
+
         for (let player of players) {
             if (player.isPlaying)
                 return player;
@@ -25,11 +29,22 @@ Singleton {
     readonly property string artist:
         activePlayer?.trackArtist ?? ""
 
+    readonly property string album:
+        activePlayer?.trackAlbum ?? ""
+
+    readonly property string playerName:
+        activePlayer?.identity ?? ""
+
     readonly property string artwork:
         activePlayer?.trackArtUrl ?? ""
 
     readonly property bool playing:
         activePlayer?.isPlaying ?? false
+
+    function selectPlayer(player): void {
+        if (player && players.includes(player))
+            selectedPlayer = player;
+    }
 
     function toggle(): void {
         if (activePlayer?.canTogglePlaying)

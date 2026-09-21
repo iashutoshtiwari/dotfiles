@@ -45,6 +45,7 @@ Scope {
                 powerPopup,
                 weatherPopup,
                 clockPopup,
+                mediaPopup,
                 powerMenuPopup
             ]
 
@@ -96,6 +97,7 @@ Scope {
                         "power": powerPopup,
                         "weather": weatherPopup,
                         "clock": clockPopup,
+                        "media": mediaPopup,
                         "powermenu": powerMenuPopup
                     };
                     const target = map[name];
@@ -133,7 +135,10 @@ Scope {
                 }
 
                 MediaWidget {
+                    id: mediaWidget
                     anchors.centerIn: parent
+                    active: mediaPopup.visible
+                    onClicked: root.togglePopup(mediaPopup)
                 }
 
                 Row {
@@ -250,6 +255,11 @@ Scope {
             ClockPopup {
                 id: clockPopup
                 anchorItem: clockButton
+            }
+
+            MediaPopup {
+                id: mediaPopup
+                anchorItem: mediaWidget
             }
 
             PowerMenuPopup {

@@ -1,5 +1,4 @@
 import QtQuick
-
 import Quickshell.Hyprland
 
 import qs.theme
@@ -7,32 +6,57 @@ import qs.theme
 Item {
     id: root
 
-    readonly property int activeWorkspaceIndex:
-        Hyprland.focusedWorkspace && Hyprland.focusedWorkspace.id >= 1
-            ? Math.min(4, Hyprland.focusedWorkspace.id - 1)
-            : 0
+    readonly property int activeWorkspaceId: Hyprland.focusedWorkspace?.id ?? 0
+    readonly property int highestWorkspaceId: {
+        let highest = 0;
+        for (const workspace of Hyprland.workspaces.values) {
+            if (workspace.id > highest)
+                highest = workspace.id;
+        }
+        return highest;
+    }
+    // Always expose one empty slot after the highest known workspace. Visiting
+    // it grows the strip again, so normal Hyprland workspaces are unbounded.
+    readonly property int workspaceCount: Math.max(5, activeWorkspaceId, highestWorkspaceId) + 1
+    readonly property int activeWorkspaceIndex: activeWorkspaceId > 0
+        ? activeWorkspaceId - 1 : -1
+
+    function workspaceObject(id: int): var {
+        return Hyprland.workspaces.values.find(workspace => workspace.id === id) ?? null;
+    }
+
+    function activateWorkspace(id: int): void {
+        const existing = workspaceObject(id);
+        if (existing) {
+            existing.activate();
+            return;
+        }
+        if (Hyprland.usingLua)
+            Hyprland.dispatch('hl.dsp.focus({ workspace = "' + id + '" })');
+        else
+            Hyprland.dispatch("workspace " + id);
+    }
 
     implicitWidth: workspaceSlots.width
     implicitHeight: 28
 
     Item {
         id: workspaceSlots
-
         anchors.verticalCenter: parent.verticalCenter
-        width: 5 * Theme.workspaceSlot - Theme.spacingSm
+        width: root.workspaceCount * Theme.workspaceSlot - Theme.spacingSm
         height: parent.height
 
-        // One accent marker travels between fixed slots so switching workspace
-        // never changes layout or starts five competing animations.
+        // A single marker follows Hyprland's committed workspace. Its 170ms
+        // ease-out closely matches the compositor's short slidefade motion.
         Rectangle {
-            z: 0
+            z: 2
+            visible: root.activeWorkspaceIndex >= 0
             x: root.activeWorkspaceIndex * Theme.workspaceSlot + 6.5
             anchors.verticalCenter: parent.verticalCenter
-
             width: Theme.workspaceActiveDot
             height: width
             radius: width / 2
-            color: Theme.accent
+            color: Theme.lavender
 
             Behavior on x {
                 NumberAnimation {
@@ -47,88 +71,46 @@ Item {
             spacing: Theme.spacingSm
 
             Repeater {
-                model: 5
+                model: root.workspaceCount
 
-                delegate: Item {
-                    id: workspace
-
+                Item {
+                    id: slot
                     required property int index
 
                     readonly property int workspaceId: index + 1
-                    readonly property bool active:
-                        Hyprland.focusedWorkspace !== null
-                        && Hyprland.focusedWorkspace.id === workspaceId
+                    readonly property var workspace: root.workspaceObject(workspaceId)
+                    readonly property bool active: root.activeWorkspaceIndex === index
+                    readonly property bool occupied: (workspace?.toplevels?.values?.length ?? 0) > 0
+                    readonly property bool urgent: workspace?.urgent ?? false
 
-                    z: 1
                     width: Theme.workspaceSlot - Theme.spacingSm
                     height: parent.height
 
                     Rectangle {
-                        anchors.centerIn: parent
-
-                        width: workspace.active
-                            ? Theme.workspaceActiveDot
-                            : Theme.workspaceDot
-                        height: width
-
-                        // Workspace markers are the intentional exception to
-                        // the shell's otherwise square geometry.
-                        radius: width / 2
-                        color: {
-                            if (workspace.active)
-                                return "transparent";
-                            return workspaceMouse.containsMouse
-                                ? Theme.surface2
-                                : Theme.surface1;
-                        }
-
-                        Behavior on color {
-                            ColorAnimation {
-                                duration: Theme.animationFast
-                            }
-                        }
+                        anchors.fill: parent
+                        color: slotMouse.containsMouse ? Theme.surface0 : "transparent"
+                        Behavior on color { ColorAnimation { duration: Theme.animationFast } }
                     }
 
-                    Text {
+                    Rectangle {
                         anchors.centerIn: parent
+                        width: slot.occupied ? 8 : 6
+                        height: width
+                        radius: width / 2
+                        color: slot.active ? "transparent"
+                            : slot.urgent ? Theme.red
+                            : slotMouse.containsMouse ? Theme.surface2
+                            : slot.occupied ? Theme.subtext0 : Theme.overlay0
 
-                        text: workspace.workspaceId
-                        color: workspace.active ? Theme.crust : Theme.subtext0
-                        font.family: Theme.shellFont
-                        font.pixelSize: 11
-                        font.weight: Font.DemiBold
+                        Behavior on color { ColorAnimation { duration: Theme.animationFast } }
                     }
 
                     MouseArea {
-                        id: workspaceMouse
-
+                        id: slotMouse
                         anchors.fill: parent
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
-
-                        onClicked: {
-                            const existing = Hyprland.workspaces.values.find(
-                                candidate => candidate.id === workspace.workspaceId
-                            );
-
-                            if (existing) {
-                                existing.activate();
-                                return;
-                            }
-
-                            // Empty workspaces do not have model objects yet.
-                            if (Hyprland.usingLua) {
-                                Hyprland.dispatch(
-                                    'hl.dsp.focus({ workspace = "'
-                                    + workspace.workspaceId
-                                    + '" })'
-                                );
-                            } else {
-                                Hyprland.dispatch(
-                                    "workspace " + workspace.workspaceId
-                                );
-                            }
-                        }
+                        onClicked: root.activateWorkspace(slot.workspaceId)
                     }
                 }
             }
