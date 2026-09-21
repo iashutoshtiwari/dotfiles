@@ -293,24 +293,24 @@ hl.bind("SUPER + SPACE", hl.dsp.exec_cmd("qs ipc -c predator-shell call popups c
     description = "Launch application menu"
 })
 
-hl.bind("SUPER + period", hl.dsp.exec_cmd("qs ipc -c predator-shell call popups closeAll; uwsm app -- emoji-picker"), {
+hl.bind("SUPER + period", hl.dsp.exec_cmd("qs ipc -c predator-shell call popups closeAll; rofi -show emoji"), {
     description = "Launch emoji and symbol picker"
 })
 
 -- Screenshots
-hl.bind("Print", hl.dsp.exec_cmd("screenshot area"), {
+hl.bind("Print", hl.dsp.exec_cmd("/home/ashutosh/.local/bin/screenshot area"), {
     description = "Capture selected area to clipboard and file"
 })
 
-hl.bind("SUPER + SHIFT + S", hl.dsp.exec_cmd("screenshot area"), {
+hl.bind("SUPER + SHIFT + S", hl.dsp.exec_cmd("/home/ashutosh/.local/bin/screenshot area"), {
     description = "Capture selected area to clipboard and file"
 })
 
-hl.bind("SHIFT + Print", hl.dsp.exec_cmd("screenshot screen"), {
+hl.bind("SHIFT + Print", hl.dsp.exec_cmd("/home/ashutosh/.local/bin/screenshot screen"), {
     description = "Capture full screen to clipboard and file"
 })
 
-hl.bind("CTRL + Print", hl.dsp.exec_cmd("screenshot window"), {
+hl.bind("CTRL + Print", hl.dsp.exec_cmd("/home/ashutosh/.local/bin/screenshot window"), {
     description = "Capture active window to clipboard and file"
 })
 
