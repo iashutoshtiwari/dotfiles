@@ -1,0 +1,2 @@
+module qs.osd
+OsdWindow 1.0 OsdWindow.qml

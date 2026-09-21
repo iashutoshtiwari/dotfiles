@@ -173,15 +173,41 @@ hl.bind("XF86AudioMicMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SOURC
 })
 
 -- Brightness
-hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("brightnessctl -e4 -n2 set 5%+"), {
+hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("qs ipc -c predator-shell call brightness increase || brightnessctl -e4 -n2 set 5%+"), {
     locked = true,
     repeating = true
 })
 
-hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl -e4 -n2 set 5%-"), {
+hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("qs ipc -c predator-shell call brightness decrease || brightnessctl -e4 -n2 set 5%-"), {
     locked = true,
     repeating = true
 })
+
+-- Lock Keys OSD
+hl.bind("Caps_Lock", hl.dsp.exec_cmd("qs ipc -c predator-shell call osd updateCapsLock"), {
+    locked = true,
+    non_consuming = true
+})
+
+hl.bind("Num_Lock", hl.dsp.exec_cmd("qs ipc -c predator-shell call osd updateNumLock"), {
+    locked = true,
+    non_consuming = true
+})
+
+hl.bind("Scroll_Lock", hl.dsp.exec_cmd("qs ipc -c predator-shell call osd toggleScrollLock"), {
+    locked = true,
+    non_consuming = true
+})
+
+-- Airplane Mode (Fn + F3) — Query hardware rfkill state after kernel settles
+hl.bind("XF86RFKill", hl.dsp.exec_cmd("qs ipc -c predator-shell call osd updateAirplaneMode"), {
+    locked = true
+})
+
+hl.bind("XF86WLAN", hl.dsp.exec_cmd("qs ipc -c predator-shell call osd updateAirplaneMode"), {
+    locked = true
+})
+
 
 -- Media
 hl.bind("XF86AudioNext", hl.dsp.exec_cmd("playerctl next"), {

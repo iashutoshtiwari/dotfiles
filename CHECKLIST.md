@@ -18,9 +18,9 @@ imply a broken live system. See [audit evidence](docs/handoff-audit.md).
 | B — Lock integration | IN PROGRESS | Exact image command verified against shared symlink; actual locked image and successful unlock still require interaction. |
 | B — Wallpaper picker | TODO | Only after backend verification; optional manual rotation, no automatic rotation. |
 | C — Kitty | IN PROGRESS | Removed unsupported border-radius key; installed parser loads without warnings, Mocha/11.5pt/0.94 opacity/10px padding/tab threshold verified; fontconfig resolves JetBrains Mono. Visual rendering/transparency/multiple tabs remain. |
-| D — Brightness | TODO | Identify internal backlight, service/slider/percentage, keyboard controls; no unsupported external-display claims. |
-| E — Night light | TODO | Verify installed/current Hyprsunset support; enable/temperature/manual schedule; no geolocation dependency. |
-| F — Shared OSD | TODO | Single reusable framework: output/mute/mic/brightness, optional supported keyboard light and reliable Caps Lock; brief/subtle/no overlap. |
+| D — Brightness | DONE | Discovered intel_backlight; BrightnessService singleton with clamp [5, 100], slider, presets, and scrollwheel on bar; hyprland.lua XF86MonBrightness keys integrated via IPC with fallback; tested via tests/shell/brightness-smoke.py. |
+| E — Night light | DONE | Hyprsunset v0.4.0 verified and integrated; NightLightService singleton with IPC socket control, color temperature slider, presets (Cool, Warm, Cozy, Candle), and manual schedule (20:00–07:00); DisplayPopup integration complete. |
+| F — Shared OSD | DONE | Single reusable OSD overlay window (osd/OsdWindow.qml) for speaker volume, mute, microphone level, mic mute, brightness, Caps Lock, Num Lock, Scroll Lock, and Airplane Mode (hardware keyboard backlight confirmed unexposed by laptop EC firmware and excluded from software scope); lower-center placement with restrained fade animation, integer multiple-of-4 sizing under 1.25x scaling, and reset-on-change timer; verified via tests/shell/osd-extensions-smoke.py and live reload. |
 | G — Notifications | TODO | Quickshell daemon, transient/history/center/DND/actions/previews; clean grouping; replies only when supported. |
 | H — Launcher | DONE | Rofi confirmed as the application launcher on Super+Space (bound in `hyprland.lua`). Quickshell launcher is out of scope per user specification. |
 | I — Tray | TODO | Deliberate StatusNotifierItem presentation and menus. |

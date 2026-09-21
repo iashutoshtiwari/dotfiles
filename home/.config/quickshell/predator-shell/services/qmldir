@@ -4,3 +4,5 @@ singleton AudioService 1.0 AudioService.qml
 singleton NetworkService 1.0 NetworkService.qml
 singleton BluetoothService 1.0 BluetoothService.qml
 singleton PowerService 1.0 PowerService.qml
+singleton BrightnessService 1.0 BrightnessService.qml
+singleton NightLightService 1.0 NightLightService.qml

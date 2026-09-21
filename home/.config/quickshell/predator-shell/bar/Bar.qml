@@ -78,6 +78,13 @@ Scope {
         bluetoothPopup.visible = !bluetoothPopup.visible
 }
 
+    DisplayButton {
+        id: displayButton
+
+        onClicked:
+            displayPopup.visible = !displayPopup.visible
+    }
+
     AudioButton {
         id: audioButton
 
@@ -107,6 +114,10 @@ NetworkPopup {
 BluetoothPopup {
     id: bluetoothPopup
     anchorItem: bluetoothButton
+}
+DisplayPopup {
+    id: displayPopup
+    anchorItem: displayButton
 }
 AudioPopup {
     id: audioPopup
