@@ -57,12 +57,19 @@ setsid -f bash -c '
         -u low \
         "Screenshot Captured" \
         "Saved to ~/Pictures/Screenshots and copied to clipboard." \
-        -A view="View" \
-        -A open="Open Folder" 2>/dev/null || true)
+        -A copy="Copy" \
+        -A open="Open" \
+        -A reveal="Reveal" 2>/dev/null || true)
 
     case "$action" in
-        view) xdg-open "$file" >/dev/null 2>&1 ;;
-        open) xdg-open "$dir" >/dev/null 2>&1 ;;
+        copy) wl-copy -t image/png < "$file" >/dev/null 2>&1 ;;
+        open) xdg-open "$file" >/dev/null 2>&1 ;;
+        reveal)
+            if command -v dolphin >/dev/null 2>&1; then
+                dolphin --select "$file" >/dev/null 2>&1
+            else
+                xdg-open "$dir" >/dev/null 2>&1
+            fi
+            ;;
     esac
 ' _ "$file" "$screenshots_dir" </dev/null >/dev/null 2>&1
-

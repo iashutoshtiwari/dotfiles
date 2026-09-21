@@ -35,6 +35,8 @@ PanelWindow {
     property int currentLevel: 50
     property bool isMuted: false
     property bool showBar: true
+    property bool lowBatteryNotified: false
+    property bool criticalBatteryNotified: false
 
     visible: root.shown || card.opacity > 0
 
@@ -162,6 +164,68 @@ PanelWindow {
                 false,
                 true
             );
+        }
+    }
+
+    // POWER AND BATTERY FEEDBACK
+    Connections {
+        target: PowerService
+
+        function onOnBatteryChanged(): void {
+            if (!root.initialized || !PowerService.ready)
+                return;
+
+            const percentage = Math.round(PowerService.percentage);
+            root.showOsd(
+                PowerService.onBattery ? "󰁹" : "󰂄",
+                PowerService.onBattery ? "On Battery" : "Power Connected",
+                percentage + "%",
+                percentage,
+                false,
+                true
+            );
+        }
+
+        function onProfileChanged(): void {
+            if (!root.initialized)
+                return;
+
+            root.showOsd(
+                "󰓅",
+                "Power Profile",
+                PowerService.profileName,
+                0,
+                false,
+                false
+            );
+        }
+
+        function onPercentageChanged(): void {
+            if (!root.initialized || !PowerService.ready || !PowerService.onBattery)
+                return;
+
+            const percentage = Math.round(PowerService.percentage);
+
+            if (percentage > 20) {
+                root.lowBatteryNotified = false;
+                root.criticalBatteryNotified = false;
+                return;
+            }
+
+            if (percentage <= 7 && !root.criticalBatteryNotified) {
+                root.criticalBatteryNotified = true;
+                root.lowBatteryNotified = true;
+                Quickshell.execDetached([
+                    "notify-send", "-a", "Predator Shell", "-u", "critical",
+                    "Critical Battery", percentage + "% remaining. Connect power now."
+                ]);
+            } else if (percentage <= 15 && !root.lowBatteryNotified) {
+                root.lowBatteryNotified = true;
+                Quickshell.execDetached([
+                    "notify-send", "-a", "Predator Shell", "-u", "normal",
+                    "Low Battery", percentage + "% remaining."
+                ]);
+            }
         }
     }
 
