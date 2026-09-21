@@ -22,6 +22,17 @@ profiles; do not enable power-profiles-daemon alongside them.
 Catppuccin Mocha, Lavender, square geometry, JetBrains Mono Nerd Font shell UI,
 Inter application UI, Papirus icons, restrained animation and no compositor blur.
 
+Application theming is deliberately split by toolkit. Qt6 uses qt6ct with the
+installed Catppuccin Kvantum style, Papirus-Dark icons and Inter; KDE
+semantic colors come from the user-installed Catppuccin Mocha Lavender color
+scheme in `~/.local/share/color-schemes`. GTK3/GTK4 use the installed Catppuccin
+theme through their settings files, without a global `GTK_THEME` override. The
+session-wide Qt and cursor variables live in `home/.config/environment.d/`; run
+`scripts/setup-theme.sh` after installing or restoring the dotfiles. The setup
+script also sets the supported GSettings dark preference used by GTK4/libadwaita.
+There are currently no relevant Qt5 applications; `qt5ct` remains installed only
+as a package removal candidate until the next package audit.
+
 ## Layout and live configuration
 
 - `home/` mirrors home files. The Hyprland directory, Predator shell directory,
@@ -71,6 +82,7 @@ This is a recovery guide, not yet an unattended bootstrap script.
 
    Create missing parent directories first and verify each result with `readlink -f`.
    Retain `*.pre-dotfiles` backups until explicit approval to remove them.
+
 4. Restore a wallpaper into `~/Pictures/Wallpapers/` and initialize its state with
    `set-wallpaper` in a running session. Check the lock screen image separately.
 5. Reconcile user service enablement against `state/services-user.txt`.
