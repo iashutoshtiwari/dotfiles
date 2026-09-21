@@ -10,6 +10,8 @@ PopupWindow {
 
     property Item anchorItem
 
+    signal openWallpaperPicker()
+
     anchor.item: anchorItem
     anchor.edges: Edges.Bottom | Edges.Right
     anchor.gravity: Edges.Bottom | Edges.Left
@@ -307,6 +309,82 @@ PopupWindow {
                     anchors.fill: parent
                     cursorShape: Qt.PointingHandCursor
                     onClicked: NightLightService.setScheduleEnabled(!NightLightService.scheduleEnabled)
+                }
+            }
+
+            // SEPARATOR
+            Rectangle {
+                width: parent.width
+                height: 1
+                color: Theme.surface0
+            }
+
+            // WALLPAPER SECTION
+            Row {
+                width: parent.width
+
+                Column {
+                    width: parent.width - 110
+                    spacing: 2
+
+                    Text {
+                        text: "WALLPAPER"
+                        font.family: Theme.shellFont
+                        font.pixelSize: 12
+                        font.weight: Font.DemiBold
+                        color: Theme.text
+                    }
+
+                    Text {
+                        text: WallpaperService.currentWallpaperName || "Default"
+                        font.family: Theme.shellFont
+                        font.pixelSize: 10
+                        color: Theme.subtext0
+                        elide: Text.ElideMiddle
+                        width: parent.width
+                    }
+                }
+
+                // CHANGE WALLPAPER BUTTON
+                Rectangle {
+                    width: 100
+                    height: 24
+                    anchors.verticalCenter: parent.verticalCenter
+                    color: changeWpMouse.containsMouse ? Theme.surface1 : Theme.surface0
+                    border.width: 1
+                    border.color: Theme.lavender
+                    radius: Theme.radius
+
+                    Row {
+                        anchors.centerIn: parent
+                        spacing: 4
+
+                        Text {
+                            text: "󰸉"
+                            font.family: Theme.shellFont
+                            font.pixelSize: 11
+                            color: Theme.lavender
+                        }
+
+                        Text {
+                            text: "Gallery"
+                            font.family: Theme.shellFont
+                            font.pixelSize: 10
+                            font.weight: Font.DemiBold
+                            color: Theme.text
+                        }
+                    }
+
+                    MouseArea {
+                        id: changeWpMouse
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                            root.openWallpaperPicker();
+                            root.visible = false;
+                        }
+                    }
                 }
             }
         }

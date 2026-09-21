@@ -111,6 +111,13 @@ Scope {
                             powerPopup.visible = !powerPopup.visible
                     }
 
+                    WeatherButton {
+                        id: weatherButton
+
+                        onClicked:
+                            weatherPopup.visible = !weatherPopup.visible
+                    }
+
                     ClockButton {
                         id: clockButton
 
@@ -145,6 +152,12 @@ Scope {
             DisplayPopup {
                 id: displayPopup
                 anchorItem: displayButton
+                onOpenWallpaperPicker: wallpaperPicker.visible = true
+            }
+
+            WallpaperPicker {
+                id: wallpaperPicker
+                anchorItem: displayButton
             }
 
             AudioPopup {
@@ -155,6 +168,11 @@ Scope {
             PowerPopup {
                 id: powerPopup
                 anchorItem: batteryButton
+            }
+
+            WeatherPopup {
+                id: weatherPopup
+                anchorItem: weatherButton
             }
 
             ClockPopup {

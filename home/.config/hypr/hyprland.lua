@@ -237,3 +237,25 @@ hl.bind("SUPER + Backspace", hl.dsp.exec_cmd("qs ipc -c predator-shell call powe
 })
 
 hl.bind("SUPER + SPACE", hl.dsp.exec_cmd("rofi -show drun"))
+
+-- Screenshots
+hl.bind("Print", hl.dsp.exec_cmd("screenshot area"), {
+    description = "Capture selected area to clipboard and file"
+})
+
+hl.bind("SUPER + SHIFT + S", hl.dsp.exec_cmd("screenshot area"), {
+    description = "Capture selected area to clipboard and file"
+})
+
+hl.bind("SHIFT + Print", hl.dsp.exec_cmd("screenshot screen"), {
+    description = "Capture full screen to clipboard and file"
+})
+
+hl.bind("CTRL + Print", hl.dsp.exec_cmd("screenshot window"), {
+    description = "Capture active window to clipboard and file"
+})
+
+-- Wallpaper Gallery
+hl.bind("SUPER + W", hl.dsp.exec_cmd("qs ipc -c predator-shell call wallpaper toggle"), {
+    description = "Toggle wallpaper gallery picker"
+})
