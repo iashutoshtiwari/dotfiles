@@ -1,0 +1,111 @@
+@import "catppuccin-mocha"
+
+* {
+    background: @base;
+    background-alt: @mantle;
+    foreground: @text;
+    muted: @subtext0;
+    border: @surface1;
+    accent: @lavender;
+    urgent: @red;
+
+    font: "JetBrainsMono Nerd Font 11";
+}
+
+window {
+    width: 520px;
+
+    location: center;
+    anchor: center;
+
+    background-color: @background;
+
+    border: 2px;
+    border-color: @accent;
+
+    padding: 14px;
+}
+
+mainbox {
+    background-color: transparent;
+
+    spacing: 10px;
+
+    children: [
+        inputbar,
+        listview
+    ];
+}
+
+inputbar {
+    background-color: @background-alt;
+
+    border: 1px;
+    border-color: @border;
+
+    padding: 10px;
+
+    spacing: 8px;
+
+    children: [
+        prompt,
+        entry
+    ];
+}
+
+prompt {
+    background-color: transparent;
+
+    text-color: @accent;
+
+    str: "󰍉";
+}
+
+entry {
+    background-color: transparent;
+
+    text-color: @foreground;
+
+    placeholder: "Search applications";
+    placeholder-color: @muted;
+}
+
+listview {
+    background-color: transparent;
+
+    lines: 8;
+    columns: 1;
+
+    spacing: 4px;
+
+    scrollbar: false;
+    fixed-height: false;
+}
+
+element {
+    background-color: transparent;
+
+    text-color: @foreground;
+
+    padding: 9px 10px;
+
+    spacing: 10px;
+}
+
+element selected {
+    background-color: @accent;
+
+    text-color: @crust;
+}
+
+element-icon {
+    background-color: transparent;
+
+    size: 26px;
+}
+
+element-text {
+    background-color: transparent;
+
+    text-color: inherit;
+}
