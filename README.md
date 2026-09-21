@@ -25,7 +25,7 @@ Inter application UI, Papirus icons, restrained animation and no compositor blur
 ## Layout and live configuration
 
 - `home/` mirrors home files. The Hyprland directory, Predator shell directory,
-  Kitty directory and `set-wallpaper` script are currently symlinked here.
+  Kitty directory, shell autostart entry and `set-wallpaper` script are currently symlinked here.
 - `system/` holds copies of five explicitly managed root-owned greeter files.
   Editing these copies does not deploy them.
 - `state/` holds generated inventories, not an installation manifest.
@@ -49,7 +49,7 @@ This is a recovery guide, not yet an unattended bootstrap script.
    The current greeter username and wallpaper/lock paths are machine-specific;
    review them before deploying on a different account.
 3. Compare existing configuration with each repository source. Move any existing
-   destination to a unique rollback backup, then create the four links below.
+   destination to a unique rollback backup, then create the links below.
    Never run these over existing directories or with `ln -sf`:
 
    ```sh
@@ -57,6 +57,7 @@ This is a recovery guide, not yet an unattended bootstrap script.
    ln -s "$HOME/dotfiles/home/.config/quickshell/predator-shell" "$HOME/.config/quickshell/predator-shell"
    ln -s "$HOME/dotfiles/home/.config/kitty" "$HOME/.config/kitty"
    ln -s "$HOME/dotfiles/home/.local/bin/set-wallpaper" "$HOME/.local/bin/set-wallpaper"
+   ln -s "$HOME/dotfiles/home/.config/autostart/predator-shell.desktop" "$HOME/.config/autostart/predator-shell.desktop"
    ```
 
    Create missing parent directories first and verify each result with `readlink -f`.
@@ -64,8 +65,8 @@ This is a recovery guide, not yet an unattended bootstrap script.
 4. Restore a wallpaper into `~/Pictures/Wallpapers/` and initialize its state with
    `set-wallpaper` in a running session. Check the lock screen image separately.
 5. Reconcile user service enablement against `state/services-user.txt`.
-   The live `~/.config/autostart/predator-shell.desktop` is not yet tracked;
-   recovering that startup entry is an outstanding reproducibility task.
+   The tracked XDG autostart entry starts the shell through the existing UWSM
+   session autostart target; do not add a second shell startup command.
 6. Review `scripts/deploy-system.sh --dry-run`. After version-specific validation,
    use `sudo scripts/deploy-system.sh --apply`. The script validates its explicit
    sources and shell entrypoint syntax, refuses destination symlinks, preserves
@@ -88,10 +89,11 @@ only that exact newly deployed file. Deployment is atomic per file, not across
 all five files: a failure requires consulting the whole manifest. Restart greetd
 only deliberately from recovery; doing so terminates graphical login/session work.
 
-`scripts/snapshot.sh` currently imports live greeter files as well as generating
-package/service inventories. Review live/repo differences **before running it**;
-it can overwrite repository edits and uses sudo and rsync. Never hand-edit state
-snapshots or copy NetworkManager secrets into Git.
+`scripts/snapshot.sh` generates package/service inventories as the desktop user,
+without sudo. It stages all command results before replacing snapshots and never
+imports live configs over repository files. To adopt a deliberate live system
+change, compare and copy only that named managed file, review the diff and commit.
+Never hand-edit state snapshots or copy NetworkManager secrets into Git.
 
 Work one subsystem per commit: inspect, check installed-version documentation,
 implement, validate, inspect logs and diff, update the checklist, then commit.

@@ -9,10 +9,10 @@ imply a broken live system. See [audit evidence](docs/handoff-audit.md).
 | A — Handoff audit | DONE | Inspect Git, tree, versions, symlinks, configs, services and wallpaper state; record evidence and limits. |
 | A — User symlinks | DONE | Hyprland, Predator shell, Kitty and set-wallpaper resolve into repo; retain rollback copies. |
 | A — System deployment | IN PROGRESS | Explicit five-file script added; dry-run/preflight tested; root apply/rollback still needs operational test. |
-| A — Snapshot maintenance | TODO | Separate live config import from generated inventories; explicit file list; refresh snapshots through script. |
+| A — Snapshot maintenance | DONE | Inventory-only script stages all results before replacement, rejects root, never imports system files; snapshots regenerated. |
 | A — Bootstrap and recovery docs | DONE | Architecture, link adoption, deploy boundaries and recovery documented in README. |
-| A — Reproducible startup | TODO | Adopt live shell autostart entry after comparison; audit service enablement and portable account paths. |
-| A — Runtime tooling state | TODO | Untrack generated .qmlls.ini and ignore it; preserve live tooling. |
+| A — Reproducible startup | IN PROGRESS | Existing autostart entry tracked and symlinked, backup retained; active generated service verified. Portable account paths and reinstall testing remain. |
+| A — Runtime tooling state | DONE | Generated .qmlls.ini untracked and ignored; live symlink retained. |
 | B — Wallpaper backend | IN PROGRESS | Active image agrees with config/state; remove duplicate state if practical, make changes failure-safe, test spaces/special characters and IPC failure. |
 | B — Persistence | TODO | Test selector, daemon restart and next login/reboot. |
 | B — Lock integration | IN PROGRESS | State reader present; test actual locked image and successful unlock. |

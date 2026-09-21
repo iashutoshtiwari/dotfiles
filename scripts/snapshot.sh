@@ -1,60 +1,34 @@
 #!/usr/bin/env bash
-
+# Inventory only. Never import live configuration over repository sources.
 set -euo pipefail
+export LC_ALL=C
+repo="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+[[ $# == 0 ]] || { echo "Usage: $0" >&2; exit 2; }
+[[ $EUID != 0 ]] || { echo 'Run as the desktop user, without sudo.' >&2; exit 1; }
+mkdir -p -- "$repo/state"
+staging=$(mktemp -d "$repo/state/.snapshot.XXXXXXXX")
+trap 'rm -rf -- "$staging"' EXIT
 
-repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-
-mkdir -p \
-    "$repo/system/etc/greetd" \
-    "$repo/system/etc/xdg/quickshell" \
-    "$repo/system/usr/local/libexec" \
-    "$repo/state"
-
-# Root-owned system configuration
-
-sudo cp /etc/greetd/config.toml \
-    "$repo/system/etc/greetd/config.toml"
-
-if [[ -f /etc/greetd/hyprland-greeter.lua ]]; then
-    sudo cp /etc/greetd/hyprland-greeter.lua \
-        "$repo/system/etc/greetd/hyprland-greeter.lua"
-fi
-
-if [[ -d /etc/xdg/quickshell/predator-greeter ]]; then
-    sudo rsync -a --delete \
-        /etc/xdg/quickshell/predator-greeter/ \
-        "$repo/system/etc/xdg/quickshell/predator-greeter/"
-fi
-
-for file in predator-greeter predator-session; do
-    if [[ -f "/usr/local/libexec/$file" ]]; then
-        sudo cp "/usr/local/libexec/$file" \
-            "$repo/system/usr/local/libexec/$file"
+# pacman returns 1 if the requested package selection is empty.
+packages() {
+    local result
+    if result=$(pacman "$1"); then
+        [[ -z $result ]] || printf '%s\n' "$result"
+    else
+        local status=$?
+        [[ $status == 1 && -z $result ]] || return "$status"
     fi
+}
+packages -Qqen | sort > "$staging/packages-official.txt"
+packages -Qqem | sort > "$staging/packages-foreign.txt"
+systemctl list-unit-files --state=enabled --no-legend --no-pager |
+    awk '{print $1}' | sort > "$staging/services-system.txt"
+systemctl --user list-unit-files --state=enabled --no-legend --no-pager |
+    awk '{print $1}' | sort > "$staging/services-user.txt"
+
+# Collect every command successfully before replacing any snapshot.
+for name in packages-official packages-foreign services-system services-user; do
+    chmod 644 "$staging/$name.txt"
+    mv -fT -- "$staging/$name.txt" "$repo/state/$name.txt"
 done
-
-sudo chown -R "$USER:$USER" "$repo/system"
-
-# Machine state
-
-pacman -Qqen | sort \
-    > "$repo/state/packages-official.txt"
-
-pacman -Qqem | sort \
-    > "$repo/state/packages-foreign.txt"
-
-systemctl list-unit-files \
-    --state=enabled \
-    --no-legend \
-    | awk '{print $1}' \
-    | sort \
-    > "$repo/state/services-system.txt"
-
-systemctl --user list-unit-files \
-    --state=enabled \
-    --no-legend \
-    | awk '{print $1}' \
-    | sort \
-    > "$repo/state/services-user.txt"
-
-echo "System/state snapshot complete."
+echo 'Package/service snapshots updated. System configuration was not imported.'

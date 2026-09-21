@@ -1,7 +1,9 @@
+desktop-plus-bin
 google-chrome
 lib32-nvidia-580xx-utils
 nvidia-580xx-dkms
 nvidia-580xx-settings
 nvidia-580xx-utils
+visual-studio-code-bin
 yay
 yay-debug

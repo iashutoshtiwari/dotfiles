@@ -8,6 +8,7 @@ dkms
 dolphin
 efibootmgr
 git
+gnome-keyring
 greetd
 grim
 hypridle
@@ -43,7 +44,10 @@ pipewire-pulse
 playerctl
 qt6-wayland
 quickshell
+rofi
+rofi-calc
 rsync
+seahorse
 slurp
 starship
 sudo

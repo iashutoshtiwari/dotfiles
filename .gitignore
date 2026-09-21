@@ -24,3 +24,6 @@ home/Pictures/Wallpapers/
 .env
 .env.*
 
+# Quickshell regenerates this session-specific tooling symlink.
+.qmlls.ini
+state/.snapshot.*/
