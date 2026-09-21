@@ -19,8 +19,11 @@ def run(cmd):
 def test_dbus_notification_server():
     print("[1/5] Checking DBus notification server ownership...")
     res = run(["busctl", "--user", "status", "org.freedesktop.Notifications"])
-    assert res.returncode == 0 and "qs" in res.stdout, "DBus name org.freedesktop.Notifications not owned by qs"
-    print("      org.freedesktop.Notifications is owned by Quickshell (PID 45477)")
+    owner = res.stdout.lower()
+    assert res.returncode == 0 and ("quickshell" in owner or "qs" in owner), (
+        "DBus name org.freedesktop.Notifications not owned by Quickshell"
+    )
+    print("      org.freedesktop.Notifications is owned by Quickshell")
     print("      PASSED")
 
 def test_notification_dispatch():

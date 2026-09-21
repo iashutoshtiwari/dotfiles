@@ -57,6 +57,24 @@ from Git, then replace the symlink with that saved text file and restart only
 Hyprpaper. Keep the backup. Reboot persistence and a real lock/unlock still need
 interactive verification; daemon restart and the lock image command were tested.
 
+## v1.1 interaction reference
+
+- `Super+Space` opens the application-first Rofi launcher; `Super+.` opens the
+  emoji picker.
+- `Super+grave` toggles one guarded Kitty scratchpad on the `special:scratchpad`
+  workspace. The guard prevents duplicate terminals.
+- `Super+R` enters resize mode. `h/j/k/l` or the arrow keys resize by 16px;
+  `Escape` or `Enter` exits the mode.
+- `Print`, `Super+Shift+S`, `Shift+Print`, and `Ctrl+Print` capture area, area,
+  screen, and active window respectively. Captures are saved and copied to the
+  clipboard, with detached notification actions to copy again, open, or reveal
+  the resulting file.
+- `Super+W` opens the wallpaper picker. `Super+Backspace` opens the session
+  power menu. `Super+Escape` locks the session.
+
+The design tokens and motion policy are documented in [DESIGN.md](DESIGN.md).
+The bar shows a temporary `RESIZE` indicator while the resize submap is active.
+
 ## Reinstall outline
 
 This is a recovery guide, not yet an unattended bootstrap script.
