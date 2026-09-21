@@ -1,0 +1,26 @@
+# Editor / temporary files
+*~
+*.swp
+*.swo
+*.tmp
+*.log
+
+# Backups created while experimenting
+*.backup
+*.bak
+*.old
+*.original
+
+# Runtime state
+home/.local/state/
+home/.cache/
+
+# Wallpaper images themselves
+home/Pictures/Wallpapers/
+
+# Secrets / credentials
+*.key
+*.pem
+.env
+.env.*
+

@@ -1,0 +1,5 @@
+#!/bin/sh
+
+exec /usr/bin/systemd-cat \
+  --identifier=predator-session \
+  /usr/bin/uwsm start -- hyprland.desktop

@@ -1,0 +1,198 @@
+local colors = require("themes.catppuccin-mocha")
+
+-- Monitor
+hl.monitor({
+    output = "",
+    mode = "preferred",
+    position = "auto",
+    scale = "1.25",
+})
+
+-- Environment
+hl.env("XCURSOR_SIZE", "24")
+hl.env("HYPRCURSOR_SIZE", "24")
+
+-- Core compositor appearance
+hl.config({
+    general = {
+        gaps_in = 4,
+        gaps_out = 8,
+
+        border_size = 2,
+
+        col = {
+            active_border = colors.lavender,
+            inactive_border = colors.surface1,
+        },
+
+        resize_on_border = true,
+        allow_tearing = false,
+        layout = "dwindle",
+    },
+
+    decoration = {
+        rounding = 0,
+
+        active_opacity = 1.0,
+        inactive_opacity = 1.0,
+
+        shadow = {
+            enabled = true,
+            range = 6,
+            render_power = 2,
+            color = "rgba(" .. colors.crustAlpha .. "66)",
+        },
+
+        blur = {
+            enabled = false,
+        },
+    },
+
+    animations = {
+        enabled = true,
+    },
+
+    input = {
+        kb_layout = "us",
+
+        follow_mouse = 1,
+
+        touchpad = {
+            natural_scroll = true,
+        },
+    },
+
+    misc = {
+        disable_hyprland_logo = true,
+        force_default_wallpaper = 0,
+    },
+
+    dwindle = {
+        preserve_split = true,
+    },
+})
+
+-- Five persistent workspaces
+for i = 1, 5 do
+    hl.workspace_rule({
+        workspace = tostring(i),
+        persistent = true,
+    })
+end
+
+-- Laptop workspace gesture
+hl.gesture({
+    fingers = 3,
+    direction = "horizontal",
+    action = "workspace",
+})
+
+local mod = "SUPER"
+
+-- Applications
+hl.bind(mod .. " + RETURN", hl.dsp.exec_cmd("uwsm app -- kitty"))
+
+-- Window management
+hl.bind(mod .. " + Q", hl.dsp.window.close())
+hl.bind(mod .. " + F", hl.dsp.window.fullscreen())
+hl.bind(mod .. " + V", hl.dsp.window.float({ action = "toggle" }))
+
+-- Focus
+hl.bind(mod .. " + left",  hl.dsp.focus({ direction = "left" }))
+hl.bind(mod .. " + right", hl.dsp.focus({ direction = "right" }))
+hl.bind(mod .. " + up",    hl.dsp.focus({ direction = "up" }))
+hl.bind(mod .. " + down",  hl.dsp.focus({ direction = "down" }))
+
+hl.bind(mod .. " + H", hl.dsp.focus({ direction = "left" }))
+hl.bind(mod .. " + L", hl.dsp.focus({ direction = "right" }))
+hl.bind(mod .. " + K", hl.dsp.focus({ direction = "up" }))
+hl.bind(mod .. " + J", hl.dsp.focus({ direction = "down" }))
+
+-- Workspaces
+for i = 1, 5 do
+    hl.bind(mod .. " + " .. i, hl.dsp.focus({ workspace = i }))
+    hl.bind(mod .. " + SHIFT + " .. i, hl.dsp.window.move({ workspace = i }))
+end
+
+-- Workspace switching with mouse wheel
+hl.bind(mod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }))
+hl.bind(mod .. " + mouse_up", hl.dsp.focus({ workspace = "e-1" }))
+
+-- Mouse move / resize
+hl.bind(mod .. " + mouse:272", hl.dsp.window.drag(), {
+    mouse = true,
+})
+
+hl.bind(mod .. " + mouse:273", hl.dsp.window.resize(), {
+    mouse = true,
+})
+
+-- Audio
+hl.bind(
+    "XF86AudioRaiseVolume",
+    hl.dsp.exec_cmd("wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"),
+    { locked = true, repeating = true }
+)
+
+hl.bind(
+    "XF86AudioLowerVolume",
+    hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"),
+    { locked = true, repeating = true }
+)
+
+hl.bind(
+    "XF86AudioMute",
+    hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"),
+    { locked = true }
+)
+
+hl.bind(
+    "XF86AudioMicMute",
+    hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"),
+    { locked = true }
+)
+
+-- Brightness
+hl.bind(
+    "XF86MonBrightnessUp",
+    hl.dsp.exec_cmd("brightnessctl -e4 -n2 set 5%+"),
+    { locked = true, repeating = true }
+)
+
+hl.bind(
+    "XF86MonBrightnessDown",
+    hl.dsp.exec_cmd("brightnessctl -e4 -n2 set 5%-"),
+    { locked = true, repeating = true }
+)
+
+-- Media
+hl.bind("XF86AudioNext",
+    hl.dsp.exec_cmd("playerctl next"),
+    { locked = true }
+)
+
+hl.bind("XF86AudioPlay",
+    hl.dsp.exec_cmd("playerctl play-pause"),
+    { locked = true }
+)
+
+hl.bind("XF86AudioPause",
+    hl.dsp.exec_cmd("playerctl play-pause"),
+    { locked = true }
+)
+
+hl.bind("XF86AudioPrev",
+    hl.dsp.exec_cmd("playerctl previous"),
+    { locked = true }
+)
+
+hl.bind(
+    "SUPER + SHIFT + Q",
+    hl.dsp.exec_cmd("uwsm stop"),
+    { description = "End graphical session" }
+)
+
+hl.bind(
+    "SUPER + L",
+    hl.dsp.exec_cmd("loginctl lock-session")
+)

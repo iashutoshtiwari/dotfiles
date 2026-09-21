@@ -1,0 +1,82 @@
+import QtQuick
+
+import qs.theme
+
+Item {
+    id: root
+
+    property real value: 0
+
+    signal userChanged(real value)
+
+    implicitWidth: 260
+    implicitHeight: 22
+
+    function clamp(value) {
+        return Math.max(0, Math.min(1, value));
+    }
+
+    Rectangle {
+        id: track
+
+        anchors.verticalCenter: parent.verticalCenter
+
+        width: parent.width
+        height: 4
+
+        color: Theme.surface1
+    }
+
+    Rectangle {
+        anchors {
+            left: track.left
+            verticalCenter: track.verticalCenter
+        }
+
+        width: track.width * root.clamp(root.value)
+        height: track.height
+
+        color: Theme.accent
+    }
+
+    Rectangle {
+        anchors.verticalCenter: track.verticalCenter
+
+        x: Math.max(
+            0,
+            Math.min(
+                track.width - width,
+                track.width * root.clamp(root.value)
+                    - width / 2
+            )
+        )
+
+        width: 12
+        height: 12
+
+        radius: 0
+
+        color: Theme.accent
+    }
+
+    MouseArea {
+        id: mouseArea
+
+        anchors.fill: parent
+
+        cursorShape: Qt.PointingHandCursor
+
+        function updateValue() {
+            root.userChanged(
+                root.clamp(mouseX / width)
+            );
+        }
+
+        onPressed: updateValue()
+
+        onPositionChanged: {
+            if (pressed)
+                updateValue();
+        }
+    }
+}

@@ -1,0 +1,6 @@
+#!/bin/sh
+
+/usr/bin/quickshell -c predator-greeter
+
+# This is the temporary greeter compositor, not the user's UWSM session.
+exec /usr/bin/hyprctl dispatch 'hl.dsp.exit()'
