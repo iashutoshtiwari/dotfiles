@@ -13,9 +13,9 @@ imply a broken live system. See [audit evidence](docs/handoff-audit.md).
 | A — Bootstrap and recovery docs | DONE | Architecture, link adoption, deploy boundaries and recovery documented in README. |
 | A — Reproducible startup | IN PROGRESS | Existing autostart entry tracked and symlinked, backup retained; active generated service verified. Portable account paths and reinstall testing remain. |
 | A — Runtime tooling state | DONE | Generated .qmlls.ini untracked and ignored; live symlink retained. |
-| B — Wallpaper backend | IN PROGRESS | Active image agrees with config/state; remove duplicate state if practical, make changes failure-safe, test spaces/special characters and IPC failure. |
-| B — Persistence | TODO | Test selector, daemon restart and next login/reboot. |
-| B — Lock integration | IN PROGRESS | State reader present; test actual locked image and successful unlock. |
+| B — Wallpaper backend | IN PROGRESS | Single image symlink shared by Hyprpaper/Hyprlock; atomic serialized selection and failure rollback tested; tracked config stays fixed. Real lock/unlock and reboot verification remain. |
+| B — Persistence | TODO | Selector and independent daemon-restart persistence verified; next login/reboot still needs testing. |
+| B — Lock integration | IN PROGRESS | Exact image command verified against shared symlink; actual locked image and successful unlock still require interaction. |
 | B — Wallpaper picker | TODO | Only after backend verification; optional manual rotation, no automatic rotation. |
 | C — Kitty | IN PROGRESS | Mocha/font/opacity configured; fix unknown window_border_radius key; verify font rendering, transparency and multiple tabs. |
 | D — Brightness | TODO | Identify internal backlight, service/slider/percentage, keyboard controls; no unsupported external-display claims. |

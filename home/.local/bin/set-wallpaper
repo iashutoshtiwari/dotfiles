@@ -1,69 +1,76 @@
 #!/usr/bin/env bash
-
 set -euo pipefail
 
-if [[ $# -ne 1 ]]; then
-    echo "Usage: set-wallpaper <image>"
-    exit 1
-fi
-
-wallpaper="$(realpath -e -- "$1")"
-
-if [[ ! -f "$wallpaper" ]]; then
-    echo "Not a file: $wallpaper"
-    exit 1
-fi
-
-case "${wallpaper,,}" in
-    *.jpg|*.jpeg|*.png|*.webp|*.jxl)
-        ;;
-    *)
-        echo "Unsupported image format."
-        exit 1
-        ;;
-esac
-
-case "$wallpaper" in
-    "$HOME"/Pictures/Wallpapers/*)
-        ;;
-    *)
-        echo "Wallpaper must be inside:"
-        echo "$HOME/Pictures/Wallpapers/"
-        exit 1
-        ;;
-esac
-
 state_dir="$HOME/.local/state/predator-shell"
-config="$HOME/.config/hypr/hyprpaper.conf"
-
-mkdir -p "$state_dir"
-
-# Shared state used by Hyprlock and later Quickshell.
-printf '%s\n' "$wallpaper" > "$state_dir/wallpaper"
-
-# Persist wallpaper for the next Hyprpaper startup.
-cat > "$config" <<EOF
-splash = false
-ipc = true
-
-wallpaper {
-    monitor =
-    path = $wallpaper
-    fit_mode = cover
-}
-EOF
-
-# Apply immediately if Hyprpaper is already running.
-if hyprctl hyprpaper listactive >/dev/null 2>&1; then
-    while read -r monitor; do
-        [[ -n "$monitor" ]] || continue
-
-        hyprctl hyprpaper wallpaper \
-            "$monitor, $wallpaper, cover"
-    done < <(
-        hyprctl monitors \
-            | awk '/^Monitor / { print $2 }'
-    )
-else
-    systemctl --user restart hyprpaper.service
+state="$state_dir/wallpaper"
+if [[ $# == 1 && $1 == --current ]]; then
+    [[ -L $state ]] || { echo "No wallpaper selection symlink: $state" >&2; exit 1; }
+    readlink -e -- "$state"
+    exit
 fi
+[[ $# == 1 ]] || { echo 'Usage: set-wallpaper <image> | --current' >&2; exit 2; }
+wallpaper=$(realpath -e -- "$1")
+root=$(realpath -e -- "$HOME/Pictures/Wallpapers")
+[[ -f $wallpaper && -r $wallpaper && $wallpaper == "$root/"* ]] || {
+    echo 'Choose a readable image inside ~/Pictures/Wallpapers/.' >&2; exit 1;
+}
+# hyprctl's comma-delimited protocol has no filename escaping.
+[[ $wallpaper != *','* && $wallpaper != *$'\n'* && $wallpaper != *$'\r'* ]] || {
+    echo 'Wallpaper paths cannot contain commas or line breaks.' >&2; exit 1;
+}
+case $(file --brief --mime-type -- "$wallpaper") in
+    image/jpeg|image/png|image/webp|image/jxl) ;;
+    *) echo 'Choose a JPEG, PNG, WebP or JPEG XL image.' >&2; exit 1 ;;
+esac
+mkdir -p -- "$state_dir"
+exec 9> "$state_dir/wallpaper.lock"
+flock -x 9
+[[ ! -e $state || -L $state ]] || {
+    echo 'Legacy wallpaper text state must be migrated to an image symlink first.' >&2; exit 1;
+}
+previous=''
+if [[ -L $state ]]; then
+    previous=$(readlink -- "$state")
+fi
+staging=$(mktemp -d "$state_dir/.wallpaper.XXXXXXXX")
+changed=false
+cleanup() {
+    local status=$?
+    trap - EXIT
+    if (( status != 0 )) && $changed; then
+        if [[ -n $previous ]]; then
+            ln -s -- "$previous" "$staging/restore"
+            mv -fT -- "$staging/restore" "$state"
+            # Restore the displayed image too if an IPC operation partly applied.
+            hyprctl hyprpaper wallpaper ", $previous, cover" >/dev/null 2>&1 ||
+                echo 'Previous selection restored; Hyprpaper may need restarting.' >&2
+        else
+            rm -f -- "$state"
+        fi
+    fi
+    rm -rf -- "$staging"
+    exit "$status"
+}
+trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+ln -s -- "$wallpaper" "$staging/next"
+# Atomic replacement: readers see either complete selection, never a partial file.
+mv -fT -- "$staging/next" "$state"
+changed=true
+
+if ! hyprctl hyprpaper listactive >/dev/null 2>&1; then
+    systemctl --user start hyprpaper.service
+    ready=false
+    for (( attempt=0; attempt<30; attempt++ )); do
+        if hyprctl hyprpaper listactive >/dev/null 2>&1; then
+            ready=true
+            break
+        fi
+        sleep 0.1
+    done
+    $ready || { echo 'Hyprpaper IPC did not become ready.' >&2; exit 1; }
+fi
+# Empty monitor updates the wildcard, including subsequently connected outputs.
+hyprctl hyprpaper wallpaper ", $wallpaper, cover"
+printf 'Wallpaper selected: %s\n' "$wallpaper"

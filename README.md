@@ -31,11 +31,20 @@ Inter application UI, Papirus icons, restrained animation and no compositor blur
 - `state/` holds generated inventories, not an installation manifest.
 - `scripts/` holds management commands.
 
-`set-wallpaper ~/Pictures/Wallpapers/image.jpg` currently writes both
-`~/.local/state/predator-shell/wallpaper` and the tracked Hyprpaper config.
-Hyprlock reads that state file. This duplication and failure handling need work;
-do not build a picker until the backend checklist is complete. Images and runtime
-state are deliberately excluded from Git.
+`set-wallpaper ~/Pictures/Wallpapers/image.jpg` atomically updates the single
+selection symlink `~/.local/state/predator-shell/wallpaper`, then applies it through
+Hyprpaper IPC (starting the user service if needed). A failed command restores the
+previous selection. Hyprpaper resolves that link on startup; Hyprlock reads its
+image target with `readlink -e`. `set-wallpaper --current` exposes the selection
+for future Quickshell integration. The tracked config is never rewritten.
+Images and selection state stay outside Git. Commas and line breaks in image
+paths are rejected because the IPC format cannot represent them unambiguously.
+
+The original text state is retained as `wallpaper.pre-symlink`. To roll back this
+migration, first restore the previous selector/Hyprpaper/Hyprlock files together
+from Git, then replace the symlink with that saved text file and restart only
+Hyprpaper. Keep the backup. Reboot persistence and a real lock/unlock still need
+interactive verification; daemon restart and the lock image command were tested.
 
 ## Reinstall outline
 
@@ -46,7 +55,7 @@ This is a recovery guide, not yet an unattended bootstrap script.
    needed official packages with pacman. Do not blindly install every snapshot
    entry or substitute a current NVIDIA branch for the required Pascal branch.
 2. Clone into `~/dotfiles`. Recheck installed versions against upstream docs.
-   The current greeter username and wallpaper/lock paths are machine-specific;
+   The current greeter username is machine-specific;
    review them before deploying on a different account.
 3. Compare existing configuration with each repository source. Move any existing
    destination to a unique rollback backup, then create the links below.
