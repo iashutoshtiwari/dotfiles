@@ -18,7 +18,7 @@ PopupWindow {
     anchor.margins.top: 8
 
     implicitWidth: 360
-    implicitHeight: content.implicitHeight + 32
+    implicitHeight: Math.ceil((content.implicitHeight + 32) / 4) * 4
 
     color: "transparent"
     grabFocus: true

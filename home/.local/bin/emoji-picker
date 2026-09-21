@@ -1,0 +1,290 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ "${1:-}" == "--list" ]]; then
+    # Print dictionary in a subshell after get_emojis definition
+    :
+fi
+
+# If native rofi-emoji plugin is installed, use it directly
+if [[ -f /usr/lib/rofi/emoji.so || -f /usr/lib/rofi/libemoji.so ]]; then
+    exec rofi -show emoji
+fi
+
+# Built-in curated emoji dictionary with keywords for fast fuzzy search
+get_emojis() {
+cat << 'EOF'
+😀  Grinning Face smiley happy
+😃  Grinning Face with Big Eyes happy joy
+😄  Grinning Face with Smiling Eyes laugh joy
+😁  Beaming Face with Smiling Eyes grin
+😆  Grinning Squinting Face haha laugh
+😅  Grinning Face with Sweat phew relief
+🤣  Rolling on the Floor Laughing rofl lmao
+😂  Face with Tears of Joy lol joy crying
+🙂  Slightly Smiling Face smile calm
+🙃  Upside-Down Face silly sarcastic
+😉  Winking Face wink flirt
+😊  Smiling Face with Smiling Eyes blush happy
+😇  Smiling Face with Halo angel innocent
+🥰  Smiling Face with Hearts in love affection
+😍  Smiling Face with Heart-Eyes love adoration
+🤩  Star-Struck wow excited
+😘  Face Blowing a Kiss kiss love
+😗  Kissing Face kiss
+😚  Kissing Face with Closed Eyes kiss
+😋  Face Savoring Food yum delicious
+😛  Face with Tongue silly
+😜  Winking Face with Tongue playful
+🤪  Zany Face crazy goofy
+😝  Squinting Face with Tongue fun
+🤑  Money-Mouth Face rich cash
+🤗  Smiling Face with Open Hands hug welcome
+🤭  Face with Hand Over Mouth oops giggle
+🤫  Shushing Face quiet shh silence
+🤔  Thinking Face hmm ponder consider
+🤐  Zipper-Mouth Face secret quiet
+🤨  Face with Raised Eyebrow skeptical sus
+😐  Neutral Face poker straight
+😑  Expressionless Face deadpan
+😶  Face Without Mouth silent blank
+😏  Smirking Face smug flirt
+😒  Unamused Face bored meh
+🙄  Face with Rolling Eyes eyeroll annoyed
+😬  Grimacing Face awkward yikes
+🤥  Lying Face pinocchio liar
+😌  Relieved Face peaceful calm
+😔  Pensive Face sad regret
+😪  Sleepy Face tired sleepy
+🤤  Drooling Face drool hungry
+😴  Sleeping Face zzz sleep
+😷  Face with Medical Mask sick covid
+🤒  Face with Thermometer fever illness
+🤕  Face with Head-Bandage hurt injured
+🤢  Nauseated Face sick gross
+🤮  Face Vomiting puke disgust
+🤧  Sneezing Face sneeze allergy
+🥵  Hot Face heat sweating
+🥶  Cold Face freezing ice
+🥴  Woozy Face drunk dizzy
+😵  Dizzy Face knocked out
+🤯  Exploding Head mind blown shock
+🤠  Cowboy Hat Face yeehaw
+🥳  Partying Face celebrate party
+😎  Smiling Face with Sunglasses cool swag
+🤓  Nerd Face smart geek
+🧐  Face with Monocle classy inspect
+😕  Slightly Frowning Face sad
+😟  Worried Face concerned
+🙁  Slightly Frowning Face unhappy
+😮  Face with Open Mouth surprise
+😯  Hushed Face shock
+😲  Astonished Face gasped amazed
+😳  Flushed Face embarrassed blush
+🥺  Pleading Face puppy eyes please
+😦  Frowning Face with Open Mouth gasp
+😧  Anguished Face shocked
+😨  Fearful Face scared
+😰  Anxious Face with Sweat nervous
+😥  Sad but Relieved Face whew
+😢  Crying Face tear sad
+😭  Loudly Crying Face sob waah
+😱  Face Screaming in Fear horror scream
+😖  Confounded Face frustration
+😣  Persevering Face struggle
+😞  Disappointed Face bummed
+😓  Downcast Face with Sweat worried
+😩  Weary Face exhausted
+😫  Tired Face done
+🥱  Yawning Face bored sleepy
+😤  Face with Steam From Nose triumphant angry
+😡  Enraged Face pouting mad
+😠  Angry Face mad furious
+🤬  Face with Symbols on Mouth swear curse
+😈  Smiling Face with Horns devil evil
+👿  Angry Face with Horns demon
+💀  Skull dead skeleton rip
+☠️  Skull and Crossbones pirate danger death
+💩  Pile of Poo poop funny
+🤡  Clown Face circus foolish
+👹  Ogre monster troll
+👺  Goblin mask
+👻  Ghost spooky halloween
+👽  Alien extraterrestrial ufo
+👾  Alien Monster space invaders arcade
+🤖  Robot droid sci-fi
+😺  Grinning Cat cat happy
+😸  Grinning Cat with Smiling Eyes cat joy
+😹  Cat with Tears of Joy cat laughing
+😻  Smiling Cat with Heart-Eyes cat love
+😼  Cat with Wry Smile cat smug
+😽  Kissing Cat cat kiss
+🙀  Weary Cat cat shocked
+😿  Crying Cat cat tear
+😾  Pouting Cat cat angry
+👋  Waving Hand wave hello bye
+🤚  Raised Back of Hand stop
+🖐️  Hand with Fingers Splayed five
+✋  Raised Hand high five stop
+🖖  Vulcan Salute spock star trek
+👌  OK Hand perfect okay
+🤏  Pinching Hand small tiny bit
+✌️  Victory Hand peace two
+🤞  Crossed Fingers luck hope
+🤟  Love-You Gesture ily love
+🤘  Sign of the Horns rock metal
+🤙  Call Me Hand shaka phone
+👈  Backhand Index Pointing Left left
+👉  Backhand Index Pointing Right right
+👆  Backhand Index Pointing Up up
+👇  Backhand Index Pointing Down down
+☝️  Index Pointing Up one attention
+👍  Thumbs Up good yes approve +1 like
+👎  Thumbs Down bad no disapprove -1 dislike
+✊  Raised Fist power solidarity
+👊  Oncoming Fist brofist punch
+🤛  Left-Facing Fist fist bump
+🤜  Right-Facing Fist fist bump
+👏  Clapping Hands applause bravo
+🙌  Raising Hands celebration praise
+👐  Open Hands jazz hands
+🤲  Palms Up Together prayer offering
+🤝  Handshake agreement deal
+🙏  Folded Hands please thank you namaste
+✍️  Writing Hand write pen
+💪  Flexed Biceps strong muscle power
+👀  Eyes look watch see sus
+👁️  Eye see vision
+🧠  Brain smart intellect
+❤️  Red Heart love favorite
+🧡  Orange Heart love warmth
+💛  Yellow Heart friendship warmth
+💚  Green Heart nature hope
+💙  Blue Heart calm peace
+💜  Purple Heart royalty devotion
+🖤  Black Heart dark goth
+🤍  White Heart pure peace
+🤎  Brown Heart chocolate comfort
+💔  Broken Heart sad heartbreak
+❣️  Heart Exclamation love alert
+💕  Two Hearts in love affection
+💖  Sparkling Heart shiny love
+💗  Growing Heart pulse love
+💓  Beating Heart pulse love
+💞  Revolving Hearts love dancing
+💘  Heart with Arrow cupid love
+💝  Heart with Ribbon gift love
+🔥  Fire lit hot flame trending
+✨  Sparkles shiny clean magic special
+⭐  Star favorite rating yellow
+🌟  Glowing Star shiny award
+💫  Dizzy star sparkle
+💥  Collision boom bang explode
+🎉  Party Popper celebrate congrats yay
+🎊  Confetti Ball celebration party
+🎈  Balloon celebration birthday
+🎁  Wrapped Gift present birthday
+🏆  Trophy winner champion award 1st
+🥇  1st Place Medal gold winner
+🥈  2nd Place Medal silver
+🥉  3rd Place Medal bronze
+💯  Hundred Points 100 perfect full
+🚀  Rocket launch fast speed deployment
+🛸  Flying Saucer ufo space
+⚡  High Voltage electric bolt lightning flash
+☀️  Sun sunny daylight weather
+🌙  Crescent Moon night sleep
+☁️  Cloud overcast cloudy
+🌧️  Cloud with Rain rainy weather
+❄️  Snowflake cold winter snow
+🌊  Water Wave ocean surf sea
+🌈  Rainbow pride colors colorful
+💡  Light Bulb idea innovation tip
+🔔  Bell notification ring alert
+📌  Pushpin pin remember sticky
+📍  Round Pushpin location map marker
+📎  Paperclip attach attachment
+✂️  Scissors cut trim
+☕  Hot Beverage coffee tea cafe
+🍺  Beer Mug drink alcohol cheers
+🍻  Clinking Beer Mugs cheers celebration
+🍕  Pizza food slice
+🍔  Hamburger burger fast food
+🍣  Sushi japanese food
+🍦  Soft Ice Cream dessert sweet
+🍰  Shortcake cake birthday sweet
+🍩  Doughnut donut sweet snack
+🍎  Red Apple fruit food healthy
+🍌  Banana fruit sweet
+🥑  Avocado fruit keto healthy
+🌮  Taco mexican food
+🍟  French Fries fries potato snack
+💻  Laptop Computer laptop tech dev
+🖥️  Desktop Computer pc monitor setup
+⌨️  Keyboard typing code
+🖱️  Computer Mouse click input
+📱  Mobile Phone iphone smartphone
+🔋  Battery power charge energy
+🔌  Electric Plug power socket
+🔒  Locked secure privacy lock
+🔓  Unlocked open insecure
+🔑  Key password access security
+🛡️  Shield protect security defence
+🔧  Wrench fix settings tools repair
+🔨  Hammer tool build construction
+⚙️  Gear settings config options
+📦  Package box delivery parcel cargo
+✉️  Envelope mail letter email
+📝  Memo note document write
+📅  Calendar date schedule event
+📈  Chart Increasing stock growth up
+📉  Chart Decreasing drop loss down
+✅  Check Mark Button check yes done verified
+❌  Cross Mark no cancel wrong fail
+❓  Red Question Mark question what help
+❗  Red Exclamation Mark alert warning important
+⚠️  Warning caution hazard alert
+⛔  No Entry stop forbidden
+🚫  Prohibited no banned
+🛑  Stop Sign halt stop
+🎵  Musical Note music sound song
+🎶  Musical Notes melody tune music
+🎧  Headphone listen audio music
+🎮  Video Game gaming controller play
+🎲  Game Die dice luck random
+🎯  Bullseye target goal direct
+🎨  Artist Palette art color paint design
+🎬  Clapper Board movie cinema video
+📸  Camera photo picture snap
+🔍  Magnifying Glass Left search find inspect
+🔎  Magnifying Glass Right search find
+🔗  Link url hyperlink connect
+🌐  Globe with Meridians internet web world
+✅  White Heavy Check Mark done pass
+🆗  OK Button okay fine
+🆕  NEW Button fresh new
+🆙  UP! Button increase level up
+🆓  FREE Button free gratis
+➡️  Right Arrow next forward
+⬅️  Left Arrow back previous
+⬆️  Up Arrow top increase
+⬇️  Down Arrow bottom decrease
+🔄  Counterclockwise Arrows reload refresh sync
+EOF
+}
+
+if [[ "${1:-}" == "--list" ]]; then
+    get_emojis
+    exit 0
+fi
+
+selected=$(get_emojis | rofi -dmenu -i -p "󰞅 Emoji" -theme-str 'window { width: 560px; } listview { lines: 10; }' 2>/dev/null || true)
+
+if [[ -n "$selected" ]]; then
+    # Extract the emoji character (first space-delimited token)
+    emoji=$(echo "$selected" | awk '{print $1}')
+    if [[ -n "$emoji" ]]; then
+        wl-copy "$emoji" >/dev/null 2>&1
+        setsid -f notify-send -a "Emoji" -u low "Emoji Copied" "$emoji  copied to clipboard." >/dev/null 2>&1
+    fi
+fi

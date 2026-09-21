@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell
+import Quickshell.Io
 
 import qs.theme
 import qs.popups
@@ -33,6 +34,64 @@ Scope {
                 Theme.barHeight + Theme.barMargin
 
             color: "transparent"
+
+            readonly property var allPopups: [
+                notificationCenter,
+                networkPopup,
+                bluetoothPopup,
+                displayPopup,
+                wallpaperPicker,
+                audioPopup,
+                powerPopup,
+                weatherPopup,
+                clockPopup,
+                powerMenuPopup
+            ]
+
+            function togglePopup(targetPopup): void {
+                if (!targetPopup)
+                    return;
+                const wasVisible = targetPopup.visible;
+                closeAllPopups();
+                if (!wasVisible) {
+                    targetPopup.visible = true;
+                }
+            }
+
+            function closeAllPopups(): void {
+                for (let i = 0; i < allPopups.length; i++) {
+                    const p = allPopups[i];
+                    if (p && p.visible) {
+                        p.visible = false;
+                    }
+                }
+            }
+
+            IpcHandler {
+                target: "popups"
+
+                function closeAll(): void {
+                    root.closeAllPopups();
+                }
+
+                function toggle(name: string): void {
+                    const map = {
+                        "notifications": notificationCenter,
+                        "network": networkPopup,
+                        "bluetooth": bluetoothPopup,
+                        "display": displayPopup,
+                        "wallpaper": wallpaperPicker,
+                        "audio": audioPopup,
+                        "power": powerPopup,
+                        "weather": weatherPopup,
+                        "clock": clockPopup,
+                        "powermenu": powerMenuPopup
+                    };
+                    const target = map[name];
+                    if (target)
+                        root.togglePopup(target);
+                }
+            }
 
             Rectangle {
                 anchors.fill: parent
@@ -72,64 +131,47 @@ Scope {
 
                     NotificationButton {
                         id: notificationButton
-                        onClicked:
-                            notificationCenter.visible = !notificationCenter.visible
+                        onClicked: root.togglePopup(notificationCenter)
                     }
 
                     NetworkButton {
                         id: networkButton
-
-                        onClicked:
-                            networkPopup.visible = !networkPopup.visible
+                        onClicked: root.togglePopup(networkPopup)
                     }
 
                     BluetoothButton {
                         id: bluetoothButton
-
-                        onClicked:
-                            bluetoothPopup.visible = !bluetoothPopup.visible
+                        onClicked: root.togglePopup(bluetoothPopup)
                     }
 
                     DisplayButton {
                         id: displayButton
-
-                        onClicked:
-                            displayPopup.visible = !displayPopup.visible
+                        onClicked: root.togglePopup(displayPopup)
                     }
 
                     AudioButton {
                         id: audioButton
-
-                        onClicked:
-                            audioPopup.visible = !audioPopup.visible
+                        onClicked: root.togglePopup(audioPopup)
                     }
 
                     BatteryButton {
                         id: batteryButton
-
-                        onClicked:
-                            powerPopup.visible = !powerPopup.visible
+                        onClicked: root.togglePopup(powerPopup)
                     }
 
                     WeatherButton {
                         id: weatherButton
-
-                        onClicked:
-                            weatherPopup.visible = !weatherPopup.visible
+                        onClicked: root.togglePopup(weatherPopup)
                     }
 
                     ClockButton {
                         id: clockButton
-
-                        onClicked:
-                            clockPopup.visible = !clockPopup.visible
+                        onClicked: root.togglePopup(clockPopup)
                     }
 
                     PowerButton {
                         id: powerButton
-
-                        onClicked:
-                            powerMenuPopup.visible = !powerMenuPopup.visible
+                        onClicked: root.togglePopup(powerMenuPopup)
                     }
                 }
             }
@@ -152,7 +194,7 @@ Scope {
             DisplayPopup {
                 id: displayPopup
                 anchorItem: displayButton
-                onOpenWallpaperPicker: wallpaperPicker.visible = true
+                onOpenWallpaperPicker: root.togglePopup(wallpaperPicker)
             }
 
             WallpaperPicker {

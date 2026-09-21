@@ -87,6 +87,59 @@ hl.gesture({
     action = "workspace"
 })
 
+-- Window rules
+hl.window_rule({
+    name = "suppress-maximize-events",
+    match = { class = ".*" },
+    suppress_event = "maximize"
+})
+
+hl.window_rule({
+    name = "fix-xwayland-drags",
+    match = {
+        class = "^$",
+        title = "^$",
+        xwayland = true,
+        float = true,
+        fullscreen = false,
+        pin = false
+    },
+    no_focus = true
+})
+
+hl.window_rule({
+    name = "dialogs-float",
+    match = {
+        title = "^(Open Files?|Save File|Choose Files?|Confirm to replace files|File Operation Progress)$"
+    },
+    float = true
+})
+
+hl.window_rule({
+    name = "pip-float",
+    match = {
+        title = "^(Picture-in-Picture)$"
+    },
+    float = true,
+    pin = true
+})
+
+hl.window_rule({
+    name = "portal-float",
+    match = {
+        class = "^(xdg-desktop-portal.*)$"
+    },
+    float = true
+})
+
+hl.window_rule({
+    name = "utilities-float",
+    match = {
+        class = "^(pavucontrol|nm-connection-editor|blueman-manager)$"
+    },
+    float = true
+})
+
 local mod = "SUPER"
 
 -- Applications
@@ -230,13 +283,19 @@ hl.bind("SUPER + SHIFT + Q", hl.dsp.exec_cmd("uwsm stop"), {
     description = "End graphical session"
 })
 
-hl.bind("SUPER + Escape", hl.dsp.exec_cmd("loginctl lock-session"))
+hl.bind("SUPER + Escape", hl.dsp.exec_cmd("qs ipc -c predator-shell call popups closeAll; loginctl lock-session"))
 
 hl.bind("SUPER + Backspace", hl.dsp.exec_cmd("qs ipc -c predator-shell call powermenu toggle"), {
     description = "Toggle session power menu"
 })
 
-hl.bind("SUPER + SPACE", hl.dsp.exec_cmd("rofi -show drun"))
+hl.bind("SUPER + SPACE", hl.dsp.exec_cmd("qs ipc -c predator-shell call popups closeAll; rofi -show drun"), {
+    description = "Launch application menu"
+})
+
+hl.bind("SUPER + period", hl.dsp.exec_cmd("qs ipc -c predator-shell call popups closeAll; emoji-picker"), {
+    description = "Launch emoji and symbol picker"
+})
 
 -- Screenshots
 hl.bind("Print", hl.dsp.exec_cmd("screenshot area"), {
