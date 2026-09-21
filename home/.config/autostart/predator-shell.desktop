@@ -2,6 +2,6 @@
 Type=Application
 Name=Predator Shell
 Comment=Quickshell desktop shell
-Exec=/usr/bin/qs -c predator-shell
+Exec=/usr/bin/qs --no-duplicate -c predator-shell
 Terminal=false
 NoDisplay=true

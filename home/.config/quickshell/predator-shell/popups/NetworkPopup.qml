@@ -19,7 +19,7 @@ PopupWindow {
     anchor.gravity: Edges.Bottom | Edges.Left
     anchor.margins.top: 8
 
-    implicitWidth: 390
+    implicitWidth: 392
     implicitHeight: 480
 
     color: "transparent"
@@ -34,12 +34,18 @@ PopupWindow {
             NetworkService.startScanning();
             NetworkService.refreshDetails();
         } else {
+            pendingNetwork = null;
+            passwordInput.text = "";
             NetworkService.stopScanning();
         }
     }
 
     function chooseNetwork(network) {
         connectionMessage = "";
+        pendingNetwork = null;
+        passwordInput.text = "";
+        if (!network)
+            return;
 
         if (network.connected)
             return;
@@ -66,6 +72,13 @@ PopupWindow {
 
         connectionMessage =
             "This security type needs manual setup for now";
+    }
+
+    Connections {
+        target: NetworkService
+        function onLastConnectionErrorChanged() {
+            root.connectionMessage = NetworkService.lastConnectionError;
+        }
     }
 
     Rectangle {

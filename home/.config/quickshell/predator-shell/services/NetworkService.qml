@@ -76,18 +76,28 @@ Singleton {
                 ? connectedWifi
                 : null
 
-    readonly property var activeSettings:
-        activeNetwork
-        && activeNetwork.nmSettings
-        && activeNetwork.nmSettings.length > 0
-            ? activeNetwork.nmSettings[0]
-            : null
+    readonly property string activeInterface: activeDevice?.name ?? ""
 
-    readonly property string activeInterface:
-        activeDevice?.name ?? ""
+    // The first saved profile for an SSID need not be the active profile.
+    property string activeUuid: ""
+    property string lastConnectionError: ""
+    readonly property bool dnsBusy: dnsModifyProcess.running || reapplyCheckProcess.running || reapplyProcess.running
+    property string dnsInterface: ""
+    property string dnsUuid: ""
+    property bool detailsPending: false
+    property int detailsRevision: 0
 
-    readonly property string activeUuid:
-        activeSettings?.uuid ?? ""
+    onActiveInterfaceChanged: invalidateDetails()
+    onActiveNetworkChanged: invalidateDetails()
+
+    function invalidateDetails() {
+        detailsRevision++;
+        activeUuid = "";
+        ipv4Address = "";
+        ipv4Gateway = "";
+        ipv4Dns = "";
+        refreshDetails();
+    }
 
     property string ipv4Address: ""
     property string ipv4Gateway: ""
@@ -124,9 +134,10 @@ Singleton {
     }
 
     function disconnectWifi() {
-        if (!wifiDevice)
+        if (!wifiDevice || disconnectProcess.running)
             return;
 
+        lastConnectionError = "";
         disconnectProcess.exec([
             "nmcli",
             "device",
@@ -136,43 +147,26 @@ Singleton {
     }
 
     function refreshDetails() {
-        if (!activeInterface) {
-            ipv4Address = "";
-            ipv4Gateway = "";
-            ipv4Dns = "";
+        if (detailsProcess.running) {
+            detailsPending = true;
             return;
         }
-
-        addressProcess.exec([
-            "nmcli",
-            "-g",
-            "IP4.ADDRESS",
-            "device",
-            "show",
-            activeInterface
-        ]);
-
-        gatewayProcess.exec([
-            "nmcli",
-            "-g",
-            "IP4.GATEWAY",
-            "device",
-            "show",
-            activeInterface
-        ]);
-
-        dnsReadProcess.exec([
-            "nmcli",
-            "-g",
-            "IP4.DNS",
-            "device",
-            "show",
-            activeInterface
+        detailsPending = false;
+        if (!activeInterface)
+            return;
+        detailsProcess.requestInterface = activeInterface;
+        detailsProcess.requestRevision = detailsRevision;
+        detailsProcess.exec([
+            "nmcli", "--terse", "--escape", "no",
+            "--fields", "GENERAL.CON-UUID,IP4.ADDRESS,IP4.GATEWAY,IP4.DNS",
+            "device", "show", activeInterface
         ]);
     }
 
     function applyDns(mode, customValue) {
-        if (!activeUuid || !activeInterface) {
+        if (dnsBusy)
+            return;
+        if (!activeUuid || !activeInterface || detailsProcess.running) {
             dnsStatus = "No active connection";
             return;
         }
@@ -235,6 +229,8 @@ Singleton {
             break;
         }
 
+        dnsInterface = activeInterface;
+        dnsUuid = activeUuid;
         dnsStatus = "Applying…";
         lastDnsError = "";
 
@@ -243,7 +239,7 @@ Singleton {
             "connection",
             "modify",
             "uuid",
-            activeUuid,
+            dnsUuid,
 
             "ipv4.ignore-auto-dns",
             custom4 ? "yes" : "no",
@@ -261,37 +257,48 @@ Singleton {
 
     Process {
         id: disconnectProcess
-    }
-
-    Process {
-        id: addressProcess
-
-        stdout: StdioCollector {
-            onStreamFinished:
-                root.ipv4Address = this.text.trim()
+        onExited: exitCode => {
+            if (exitCode !== 0)
+                root.lastConnectionError = "Wi-Fi disconnect failed";
+            root.refreshDetails();
         }
     }
 
     Process {
-        id: gatewayProcess
-
-        stdout: StdioCollector {
-            onStreamFinished:
-                root.ipv4Gateway = this.text.trim()
-        }
-    }
-
-    Process {
-        id: dnsReadProcess
-
-        stdout: StdioCollector {
-            onStreamFinished: {
-                root.ipv4Dns = this.text
-                    .trim()
-                    .split("\n")
-                    .filter(value => value.length > 0)
-                    .join("  ");
+        id: detailsProcess
+        property string requestInterface: ""
+        property int requestRevision: 0
+        stdout: StdioCollector { id: detailsOutput }
+        onExited: exitCode => {
+            if (requestInterface === root.activeInterface && requestRevision === root.detailsRevision) {
+                root.activeUuid = "";
+                root.ipv4Address = "";
+                root.ipv4Gateway = "";
+                root.ipv4Dns = "";
+                if (exitCode === 0) {
+                    const addresses = [];
+                    const dns = [];
+                    for (const line of detailsOutput.text.trim().split("\n")) {
+                        const separator = line.indexOf(":");
+                        if (separator < 0)
+                            continue;
+                        const key = line.slice(0, separator).replace(/\[\d+\]$/, "");
+                        const value = line.slice(separator + 1);
+                        if (key === "GENERAL.CON-UUID")
+                            root.activeUuid = value === "--" ? "" : value;
+                        else if (key === "IP4.ADDRESS" && value)
+                            addresses.push(value);
+                        else if (key === "IP4.GATEWAY")
+                            root.ipv4Gateway = value;
+                        else if (key === "IP4.DNS" && value)
+                            dns.push(value);
+                    }
+                    root.ipv4Address = addresses.join("  ");
+                    root.ipv4Dns = dns.join("  ");
+                }
             }
+            if (root.detailsPending)
+                Qt.callLater(root.refreshDetails);
         }
     }
 
@@ -303,7 +310,7 @@ Singleton {
                 root.lastDnsError = this.text.trim()
         }
 
-        onExited: (exitCode, exitStatus) => {
+        onExited: exitCode => {
             if (exitCode !== 0) {
                 root.dnsStatus =
                     root.lastDnsError.length > 0
@@ -313,19 +320,29 @@ Singleton {
                 return;
             }
 
-            reapplyProcess.exec([
-                "nmcli",
-                "device",
-                "reapply",
-                root.activeInterface
+            reapplyCheckProcess.exec([
+                "nmcli", "-g", "GENERAL.CON-UUID", "device", "show", root.dnsInterface
             ]);
+        }
+    }
+
+    Process {
+        id: reapplyCheckProcess
+        stdout: StdioCollector { id: reapplyConnection }
+        onExited: exitCode => {
+            if (exitCode !== 0 || reapplyConnection.text.trim() !== root.dnsUuid) {
+                root.dnsStatus = "Saved; connection changed before reapply";
+                root.refreshDetails();
+                return;
+            }
+            reapplyProcess.exec(["nmcli", "device", "reapply", root.dnsInterface]);
         }
     }
 
     Process {
         id: reapplyProcess
 
-        onExited: (exitCode, exitStatus) => {
+        onExited: exitCode => {
             if (exitCode === 0)
                 root.dnsStatus = "DNS applied";
             else

@@ -16,8 +16,8 @@ PopupWindow {
     anchor.gravity: Edges.Bottom | Edges.Left
     anchor.margins.top: 8
 
-    implicitWidth: 310
-    implicitHeight: 320
+    implicitWidth: 312
+    implicitHeight: content.implicitHeight + 32
 
     color: "transparent"
 
@@ -80,8 +80,12 @@ PopupWindow {
         radius: Theme.radius
 
         Column {
+            id: content
+
             anchors {
-                fill: parent
+                left: parent.left
+                right: parent.right
+                top: parent.top
                 margins: 16
             }
 

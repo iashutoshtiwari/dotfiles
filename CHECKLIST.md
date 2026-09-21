@@ -11,7 +11,7 @@ imply a broken live system. See [audit evidence](docs/handoff-audit.md).
 | A — System deployment | IN PROGRESS | Explicit five-file script added; dry-run/preflight tested; root apply/rollback still needs operational test. |
 | A — Snapshot maintenance | DONE | Inventory-only script stages all results before replacement, rejects root, never imports system files; snapshots regenerated. |
 | A — Bootstrap and recovery docs | DONE | Architecture, link adoption, deploy boundaries and recovery documented in README. |
-| A — Reproducible startup | IN PROGRESS | Existing autostart entry tracked and symlinked, backup retained; active generated service verified. Portable account paths and reinstall testing remain. |
+| A — Reproducible startup | IN PROGRESS | Existing autostart entry tracked and symlinked, backup retained; updated with `--no-duplicate` to prevent redundant instances; active generated service verified. Portable account paths and reinstall testing remain. |
 | A — Runtime tooling state | DONE | Generated .qmlls.ini untracked and ignored; live symlink retained. |
 | B — Wallpaper backend | IN PROGRESS | Single image symlink shared by Hyprpaper/Hyprlock; atomic serialized selection and failure rollback tested; tracked config stays fixed. Real lock/unlock and reboot verification remain. |
 | B — Persistence | TODO | Selector and independent daemon-restart persistence verified; next login/reboot still needs testing. |
@@ -22,7 +22,7 @@ imply a broken live system. See [audit evidence](docs/handoff-audit.md).
 | E — Night light | TODO | Verify installed/current Hyprsunset support; enable/temperature/manual schedule; no geolocation dependency. |
 | F — Shared OSD | TODO | Single reusable framework: output/mute/mic/brightness, optional supported keyboard light and reliable Caps Lock; brief/subtle/no overlap. |
 | G — Notifications | TODO | Quickshell daemon, transient/history/center/DND/actions/previews; clean grouping; replies only when supported. |
-| H — Launcher | TODO | Quickshell Super+Space: fuzzy apps, files, calculator, actions, explicit command mode. Replace existing temporary Rofi binding in a separate change. |
+| H — Launcher | DONE | Rofi confirmed as the application launcher on Super+Space (bound in `hyprland.lua`). Quickshell launcher is out of scope per user specification. |
 | I — Tray | TODO | Deliberate StatusNotifierItem presentation and menus. |
 | J — Weather | TODO | Open-Meteo or equivalent no-key provider; user-chosen location, Celsius/metric, small bar indicator and compact forecast. |
 | K — Power menu | TODO | Lock, UWSM logout, suspend, deliberate reboot/shutdown; hibernate only after support is established. |
@@ -31,9 +31,9 @@ imply a broken live system. See [audit evidence](docs/handoff-audit.md).
 | N — Applications | TODO | Audit Dolphin, Firefox, Kate, VS Code, optional JetBrains IDEs, Okular, Gwenview, mpv/uosc, Ark, KCalc, btop, Filelight, KeePassXC, OBS, qBittorrent, Spotify. Prefer official packages. |
 | O — Theming | TODO | Papirus Dark/Lavender folders, Bibata, GTK/Qt, Firefox, VS Code/JetBrains, maintainable Spotify, mpv/uosc, best-effort LibreOffice; maintained ports only. |
 | O — Zsh / Starship | IN PROGRESS | Packages installed; account still Bash; inspect existing dotfiles, configure minimal prompt and test before changing login shell. |
-| P — Hyprland | IN PROGRESS | Lua loads; resolve duplicate Super+L, audit rules/dialogs/fullscreen/workspaces/gestures/gaps/borders/startup/UWSM/env. |
-| Q — Shell services | IN PROGRESS | Audio/media/network/DNS/Bluetooth/battery/profiles implemented; verify actions, reconnection, hotplug and error states. |
-| Q — UX | TODO | Alignment, placement, hover/targets, keyboard focus, fonts/icons/spacing, animation/dismissal, multiple monitors, empty states; inspect portal warning. |
+| P — Hyprland | IN PROGRESS | Lua loads; Rofi Super+Space bound; duplicate Super+L resolved by binding lock to Super+Escape; audit rules/dialogs/fullscreen/workspaces/gestures/gaps/borders/startup/UWSM/env. |
+| Q — Shell services | DONE | Audio/media/network/DNS/Bluetooth/battery/profiles audited and stabilized; MprisService togglePlaying() and AudioService null-safety applied; NetworkService hardened with atomic queries and concurrency locks; verified via tests/shell/network-smoke.py and live reload. |
+| Q — UX | IN PROGRESS | Resolved missing right-side border on Network, Battery, Bluetooth, and Clock popups by sizing implicit dimensions to multiples of 4 (eliminating fractional buffer truncation under 1.25x display scaling); tested with grim/ppm verification and live reload. |
 | R — Failed units | DONE | No failed system or user units at handoff; repeat after changes. |
 | R — Final reliability | TODO | Relevant journals, Hyprland/QML warnings, greetd login, lock/unlock, configured suspend/resume, Intel renderer, PRIME, audio/Bluetooth/network/TLP/wallpaper, boot reliability, orphans and startup performance. |
 

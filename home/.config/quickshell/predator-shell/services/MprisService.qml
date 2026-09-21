@@ -33,7 +33,7 @@ Singleton {
 
     function toggle(): void {
         if (activePlayer?.canTogglePlaying)
-            activePlayer.isPlaying = !activePlayer.isPlaying;
+            activePlayer.togglePlaying();
     }
 
     function next(): void {

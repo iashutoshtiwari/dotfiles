@@ -14,7 +14,7 @@ PopupWindow {
     anchor.gravity: Edges.Bottom | Edges.Left
     anchor.margins.top: 8
 
-    implicitWidth: 390
+    implicitWidth: 392
     implicitHeight: 460
 
     color: "transparent"

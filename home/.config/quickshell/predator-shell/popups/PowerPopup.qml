@@ -15,8 +15,8 @@ PopupWindow {
     anchor.gravity: Edges.Bottom | Edges.Left
     anchor.margins.top: 8
 
-    implicitWidth: 370
-    implicitHeight: 405
+    implicitWidth: 372
+    implicitHeight: 408
 
     color: "transparent"
     grabFocus: true
@@ -153,7 +153,7 @@ PopupWindow {
                 Text {
                     width: 190
 
-                    text: PowerService.rateText
+                    text: PowerService.onBattery ? "Battery" : "AC adapter"
 
                     font.family: Theme.shellFont
                     font.pixelSize: 9

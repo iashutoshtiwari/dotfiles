@@ -54,7 +54,7 @@ Singleton {
         objects: [
             root.sink,
             root.source
-        ]
+        ].filter(node => node !== null && node !== undefined)
     }
 
     function setOutputVolume(value) {
