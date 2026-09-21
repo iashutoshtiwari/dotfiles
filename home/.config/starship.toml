@@ -1,0 +1,71 @@
+"$schema" = 'https://starship.rs/config-schema.json'
+
+format = """
+$directory\
+$git_branch\
+$git_status\
+$python\
+$nodejs\
+$rust\
+$cmd_duration\
+$status\
+$line_break\
+$character"""
+
+[directory]
+style             = "bold #89b4fa"
+truncation_length = 4
+truncate_to_repo  = true
+read_only         = " 󰌾"
+
+[git_branch]
+symbol = " "
+style  = "bold #cba6f7"
+format = "on [$symbol$branch]($style) "
+
+[git_status]
+style            = "#f38ba8"
+format           = "([$all_status$ahead_behind]($style) )"
+conflicted       = "󰩜 "
+ahead            = "⇡${count} "
+behind           = "⇣${count} "
+diverged         = "⇕ "
+untracked        = "? "
+stashed          = "$ "
+modified         = "! "
+staged           = "+ "
+deleted          = "✘ "
+
+[character]
+success_symbol = "[❯](#a6e3a1)"
+error_symbol   = "[❯](#f38ba8)"
+vimcmd_symbol  = "[❮](#cba6f7)"
+
+[cmd_duration]
+min_time = 2000
+style    = "#fab387"
+format   = "took [$duration]($style) "
+
+[status]
+style    = "#f38ba8"
+format   = "[$symbol$status]($style) "
+symbol   = "✘ "
+disabled = false
+
+[python]
+symbol = " "
+style  = "#89b4fa"
+format = "via [$symbol$version]($style) "
+
+[nodejs]
+symbol = " "
+style  = "#a6e3a1"
+format = "via [$symbol$version]($style) "
+
+[rust]
+symbol = " "
+style  = "#fab387"
+format = "via [$symbol$version]($style) "
+
+[package]
+disabled = true

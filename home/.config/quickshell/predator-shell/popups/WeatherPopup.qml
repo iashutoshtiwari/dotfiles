@@ -100,11 +100,13 @@ PopupWindow {
             }
 
             // HERO WEATHER ROW
-            Row {
+            Item {
                 width: parent.width
-                spacing: 16
+                height: 60
 
                 Text {
+                    id: heroIcon
+                    anchors.left: parent.left
                     anchors.verticalCenter: parent.verticalCenter
                     text: WeatherService.conditionIcon
                     font.family: Theme.shellFont
@@ -113,6 +115,8 @@ PopupWindow {
                 }
 
                 Column {
+                    anchors.left: heroIcon.right
+                    anchors.leftMargin: 16
                     anchors.verticalCenter: parent.verticalCenter
                     spacing: 2
 
@@ -268,13 +272,14 @@ PopupWindow {
                         height: 28
                         color: "transparent"
 
-                        Row {
+                        Item {
                             anchors.fill: parent
-                            spacing: 8
 
                             Text {
-                                width: 68
+                                id: dayName
+                                anchors.left: parent.left
                                 anchors.verticalCenter: parent.verticalCenter
+                                width: 68
                                 text: modelData.dayName
                                 font.family: Theme.shellFont
                                 font.pixelSize: 11
@@ -283,8 +288,11 @@ PopupWindow {
                             }
 
                             Text {
-                                width: 20
+                                id: condIcon
+                                anchors.left: dayName.right
+                                anchors.leftMargin: 8
                                 anchors.verticalCenter: parent.verticalCenter
+                                width: 20
                                 text: modelData.conditionIcon
                                 font.family: Theme.shellFont
                                 font.pixelSize: 13
@@ -292,7 +300,10 @@ PopupWindow {
                             }
 
                             Text {
-                                width: parent.width - 200
+                                anchors.left: condIcon.right
+                                anchors.leftMargin: 8
+                                anchors.right: tempRange.left
+                                anchors.rightMargin: 8
                                 anchors.verticalCenter: parent.verticalCenter
                                 text: modelData.conditionText
                                 font.family: Theme.shellFont
@@ -302,8 +313,10 @@ PopupWindow {
                             }
 
                             Text {
-                                width: 88
+                                id: tempRange
+                                anchors.right: parent.right
                                 anchors.verticalCenter: parent.verticalCenter
+                                width: 88
                                 text: modelData.minTemp + "° / " + modelData.maxTemp + "°C"
                                 font.family: Theme.shellFont
                                 font.pixelSize: 11

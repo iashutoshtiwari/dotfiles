@@ -69,21 +69,38 @@ def test_multiple_of_four_scaling():
     print("      PASSED")
 
 def test_emoji_picker():
-    print("[3/5] Testing Emoji & Symbols Picker...")
-    bin_path = os.path.expanduser("~/.local/bin/emoji-picker")
-    assert os.path.isfile(bin_path) and os.access(bin_path, os.X_OK), "emoji-picker script missing or not executable"
+    print("[3/5] Testing Emoji & Symbols Picker (rofi-emoji)...")
+    # Verify rofi is available (in /usr/bin — always in PATH)
+    import shutil
+    assert shutil.which("rofi") is not None, "rofi not found in PATH"
 
-    res = run([bin_path, "--list"])
-    lines = [l for l in res.stdout.strip().split("\n") if l.strip()]
-    assert len(lines) >= 200, f"Expected at least 200 emoji entries, found {len(lines)}"
-    
-    # Test clipboard copy of an emoji (redirect fds to avoid pipe inheritance from wl-copy daemon)
+    # Verify rofi-emoji plugin installed
+    plugin_path = "/usr/lib/rofi/libemoji.so"
+    assert os.path.isfile(plugin_path), (
+        f"rofi-emoji plugin not found at {plugin_path}. "
+        "Run: sudo pacman -S rofi-emoji"
+    )
+
+    # Verify hyprland bind dispatches rofi -show emoji
+    res = run(["hyprctl", "binds", "-j"])
+    binds = json.loads(res.stdout)
+    emoji_bind = next(
+        (b for b in binds
+         if b.get("key", "").lower() == "period" and b.get("modmask") == 64),
+        None
+    )
+    assert emoji_bind is not None, "SUPER + period keybinding not found in Hyprland"
+    assert "rofi" in emoji_bind.get("dispatcher", "") or "rofi" in emoji_bind.get("arg", ""), \
+        f"SUPER+period does not dispatch rofi: {emoji_bind}"
+
+    # Verify wl-clipboard works
     subprocess.run(["wl-copy", "✨"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
     clip = run(["wl-paste"])
     assert clip.stdout.strip() == "✨", "wl-copy test failed"
 
-    print(f"      Curated emoji dictionary: {len(lines)} searchable entries")
-    print("      Clipboard copy: OK")
+    print(f"      rofi-emoji plugin: {plugin_path} ✓")
+    print("      SUPER + period → rofi -show emoji: OK")
+    print("      wl-clipboard: OK")
     print("      PASSED")
 
 def test_hyprland_binds_and_rules():
