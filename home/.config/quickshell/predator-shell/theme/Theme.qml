@@ -40,7 +40,17 @@ Singleton {
     readonly property color accent: lavender
 
     readonly property string shellFont: "JetBrainsMono Nerd Font"
-    readonly property string appFont: "Inter"
+    // The compact monospace face gives the shell its technical character.
+    // Keep the alias so shared controls still have one typography entry point.
+    readonly property string appFont: shellFont
+
+    // Typography is deliberately split: Inter carries information while the
+    // Nerd Font is reserved for symbolic glyphs and compact technical values.
+    readonly property int textSmall: 10
+    readonly property int textBody: 12
+    readonly property int textBodyStrong: 12
+    readonly property int textHeading: 15
+    readonly property int textValue: 13
 
     readonly property int barHeight: 38
     readonly property int barMargin: 8
@@ -50,6 +60,16 @@ Singleton {
     readonly property int spacingMd: 12
     readonly property int spacingLg: 16
     readonly property int spacingXl: 24
+
+    readonly property int rowCompact: 32
+    readonly property int rowNormal: 40
+    readonly property int rowLarge: 56
+    readonly property int rowSlider: 50
+
+    readonly property int popupCompact: 320
+    readonly property int popupStandard: 360
+    readonly property int popupWide: 392
+    readonly property int popupPadding: 16
 
     // Shared shell geometry. Keep surfaces square; circular geometry belongs to
     // indicators whose shape communicates a point or status.
@@ -62,10 +82,13 @@ Singleton {
     // Intentionally boxy.
     readonly property int radius: 0
 
-    readonly property int animationFast: 120
-    readonly property int animationNormal: 180
+    readonly property int animationInstant: 70
+    readonly property int animationFast: 110
+    readonly property int animationNormal: 170
     readonly property int animationDeliberate: 240
-    readonly property int animationExit: 90
+    readonly property int animationExit: 105
 
     readonly property real disabledOpacity: 0.55
+    readonly property real secondaryOpacity: 0.72
+    readonly property real normalOpacity: 1.0
 }

@@ -1,348 +1,184 @@
 import QtQuick
+import QtQuick.Layouts
 import Quickshell
 import Quickshell.Services.UPower
 
 import qs.theme
 import qs.services
+import qs.components
 
 PopupWindow {
     id: root
-
     property Item anchorItem
 
     anchor.item: anchorItem
     anchor.edges: Edges.Bottom | Edges.Right
     anchor.gravity: Edges.Bottom | Edges.Left
-    anchor.margins.top: 8
-
-    implicitWidth: 372
+    anchor.rect.x: 0
+    anchor.rect.y: Theme.spacingLg
+    anchor.rect.width: anchorItem?.width ?? 1
+    anchor.rect.height: anchorItem?.height ?? 1
+    anchor.margins.top: 0
+    anchor.adjustment: PopupAdjustment.Slide
+    implicitWidth: Theme.popupStandard
     implicitHeight: 408
-
     color: "transparent"
     grabFocus: true
 
-    Rectangle {
+    PopupSurface {
         anchors.fill: parent
+        presented: root.visible
 
-        color: Theme.base
-        border.width: 1
-        border.color: Theme.surface0
+        ColumnLayout {
+            anchors.fill: parent
+            anchors.margins: Theme.popupPadding
+            spacing: Theme.spacingMd
 
-        Column {
-            anchors {
-                fill: parent
-                margins: 16
+            PopupHeader {
+                Layout.fillWidth: true
+                icon: PowerService.charging ? "󰂄" : "󰁹"
+                title: "Battery"
+                subtitle: !PowerService.ready ? "Battery information unavailable"
+                    : Math.round(PowerService.percentage) + "% · "
+                        + (PowerService.timeRemaining > 0
+                            ? PowerService.formatDuration(PowerService.timeRemaining)
+                                + (PowerService.charging ? " until full" : " remaining")
+                            : PowerService.statusText)
             }
 
-            spacing: 14
+            Divider { Layout.fillWidth: true }
 
-            Row {
-                width: parent.width
-
-                Text {
-                    width: parent.width - 80
-
-                    text: "POWER"
-
-                    font.family: Theme.shellFont
-                    font.pixelSize: 14
-                    font.weight: Font.DemiBold
-
-                    color: Theme.text
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: Theme.spacingLg
+                ColumnLayout {
+                    spacing: 0
+                    Text {
+                        text: Math.round(PowerService.percentage) + "%"
+                        font.family: Theme.appFont
+                        font.pixelSize: 28
+                        font.weight: Font.DemiBold
+                        color: PowerService.charging ? Theme.green : Theme.text
+                    }
+                    Text {
+                        text: PowerService.statusText
+                        font.family: Theme.appFont
+                        font.pixelSize: Theme.textSmall
+                        color: Theme.subtext0
+                    }
                 }
-
-                Text {
-                    width: 80
-
-                    horizontalAlignment: Text.AlignRight
-
-                    text:
-                        Math.round(PowerService.percentage)
-                        + "%"
-
-                    font.family: Theme.shellFont
-                    font.pixelSize: 13
-                    font.weight: Font.DemiBold
-
-                    color: PowerService.charging
-                        ? Theme.green
-                        : Theme.lavender
-                }
-            }
-
-            Rectangle {
-                width: parent.width
-                height: 5
-
-                color: Theme.surface1
-
-                Rectangle {
-                    width:
-                        parent.width
-                        * Math.max(
-                            0,
-                            Math.min(
-                                1,
-                                PowerService.percentage / 100
-                            )
-                        )
-
-                    height: parent.height
-
-                    color: PowerService.charging
-                        ? Theme.green
-                        : Theme.lavender
-                }
-            }
-
-            Column {
-                width: parent.width
-                spacing: 6
-
-                Text {
-                    text: PowerService.statusText
-
-                    font.family: Theme.shellFont
-                    font.pixelSize: 11
-                    font.weight: Font.DemiBold
-
-                    color: Theme.text
-                }
-
-                Text {
-                    visible:
-                        PowerService.timeRemaining > 0
-
-                    text: PowerService.charging
-                        ? PowerService.formatDuration(
-                            PowerService.timeRemaining
-                        ) + " until full"
-                        : PowerService.formatDuration(
-                            PowerService.timeRemaining
-                        ) + " remaining"
-
-                    font.family: Theme.shellFont
-                    font.pixelSize: 10
-
-                    color: Theme.subtext0
-                }
-            }
-
-            Rectangle {
-                width: parent.width
-                height: 1
-                color: Theme.surface0
-            }
-
-            Grid {
-                width: parent.width
-
-                columns: 2
-                columnSpacing: 12
-                rowSpacing: 7
-
-                Text {
-                    width: 120
-                    text: "POWER SOURCE"
-
-                    font.family: Theme.shellFont
-                    font.pixelSize: 9
-                    color: Theme.overlay1
-                }
-
-                Text {
-                    width: 190
-
-                    text: PowerService.onBattery ? "Battery" : "AC adapter"
-
-                    font.family: Theme.shellFont
-                    font.pixelSize: 9
-                    color: Theme.subtext1
-                }
-
-                Text {
-                    width: 120
-                    text: "DRAW / CHARGE"
-
-                    font.family: Theme.shellFont
-                    font.pixelSize: 9
-                    color: Theme.overlay1
-                }
-
-                Text {
-                    width: 190
-
-                    text:
-                        PowerService.powerRate > 0
-                        ? PowerService.powerRate.toFixed(1)
-                            + " W"
-                        : "—"
-
-                    font.family: Theme.shellFont
-                    font.pixelSize: 9
-                    color: Theme.subtext1
-                }
-
-                Text {
-                    width: 120
-                    text: "ENERGY"
-
-                    font.family: Theme.shellFont
-                    font.pixelSize: 9
-                    color: Theme.overlay1
-                }
-
-                Text {
-                    width: 190
-
-                    text:
-                        PowerService.energy.toFixed(1)
-                        + " / "
-                        + PowerService.capacity.toFixed(1)
-                        + " Wh"
-
-                    font.family: Theme.shellFont
-                    font.pixelSize: 9
-                    color: Theme.subtext1
-                }
-
-                Text {
-                    width: 120
-                    text: "BATTERY HEALTH"
-
-                    font.family: Theme.shellFont
-                    font.pixelSize: 9
-                    color: Theme.overlay1
-                }
-
-                Text {
-                    width: 190
-
-                    text:
-                        PowerService.healthAvailable
-                        ? Math.round(
-                            PowerService.health
-                        ) + "%"
-                        : "Not reported"
-
-                    font.family: Theme.shellFont
-                    font.pixelSize: 9
-                    color: Theme.subtext1
-                }
-            }
-
-            Rectangle {
-                width: parent.width
-                height: 1
-                color: Theme.surface0
-            }
-
-            Text {
-                text: "POWER PROFILE"
-
-                font.family: Theme.shellFont
-                font.pixelSize: 9
-                font.weight: Font.DemiBold
-
-                color: Theme.overlay1
-            }
-
-            Row {
-                width: parent.width
-                spacing: 5
-
-                Repeater {
-                    model: [
-                        {
-                            label: "SAVE",
-                            profile: PowerProfile.PowerSaver,
-                            available: true
-                        },
-                        {
-                            label: "BALANCED",
-                            profile: PowerProfile.Balanced,
-                            available: true
-                        },
-                        {
-                            label: "PERFORMANCE",
-                            profile: PowerProfile.Performance,
-                            available:
-                                PowerService.performanceAvailable
-                        }
-                    ]
-
-                    delegate: Rectangle {
-                        required property var modelData
-
-                        width:
-                            (parent.width - 10) / 3
-
-                        height: 36
-
-                        color:
-                            PowerService.profile
-                                === modelData.profile
-                            ? Theme.lavender
-                            : Theme.mantle
-
-                        border.width: 1
-
-                        border.color:
-                            PowerService.profile
-                                === modelData.profile
-                            ? Theme.lavender
-                            : Theme.surface0
-
-                        opacity:
-                            modelData.available
-                            ? 1.0
-                            : 0.35
-
-                        Text {
-                            anchors.centerIn: parent
-
-                            text: modelData.label
-
-                            font.family: Theme.shellFont
-                            font.pixelSize: 9
-                            font.weight: Font.DemiBold
-
-                            color:
-                                PowerService.profile
-                                    === modelData.profile
-                                ? Theme.crust
-                                : Theme.text
-                        }
-
-                        MouseArea {
-                            anchors.fill: parent
-
-                            enabled:
-                                parent.modelData.available
-
-                            cursorShape:
-                                enabled
-                                ? Qt.PointingHandCursor
-                                : Qt.ArrowCursor
-
-                            onClicked:
-                                PowerService.setProfile(
-                                    parent.modelData.profile
-                                )
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    spacing: Theme.spacingSm
+                    Text {
+                        Layout.fillWidth: true
+                        horizontalAlignment: Text.AlignRight
+                        text: PowerService.rateText
+                        font.family: Theme.appFont
+                        font.pixelSize: Theme.textBody
+                        color: Theme.subtext1
+                    }
+                    Rectangle {
+                        Layout.fillWidth: true
+                        height: 4
+                        color: Theme.surface1
+                        Rectangle {
+                            width: parent.width * Math.max(0, Math.min(1, PowerService.percentage / 100))
+                            height: parent.height
+                            color: PowerService.charging ? Theme.green : Theme.lavender
                         }
                     }
                 }
             }
 
-            Text {
-                text:
-                    "TLP · " + PowerService.profileName
+            SectionLabel { text: "Power mode" }
+            Rectangle {
+                Layout.fillWidth: true
+                height: 36
+                color: Theme.base
+                border.width: 1
+                border.color: Theme.surface1
 
-                font.family: Theme.shellFont
-                font.pixelSize: 9
-
-                color: Theme.overlay1
+                RowLayout {
+                    anchors.fill: parent
+                    spacing: 0
+                    Repeater {
+                        model: [
+                            { label: "Power Saver", profile: PowerProfile.PowerSaver, available: true },
+                            { label: "Balanced", profile: PowerProfile.Balanced, available: true },
+                            { label: "Performance", profile: PowerProfile.Performance, available: PowerService.performanceAvailable }
+                        ]
+                        Rectangle {
+                            required property var modelData
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+                            color: PowerService.profile === modelData.profile
+                                ? Qt.rgba(Theme.lavender.r, Theme.lavender.g, Theme.lavender.b, 0.16)
+                                : segmentMouse.containsMouse ? Theme.surface0 : "transparent"
+                            opacity: modelData.available ? 1 : Theme.disabledOpacity
+                            Rectangle {
+                                anchors { left: parent.left; right: parent.right; bottom: parent.bottom }
+                                height: 2
+                                color: Theme.lavender
+                                visible: PowerService.profile === parent.modelData.profile
+                            }
+                            Text {
+                                anchors.centerIn: parent
+                                text: parent.modelData.label
+                                font.family: Theme.appFont
+                                font.pixelSize: Theme.textSmall
+                                font.weight: PowerService.profile === parent.modelData.profile ? Font.DemiBold : Font.Normal
+                                color: PowerService.profile === parent.modelData.profile ? Theme.lavender : Theme.subtext1
+                            }
+                            MouseArea {
+                                id: segmentMouse
+                                anchors.fill: parent
+                                enabled: parent.modelData.available
+                                hoverEnabled: true
+                                cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
+                                onClicked: PowerService.setProfile(parent.modelData.profile)
+                            }
+                        }
+                    }
+                }
             }
+
+            SectionLabel { text: "Device details" }
+            GridLayout {
+                Layout.fillWidth: true
+                columns: 2
+                columnSpacing: Theme.spacingLg
+                rowSpacing: Theme.spacingSm
+
+                Repeater {
+                    model: [
+                        { label: "Power source", value: PowerService.onBattery ? "Battery" : "AC adapter" },
+                        { label: "Charge rate", value: PowerService.rateText },
+                        { label: "Energy", value: PowerService.energy.toFixed(1) + " / " + PowerService.capacity.toFixed(1) + " Wh" },
+                        { label: "Battery health", value: PowerService.healthAvailable ? Math.round(PowerService.health) + "%" : "Not reported" }
+                    ]
+                    RowLayout {
+                        required property var modelData
+                        Layout.columnSpan: 2
+                        Layout.fillWidth: true
+                        Text {
+                            Layout.fillWidth: true
+                            text: parent.modelData.label
+                            font.family: Theme.appFont
+                            font.pixelSize: Theme.textBody
+                            color: Theme.subtext0
+                        }
+                        Text {
+                            text: parent.modelData.value
+                            font.family: Theme.appFont
+                            font.pixelSize: Theme.textBody
+                            color: Theme.text
+                        }
+                    }
+                }
+            }
+
+            Item { Layout.fillHeight: true }
         }
     }
 }

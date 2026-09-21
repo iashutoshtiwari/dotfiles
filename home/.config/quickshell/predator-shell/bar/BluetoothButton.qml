@@ -2,11 +2,13 @@ import QtQuick
 
 import qs.theme
 import qs.services
+import qs.components
 
 Item {
     id: root
 
     signal clicked()
+    property bool active: false
 
     implicitWidth: 34
     implicitHeight: 28
@@ -23,6 +25,7 @@ Item {
 
         return "󰂯";
     }
+    BarButtonBackground { anchors.fill: parent; active: root.active; hovered: mouse.containsMouse; pressed: mouse.pressed }
 
     Text {
         anchors.centerIn: parent
@@ -33,6 +36,8 @@ Item {
         font.pixelSize: 15
 
         color: {
+            if (root.active)
+                return Theme.lavender;
             if (!BluetoothService.enabled)
                 return Theme.overlay1;
 
@@ -44,9 +49,11 @@ Item {
     }
 
     MouseArea {
+        id: mouse
         anchors.fill: parent
 
         cursorShape: Qt.PointingHandCursor
+        hoverEnabled: true
 
         onClicked: root.clicked()
     }

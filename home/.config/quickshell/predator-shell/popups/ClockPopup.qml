@@ -1,252 +1,183 @@
 import QtQuick
+import QtQuick.Layouts
 import Quickshell
 
 import qs.theme
+import qs.components
 
 PopupWindow {
     id: root
-
     property Item anchorItem
-
     property int displayYear: clock.date.getFullYear()
     property int displayMonth: clock.date.getMonth()
+    property int pendingMonthOffset: 0
 
     anchor.item: anchorItem
     anchor.edges: Edges.Bottom | Edges.Right
     anchor.gravity: Edges.Bottom | Edges.Left
-    anchor.margins.top: 8
-
-    implicitWidth: 312
-    implicitHeight: Math.ceil((content.implicitHeight + 32) / 4) * 4
-
+    anchor.rect.x: 0
+    anchor.rect.y: Theme.spacingLg
+    anchor.rect.width: anchorItem?.width ?? 1
+    anchor.rect.height: anchorItem?.height ?? 1
+    anchor.margins.top: 0
+    anchor.adjustment: PopupAdjustment.Slide
+    implicitWidth: Theme.popupCompact
+    implicitHeight: 392
     color: "transparent"
-
     grabFocus: true
 
-    SystemClock {
-        id: clock
-        precision: SystemClock.Minutes
-    }
+    SystemClock { id: clock; precision: SystemClock.Seconds }
 
-    function daysInMonth(year: int, month: int): int {
-        return new Date(year, month + 1, 0).getDate();
-    }
-
-    function firstDayOffset(): int {
-        // JavaScript: Sunday = 0.
-        // Convert to Monday = 0.
-        return (new Date(displayYear, displayMonth, 1).getDay() + 6) % 7;
-    }
-
+    function daysInMonth(year: int, month: int): int { return new Date(year, month + 1, 0).getDate(); }
+    function firstDayOffset(): int { return (new Date(displayYear, displayMonth, 1).getDay() + 6) % 7; }
     function dayAt(index: int): int {
         const day = index - firstDayOffset() + 1;
-
-        if (day < 1 || day > daysInMonth(displayYear, displayMonth))
-            return 0;
-
-        return day;
+        return day < 1 || day > daysInMonth(displayYear, displayMonth) ? 0 : day;
     }
-
     function isToday(day: int): bool {
-        return day > 0
-            && day === clock.date.getDate()
+        return day > 0 && day === clock.date.getDate()
             && displayMonth === clock.date.getMonth()
             && displayYear === clock.date.getFullYear();
     }
-
     function shiftMonth(offset: int): void {
-        const next =
-            new Date(displayYear, displayMonth + offset, 1);
-
+        pendingMonthOffset = offset;
+        monthTransition.restart();
+    }
+    function applyMonthShift(): void {
+        const next = new Date(displayYear, displayMonth + pendingMonthOffset, 1);
         displayYear = next.getFullYear();
         displayMonth = next.getMonth();
     }
+    function returnToToday(): void {
+        displayYear = clock.date.getFullYear();
+        displayMonth = clock.date.getMonth();
+    }
 
-    onVisibleChanged: {
-        if (visible) {
-            displayYear = clock.date.getFullYear();
-            displayMonth = clock.date.getMonth();
+    onVisibleChanged: if (visible) returnToToday()
+
+    SequentialAnimation {
+        id: monthTransition
+        ParallelAnimation {
+            NumberAnimation { target: calendarGrid; property: "opacity"; to: 0; duration: Theme.animationExit; easing.type: Easing.InCubic }
+            NumberAnimation { target: calendarGrid; property: "x"; to: -8 * root.pendingMonthOffset; duration: Theme.animationExit; easing.type: Easing.InCubic }
+        }
+        ScriptAction { script: root.applyMonthShift() }
+        PropertyAction { target: calendarGrid; property: "x"; value: 8 * root.pendingMonthOffset }
+        ParallelAnimation {
+            NumberAnimation { target: calendarGrid; property: "opacity"; to: 1; duration: Theme.animationNormal; easing.type: Easing.OutCubic }
+            NumberAnimation { target: calendarGrid; property: "x"; to: 0; duration: Theme.animationNormal; easing.type: Easing.OutCubic }
         }
     }
 
-    Rectangle {
+    PopupSurface {
         anchors.fill: parent
+        presented: root.visible
 
-        color: Theme.base
+        ColumnLayout {
+            anchors.fill: parent
+            anchors.margins: Theme.popupPadding
+            spacing: Theme.spacingMd
 
-        border.width: 1
-        border.color: Theme.surface0
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: Theme.spacingMd
 
-        radius: Theme.radius
-
-        Column {
-            id: content
-
-            anchors {
-                left: parent.left
-                right: parent.right
-                top: parent.top
-                margins: 16
-            }
-
-            spacing: 14
-
-            Row {
-                width: parent.width
-                height: 28
-
-                Text {
-                    width: 36
-
-                    text: "‹"
-
-                    font.family: Theme.shellFont
-                    font.pixelSize: 22
-
-                    color: Theme.subtext1
-
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: root.shiftMonth(-1)
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    spacing: 1
+                    Text {
+                        text: Qt.formatDateTime(clock.date, "HH:mm")
+                        font.family: Theme.appFont
+                        font.pixelSize: 26
+                        font.weight: Font.DemiBold
+                        color: Theme.text
+                    }
+                    Text {
+                        text: Qt.formatDate(clock.date, "dddd, d MMMM")
+                        font.family: Theme.appFont
+                        font.pixelSize: Theme.textBody
+                        color: Theme.subtext0
                     }
                 }
 
-                Text {
-                    width: parent.width - 72
+            }
 
+            Divider { Layout.fillWidth: true }
+
+            RowLayout {
+                Layout.fillWidth: true
+                IconButton { icon: "󰅁"; onClicked: root.shiftMonth(-1) }
+                Text {
+                    Layout.fillWidth: true
                     horizontalAlignment: Text.AlignHCenter
-
-                    text: Qt.formatDate(
-                        new Date(
-                            root.displayYear,
-                            root.displayMonth,
-                            1
-                        ),
-                        "MMMM yyyy"
-                    )
-
-                    font.family: Theme.shellFont
-                    font.pixelSize: 14
+                    text: Qt.formatDate(new Date(root.displayYear, root.displayMonth, 1), "MMMM yyyy")
+                    font.family: Theme.appFont
+                    font.pixelSize: Theme.textBodyStrong
                     font.weight: Font.DemiBold
-
                     color: Theme.text
-                }
-
-                Text {
-                    width: 36
-
-                    horizontalAlignment: Text.AlignRight
-
-                    text: "›"
-
-                    font.family: Theme.shellFont
-                    font.pixelSize: 22
-
-                    color: Theme.subtext1
-
                     MouseArea {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: root.shiftMonth(1)
+                        onClicked: root.returnToToday()
                     }
                 }
+                IconButton { icon: "󰅂"; onClicked: root.shiftMonth(1) }
             }
 
-            Grid {
-                width: parent.width
-
+            GridLayout {
+                id: calendarGrid
+                Layout.fillWidth: true
                 columns: 7
-                columnSpacing: 2
-                rowSpacing: 5
+                columnSpacing: 0
+                rowSpacing: 3
 
                 Repeater {
-                    model: [
-                        "Mon", "Tue", "Wed",
-                        "Thu", "Fri", "Sat", "Sun"
-                    ]
-
-                    delegate: Text {
+                    model: ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]
+                    Text {
                         required property string modelData
-
-                        width: 38
-                        height: 22
-
+                        Layout.preferredWidth: 40
+                        Layout.preferredHeight: 20
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
-
                         text: modelData
-
-                        font.family: Theme.shellFont
-                        font.pixelSize: 10
-                        font.weight: Font.DemiBold
-
+                        font.family: Theme.appFont
+                        font.pixelSize: Theme.textSmall
+                        font.weight: Font.Medium
                         color: Theme.overlay1
                     }
                 }
 
                 Repeater {
                     model: 42
-
-                    delegate: Item {
+                    Item {
                         required property int index
-
                         property int day: root.dayAt(index)
-
-                        width: 38
-                        height: 29
+                        Layout.preferredWidth: 40
+                        Layout.preferredHeight: 30
 
                         Rectangle {
                             anchors.centerIn: parent
-
-                            width: 27
-                            height: 27
-
-                            radius: 0
-
-                            color: root.isToday(parent.day)
-                                ? Theme.accent
-                                : "transparent"
+                            width: 28
+                            height: 28
+                            radius: Theme.radius
+                            color: root.isToday(parent.day) ? Theme.lavender : "transparent"
+                            border.width: parent.day > 0 && !root.isToday(parent.day) && dayMouse.containsMouse ? 1 : 0
+                            border.color: Theme.surface2
                         }
-
                         Text {
                             anchors.centerIn: parent
-
-                            text: parent.day > 0
-                                ? parent.day
-                                : ""
-
-                            font.family: Theme.shellFont
-                            font.pixelSize: 11
-                            font.weight: root.isToday(parent.day)
-                                ? Font.DemiBold
-                                : Font.Normal
-
-                            color: root.isToday(parent.day)
-                                ? Theme.crust
-                                : Theme.text
+                            text: parent.day > 0 ? parent.day : ""
+                            font.family: Theme.appFont
+                            font.pixelSize: Theme.textBody
+                            font.weight: root.isToday(parent.day) ? Font.DemiBold : Font.Normal
+                            color: root.isToday(parent.day) ? Theme.crust : Theme.subtext1
                         }
+                        MouseArea { id: dayMouse; anchors.fill: parent; hoverEnabled: true }
                     }
                 }
             }
 
-            Rectangle {
-                width: parent.width
-                height: 1
-                color: Theme.surface0
-            }
-
-            Text {
-                text: Qt.formatDateTime(
-                    clock.date,
-                    "dddd, d MMMM yyyy"
-                )
-
-                font.family: Theme.shellFont
-                font.pixelSize: 12
-
-                color: Theme.subtext0
-            }
+            Item { Layout.fillHeight: true }
         }
     }
 }

@@ -3,19 +3,22 @@ import Quickshell
 
 import qs.theme
 import qs.services
+import qs.components
 
 Item {
     id: root
 
     signal clicked()
+    property bool active: false
 
     implicitWidth: row.implicitWidth + 12
     implicitHeight: 28
 
-    Rectangle {
+    BarButtonBackground {
         anchors.fill: parent
-        color: mouseArea.containsMouse ? Theme.surface0 : "transparent"
-        radius: Theme.radius
+        active: root.active
+        hovered: mouseArea.containsMouse
+        pressed: mouseArea.pressed
     }
 
     Row {
@@ -28,7 +31,7 @@ Item {
             text: WeatherService.conditionIcon
             font.family: Theme.shellFont
             font.pixelSize: 13
-            color: Theme.lavender
+            color: root.active ? Theme.text : Theme.lavender
         }
 
         Text {
@@ -36,7 +39,7 @@ Item {
             text: WeatherService.available
                 ? Math.round(WeatherService.temperature) + "°C"
                 : "--°C"
-            font.family: Theme.shellFont
+            font.family: Theme.appFont
             font.pixelSize: 12
             font.weight: Font.Medium
             color: Theme.text

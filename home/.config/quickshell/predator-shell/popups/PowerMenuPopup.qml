@@ -3,6 +3,7 @@ import Quickshell
 import Quickshell.Io
 
 import qs.theme
+import qs.components
 
 PopupWindow {
     id: root
@@ -12,9 +13,14 @@ PopupWindow {
     anchor.item: anchorItem
     anchor.edges: Edges.Bottom | Edges.Right
     anchor.gravity: Edges.Bottom | Edges.Left
-    anchor.margins.top: 8
+    anchor.rect.x: 0
+    anchor.rect.y: Theme.spacingLg
+    anchor.rect.width: anchorItem?.width ?? 1
+    anchor.rect.height: anchorItem?.height ?? 1
+    anchor.margins.top: 0
+    anchor.adjustment: PopupAdjustment.Slide
 
-    implicitWidth: 320
+    implicitWidth: Theme.popupCompact
     implicitHeight: 336
 
     color: "transparent"
@@ -46,13 +52,9 @@ PopupWindow {
         }
     }
 
-    Rectangle {
+    PopupSurface {
         anchors.fill: parent
-
-        color: Theme.base
-        border.width: 1
-        border.color: Theme.surface0
-        radius: Theme.radius
+        presented: root.visible
 
         Column {
             anchors {
@@ -71,7 +73,7 @@ PopupWindow {
 
                     Text {
                         text: "SESSION"
-                        font.family: Theme.shellFont
+                        font.family: Theme.appFont
                         font.pixelSize: 13
                         font.weight: Font.DemiBold
                         color: Theme.text
@@ -79,7 +81,7 @@ PopupWindow {
 
                     Text {
                         text: "ashutosh · predator"
-                        font.family: Theme.shellFont
+                        font.family: Theme.appFont
                         font.pixelSize: 10
                         color: Theme.subtext0
                     }

@@ -2,14 +2,17 @@ import QtQuick
 
 import qs.theme
 import qs.services
+import qs.components
 
 Item {
     id: root
 
     signal clicked()
+    property bool active: false
 
     implicitWidth: NotificationService.unreadCount > 0 ? 46 : 34
     implicitHeight: 28
+    BarButtonBackground { anchors.fill: parent; active: root.active; hovered: mouse.containsMouse; pressed: mouse.pressed }
 
     Row {
         anchors.centerIn: parent
@@ -20,7 +23,7 @@ Item {
             text: NotificationService.dnd ? "󰂛" : "󰂚"
             font.family: Theme.shellFont
             font.pixelSize: 15
-            color: NotificationService.dnd
+            color: root.active ? Theme.lavender : NotificationService.dnd
                 ? Theme.red
                 : (NotificationService.unreadCount > 0 ? Theme.lavender : Theme.subtext0)
         }
@@ -47,8 +50,10 @@ Item {
     }
 
     MouseArea {
+        id: mouse
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor
+        hoverEnabled: true
         onClicked: root.clicked()
     }
 }

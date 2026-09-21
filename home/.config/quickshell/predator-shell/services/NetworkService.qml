@@ -40,6 +40,9 @@ Singleton {
     readonly property bool wifiConnected:
         wifiDevice?.connected ?? false
 
+    readonly property bool scanning:
+        wifiDevice?.scannerEnabled ?? false
+
     readonly property var wifiNetworks:
         wifiDevice?.networks?.values ?? []
 

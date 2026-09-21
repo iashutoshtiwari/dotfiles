@@ -439,9 +439,9 @@ PanelWindow {
             }
         }
 
-        color: Theme.base
+        color: Theme.mantle
         border.width: 1
-        border.color: Theme.surface0
+        border.color: Theme.surface1
         radius: Theme.radius
 
         Row {
@@ -470,7 +470,7 @@ PanelWindow {
 
                     Text {
                         width: parent.width - valueDisplay.width
-                        font.family: Theme.shellFont
+                        font.family: Theme.appFont
                         font.pixelSize: 11
                         font.weight: Font.DemiBold
                         color: Theme.text
@@ -479,7 +479,7 @@ PanelWindow {
 
                     Text {
                         id: valueDisplay
-                        font.family: Theme.shellFont
+                        font.family: Theme.appFont
                         font.pixelSize: 11
                         font.weight: Font.DemiBold
                         color: root.isMuted ? Theme.red : Theme.lavender

@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Layouts
 import Quickshell
 
 import qs.theme
@@ -7,335 +8,200 @@ import qs.components
 
 PopupWindow {
     id: root
-
     property Item anchorItem
 
     anchor.item: anchorItem
     anchor.edges: Edges.Bottom | Edges.Right
     anchor.gravity: Edges.Bottom | Edges.Left
-    anchor.margins.top: 8
+    anchor.rect.x: 0
+    anchor.rect.y: Theme.spacingLg
+    anchor.rect.width: anchorItem?.width ?? 1
+    anchor.rect.height: anchorItem?.height ?? 1
+    anchor.margins.top: 0
+    anchor.adjustment: PopupAdjustment.Slide
 
-    implicitWidth: 360
-    implicitHeight: Math.ceil((content.implicitHeight + 32) / 4) * 4
-
+    implicitWidth: Theme.popupStandard
+    implicitHeight: Math.ceil((content.implicitHeight + Theme.popupPadding * 2) / 4) * 4
     color: "transparent"
-
     grabFocus: true
 
-    Rectangle {
+    function present(): void {
+        visible = true;
+        Qt.callLater(() => surface.presented = true);
+    }
+
+    function dismiss(): void { surface.presented = false; }
+
+    onVisibleChanged: {
+        if (visible)
+            Qt.callLater(() => surface.presented = true);
+        else
+            surface.presented = false;
+    }
+
+    PopupSurface {
+        id: surface
         anchors.fill: parent
+        onExitFinished: root.visible = false
 
-        color: Theme.base
-
-        border.width: 1
-        border.color: Theme.surface0
-
-        radius: Theme.radius
-
-        Column {
+        ColumnLayout {
             id: content
+            anchors { left: parent.left; right: parent.right; top: parent.top; margins: Theme.popupPadding }
+            spacing: Theme.spacingMd
 
-            anchors {
-                left: parent.left
-                right: parent.right
-                top: parent.top
-                margins: 16
+            PopupHeader {
+                Layout.fillWidth: true
+                icon: AudioService.outputMuted ? "󰖁" : "󰕾"
+                title: "Audio"
+                subtitle: AudioService.ready ? AudioService.outputName : "Audio service unavailable"
+                actionIcon: AudioService.outputMuted ? "󰖁" : "󰖀"
+                actionEnabled: AudioService.ready
+                onActionClicked: AudioService.toggleOutputMute()
             }
 
-            spacing: 14
+            Divider { Layout.fillWidth: true }
+            SectionLabel { text: "Output" }
 
-            Text {
-                text: "Audio"
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: Theme.spacingSm
 
-                font.family: Theme.shellFont
-                font.pixelSize: 15
-                font.weight: Font.DemiBold
-
-                color: Theme.text
-            }
-
-            // Output
-            Column {
-                width: parent.width
-                spacing: 7
-
-                Row {
-                    width: parent.width
-                    spacing: 8
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: Theme.spacingSm
 
                     Text {
-                        width: parent.width - 68
-
+                        text: AudioService.outputMuted ? "󰖁" : "󰕾"
+                        font.family: Theme.shellFont
+                        font.pixelSize: 15
+                        color: AudioService.outputMuted ? Theme.red : Theme.lavender
+                    }
+                    Text {
+                        Layout.fillWidth: true
                         text: AudioService.outputName
                         elide: Text.ElideRight
-
-                        font.family: Theme.shellFont
-                        font.pixelSize: 12
-
-                        color: Theme.subtext1
+                        font.family: Theme.appFont
+                        font.pixelSize: Theme.textBody
+                        font.weight: Font.Medium
+                        color: Theme.text
                     }
-
                     Text {
-                        width: 60
-
+                        Layout.preferredWidth: 42
                         horizontalAlignment: Text.AlignRight
-
-                        text:
-                            Math.round(
-                                AudioService.outputVolume * 100
-                            ) + "%"
-
-                        font.family: Theme.shellFont
-                        font.pixelSize: 11
-
-                        color: Theme.overlay1
+                        text: Math.round(AudioService.outputVolume * 100) + "%"
+                        font.family: Theme.appFont
+                        font.pixelSize: Theme.textValue
+                        font.weight: Font.Medium
+                        color: AudioService.outputMuted ? Theme.overlay0 : Theme.lavender
                     }
                 }
 
-                Row {
-                    spacing: 10
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: Theme.spacingSm
+                    IconButton {
+                        Layout.preferredWidth: 30
+                        Layout.preferredHeight: 30
+                        icon: AudioService.outputMuted ? "󰖁" : "󰕾"
+                        active: AudioService.outputMuted
+                        foreground: AudioService.outputMuted ? Theme.red : Theme.subtext1
+                        onClicked: AudioService.toggleOutputMute()
+                    }
+                    VolumeSlider {
+                        Layout.fillWidth: true
+                        value: AudioService.outputVolume
+                        enabled: AudioService.ready
+                        onUserChanged: value => AudioService.setOutputVolume(value)
+                    }
+                }
+            }
 
+            SectionLabel { text: "Output device" }
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 2
+                Repeater {
+                    model: AudioService.outputDevices
+                    PopupRow {
+                        required property var modelData
+                        Layout.fillWidth: true
+                        icon: "󰓃"
+                        label: modelData.description || modelData.nickname || modelData.name
+                        value: modelData === AudioService.sink ? "Active" : ""
+                        selected: modelData === AudioService.sink
+                        onClicked: AudioService.selectOutput(modelData)
+                    }
+                }
+            }
+
+            Divider { Layout.fillWidth: true }
+            SectionLabel { text: "Input" }
+
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: Theme.spacingSm
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: Theme.spacingSm
                     Text {
-                        width: 22
-
-                        text: AudioService.outputMuted
-                            ? "󰖁"
-                            : "󰕾"
-
+                        text: AudioService.inputMuted ? "󰍭" : "󰍬"
                         font.family: Theme.shellFont
                         font.pixelSize: 15
-
-                        color: AudioService.outputMuted
-                            ? Theme.red
-                            : Theme.text
-
-                        MouseArea {
-                            anchors.fill: parent
-                            cursorShape: Qt.PointingHandCursor
-
-                            onClicked:
-                                AudioService.toggleOutputMute()
-                        }
+                        color: AudioService.inputMuted ? Theme.red : Theme.sapphire
                     }
-
-                    VolumeSlider {
-                        width: 290
-
-                        value: AudioService.outputVolume
-
-                        onUserChanged: value =>
-                            AudioService.setOutputVolume(value)
-                    }
-                }
-            }
-
-            Rectangle {
-                width: parent.width
-                height: 1
-                color: Theme.surface0
-            }
-
-            // Microphone
-            Column {
-                width: parent.width
-                spacing: 7
-
-                Row {
-                    width: parent.width
-                    spacing: 8
-
                     Text {
-                        width: parent.width - 68
-
+                        Layout.fillWidth: true
                         text: AudioService.inputName
                         elide: Text.ElideRight
-
-                        font.family: Theme.shellFont
-                        font.pixelSize: 12
-
-                        color: Theme.subtext1
+                        font.family: Theme.appFont
+                        font.pixelSize: Theme.textBody
+                        font.weight: Font.Medium
+                        color: Theme.text
                     }
-
                     Text {
-                        width: 60
-
+                        Layout.preferredWidth: 42
                         horizontalAlignment: Text.AlignRight
-
-                        text:
-                            Math.round(
-                                AudioService.inputVolume * 100
-                            ) + "%"
-
-                        font.family: Theme.shellFont
-                        font.pixelSize: 11
-
-                        color: Theme.overlay1
+                        text: Math.round(AudioService.inputVolume * 100) + "%"
+                        font.family: Theme.appFont
+                        font.pixelSize: Theme.textValue
+                        font.weight: Font.Medium
+                        color: AudioService.inputMuted ? Theme.overlay0 : Theme.sapphire
                     }
                 }
-
-                Row {
-                    spacing: 10
-
-                    Text {
-                        width: 22
-
-                        text: AudioService.inputMuted
-                            ? "󰍭"
-                            : "󰍬"
-
-                        font.family: Theme.shellFont
-                        font.pixelSize: 15
-
-                        color: AudioService.inputMuted
-                            ? Theme.red
-                            : Theme.text
-
-                        MouseArea {
-                            anchors.fill: parent
-                            cursorShape: Qt.PointingHandCursor
-
-                            onClicked:
-                                AudioService.toggleInputMute()
-                        }
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: Theme.spacingSm
+                    IconButton {
+                        Layout.preferredWidth: 30
+                        Layout.preferredHeight: 30
+                        icon: AudioService.inputMuted ? "󰍭" : "󰍬"
+                        active: AudioService.inputMuted
+                        foreground: AudioService.inputMuted ? Theme.red : Theme.subtext1
+                        onClicked: AudioService.toggleInputMute()
                     }
-
                     VolumeSlider {
-                        width: 290
-
+                        Layout.fillWidth: true
                         value: AudioService.inputVolume
-
-                        onUserChanged: value =>
-                            AudioService.setInputVolume(value)
+                        enabled: AudioService.ready
+                        onUserChanged: value => AudioService.setInputVolume(value)
                     }
                 }
             }
 
-            Rectangle {
-                width: parent.width
-                height: 1
-                color: Theme.surface0
-            }
-
-            Text {
-                text: "Output devices"
-
-                font.family: Theme.shellFont
-                font.pixelSize: 11
-                font.weight: Font.DemiBold
-
-                color: Theme.overlay1
-            }
-
-            Repeater {
-                model: AudioService.outputDevices
-
-                delegate: Rectangle {
-                    required property var modelData
-
-                    width: content.width
-                    height: 30
-
-                    color:
-                        modelData === AudioService.sink
-                        ? Theme.surface0
-                        : "transparent"
-
-                    Text {
-                        anchors {
-                            left: parent.left
-                            leftMargin: 8
-                            right: parent.right
-                            rightMargin: 8
-                            verticalCenter: parent.verticalCenter
-                        }
-
-                        text:
-                            modelData.description
-                            || modelData.nickname
-                            || modelData.name
-
-                        elide: Text.ElideRight
-
-                        font.family: Theme.shellFont
-                        font.pixelSize: 11
-
-                        color:
-                            modelData === AudioService.sink
-                            ? Theme.lavender
-                            : Theme.subtext1
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-
-                        cursorShape: Qt.PointingHandCursor
-
-                        onClicked:
-                            AudioService.selectOutput(
-                                parent.modelData
-                            )
-                    }
-                }
-            }
-
-            Text {
-                text: "Input devices"
-
-                font.family: Theme.shellFont
-                font.pixelSize: 11
-                font.weight: Font.DemiBold
-
-                color: Theme.overlay1
-            }
-
-            Repeater {
-                model: AudioService.inputDevices
-
-                delegate: Rectangle {
-                    required property var modelData
-
-                    width: content.width
-                    height: 30
-
-                    color:
-                        modelData === AudioService.source
-                        ? Theme.surface0
-                        : "transparent"
-
-                    Text {
-                        anchors {
-                            left: parent.left
-                            leftMargin: 8
-                            right: parent.right
-                            rightMargin: 8
-                            verticalCenter: parent.verticalCenter
-                        }
-
-                        text:
-                            modelData.description
-                            || modelData.nickname
-                            || modelData.name
-
-                        elide: Text.ElideRight
-
-                        font.family: Theme.shellFont
-                        font.pixelSize: 11
-
-                        color:
-                            modelData === AudioService.source
-                            ? Theme.lavender
-                            : Theme.subtext1
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-
-                        cursorShape: Qt.PointingHandCursor
-
-                        onClicked:
-                            AudioService.selectInput(
-                                parent.modelData
-                            )
+            SectionLabel { text: "Input device" }
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 2
+                Repeater {
+                    model: AudioService.inputDevices
+                    PopupRow {
+                        required property var modelData
+                        Layout.fillWidth: true
+                        icon: "󰍬"
+                        label: modelData.description || modelData.nickname || modelData.name
+                        value: modelData === AudioService.source ? "Active" : ""
+                        selected: modelData === AudioService.source
+                        onClicked: AudioService.selectInput(modelData)
                     }
                 }
             }

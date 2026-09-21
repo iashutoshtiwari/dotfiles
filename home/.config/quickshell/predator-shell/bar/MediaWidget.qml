@@ -15,7 +15,7 @@ Item {
     Rectangle {
         anchors.fill: parent
 
-        color: Theme.mantle
+        color: mouse.containsMouse ? Theme.surface0 : Theme.mantle
 
         border.width: 1
         border.color: Theme.surface0
@@ -30,7 +30,7 @@ Item {
             Text {
                 text: "󰝚"
 
-                font.family: Theme.shellFont
+                font.family: Theme.appFont
                 font.pixelSize: 13
 
                 color: Theme.lavender
@@ -68,9 +68,11 @@ Item {
         }
 
         MouseArea {
+            id: mouse
             anchors.fill: parent
 
             cursorShape: Qt.PointingHandCursor
+            hoverEnabled: true
 
             onClicked: MprisService.toggle()
         }

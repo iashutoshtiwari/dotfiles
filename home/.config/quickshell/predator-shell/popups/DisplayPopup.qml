@@ -15,21 +15,22 @@ PopupWindow {
     anchor.item: anchorItem
     anchor.edges: Edges.Bottom | Edges.Right
     anchor.gravity: Edges.Bottom | Edges.Left
-    anchor.margins.top: 8
+    anchor.rect.x: 0
+    anchor.rect.y: Theme.spacingLg
+    anchor.rect.width: anchorItem?.width ?? 1
+    anchor.rect.height: anchorItem?.height ?? 1
+    anchor.margins.top: 0
+    anchor.adjustment: PopupAdjustment.Slide
 
-    implicitWidth: 360
+    implicitWidth: Theme.popupStandard
     implicitHeight: Math.ceil((content.implicitHeight + 32) / 4) * 4
 
     color: "transparent"
     grabFocus: true
 
-    Rectangle {
+    PopupSurface {
         anchors.fill: parent
-
-        color: Theme.base
-        border.width: 1
-        border.color: Theme.surface0
-        radius: Theme.radius
+        presented: root.visible
 
         Column {
             id: content
@@ -50,7 +51,7 @@ PopupWindow {
                 Text {
                     width: parent.width - 80
                     text: "DISPLAY"
-                    font.family: Theme.shellFont
+                    font.family: Theme.appFont
                     font.pixelSize: 14
                     font.weight: Font.DemiBold
                     color: Theme.text
@@ -60,7 +61,7 @@ PopupWindow {
                     width: 80
                     horizontalAlignment: Text.AlignRight
                     text: BrightnessService.brightnessPercent + "%"
-                    font.family: Theme.shellFont
+                    font.family: Theme.appFont
                     font.pixelSize: 13
                     font.weight: Font.DemiBold
                     color: Theme.lavender

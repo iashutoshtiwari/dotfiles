@@ -1,27 +1,30 @@
 import QtQuick
 
 import qs.theme
+import qs.components
 
 Item {
     id: root
 
     signal clicked()
+    property bool active: false
 
     implicitWidth: 34
     implicitHeight: 28
 
-    Rectangle {
+    BarButtonBackground {
         id: bg
         anchors.fill: parent
-        color: mouseArea.containsMouse ? Theme.surface0 : "transparent"
-        radius: Theme.radius
+        active: root.active
+        hovered: mouseArea.containsMouse
+        pressed: mouseArea.pressed
 
         Text {
             anchors.centerIn: parent
             text: "󰐥"
             font.family: Theme.shellFont
             font.pixelSize: 15
-            color: mouseArea.containsMouse ? Theme.red : Theme.lavender
+            color: root.active ? Theme.lavender : mouseArea.containsMouse ? Theme.red : Theme.subtext1
         }
 
         MouseArea {

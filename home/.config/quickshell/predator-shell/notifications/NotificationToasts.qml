@@ -124,7 +124,7 @@ PanelWindow {
 
                             Text {
                                 anchors.verticalCenter: parent.verticalCenter
-                                font.family: Theme.shellFont
+                                font.family: Theme.appFont
                                 font.pixelSize: 10
                                 font.weight: Font.DemiBold
                                 color: Theme.lavender
@@ -166,7 +166,7 @@ PanelWindow {
                     // Summary
                     Text {
                         width: parent.width
-                        font.family: Theme.shellFont
+                        font.family: Theme.appFont
                         font.pixelSize: 12
                         font.weight: Font.DemiBold
                         color: Theme.text
@@ -179,7 +179,7 @@ PanelWindow {
                     // Body
                     Text {
                         width: parent.width
-                        font.family: Theme.shellFont
+                        font.family: Theme.appFont
                         font.pixelSize: 11
                         color: Theme.subtext1
                         text: (toastCard.modelData && toastCard.modelData.body) || ""
@@ -210,7 +210,7 @@ PanelWindow {
                                 Text {
                                     id: actionLabel
                                     anchors.centerIn: parent
-                                    font.family: Theme.shellFont
+                                    font.family: Theme.appFont
                                     font.pixelSize: 10
                                     font.weight: Font.DemiBold
                                     color: Theme.lavender

@@ -2,11 +2,13 @@ import QtQuick
 
 import qs.theme
 import qs.services
+import qs.components
 
 Item {
     id: root
 
     signal clicked()
+    property bool active: false
 
     implicitWidth: 72
     implicitHeight: 28
@@ -33,6 +35,7 @@ Item {
 
         return "󰂎";
     }
+    BarButtonBackground { anchors.fill: parent; active: root.active; hovered: mouse.containsMouse; pressed: mouse.pressed }
 
     Row {
         anchors.centerIn: parent
@@ -51,6 +54,8 @@ Item {
             font.pixelSize: 15
 
             color: {
+                if (root.active)
+                    return Theme.lavender;
                 if (PowerService.charging)
                     return Theme.green;
 
@@ -73,7 +78,7 @@ Item {
                 : "—"
 
             font.family: Theme.shellFont
-            font.pixelSize: 10
+            font.pixelSize: 13
             font.weight: Font.DemiBold
 
             color: Theme.text
@@ -81,8 +86,10 @@ Item {
     }
 
     MouseArea {
+        id: mouse
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor
+        hoverEnabled: true
         onClicked: root.clicked()
     }
 }

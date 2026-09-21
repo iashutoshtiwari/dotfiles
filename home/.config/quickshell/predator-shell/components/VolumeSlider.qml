@@ -11,6 +11,7 @@ Item {
 
     implicitWidth: 260
     implicitHeight: 22
+    opacity: enabled ? 1 : Theme.disabledOpacity
 
     function clamp(value) {
         return Math.max(0, Math.min(1, value));
@@ -22,7 +23,7 @@ Item {
         anchors.verticalCenter: parent.verticalCenter
 
         width: parent.width
-        height: 4
+        height: 3
 
         color: Theme.surface1
     }
@@ -51,8 +52,8 @@ Item {
             )
         )
 
-        width: 12
-        height: 12
+        width: 10
+        height: 10
 
         radius: 0
 
@@ -77,6 +78,12 @@ Item {
         onPositionChanged: {
             if (pressed)
                 updateValue();
+        }
+
+        onWheel: wheel => {
+            const delta = wheel.angleDelta.y > 0 ? 0.04 : -0.04;
+            root.userChanged(root.clamp(root.value + delta));
+            wheel.accepted = true;
         }
     }
 }

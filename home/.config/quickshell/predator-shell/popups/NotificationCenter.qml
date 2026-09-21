@@ -1,314 +1,162 @@
 import QtQuick
+import QtQuick.Layouts
 import Quickshell
 import Quickshell.Widgets
 
 import qs.theme
 import qs.services
+import qs.components
 
 PopupWindow {
     id: root
-
     property Item anchorItem
+    readonly property int notificationCount: NotificationService.trackedNotifications?.values?.length ?? 0
 
     anchor.item: anchorItem
     anchor.edges: Edges.Bottom | Edges.Right
     anchor.gravity: Edges.Bottom | Edges.Left
-    anchor.margins.top: 8
-
-    implicitWidth: 360
-    implicitHeight: 480
-
+    anchor.rect.x: 0
+    anchor.rect.y: Theme.spacingLg
+    anchor.rect.width: anchorItem?.width ?? 1
+    anchor.rect.height: anchorItem?.height ?? 1
+    anchor.margins.top: 0
+    anchor.adjustment: PopupAdjustment.Slide
+    implicitWidth: Theme.popupStandard
+    implicitHeight: Math.ceil((root.notificationCount > 0 ? 480 : 280) / 4) * 4
     color: "transparent"
     grabFocus: true
 
-    onVisibleChanged: {
-        if (visible) {
-            NotificationService.markAllRead();
-        }
-    }
+    onVisibleChanged: if (visible) NotificationService.markAllRead()
 
-    Rectangle {
+    PopupSurface {
         anchors.fill: parent
+        presented: root.visible
 
-        color: Theme.base
-        border.width: 1
-        border.color: Theme.surface0
-        radius: Theme.radius
+        ColumnLayout {
+            anchors.fill: parent
+            anchors.margins: Theme.popupPadding
+            spacing: Theme.spacingMd
 
-        Column {
-            anchors {
-                fill: parent
-                margins: 14
+            PopupHeader {
+                Layout.fillWidth: true
+                icon: NotificationService.dnd ? "󰂛" : "󰂚"
+                title: "Notifications"
+                subtitle: NotificationService.dnd ? "Do not disturb is on"
+                    : root.notificationCount === 0 ? "You're all caught up"
+                    : root.notificationCount + (root.notificationCount === 1 ? " notification" : " notifications")
+                actionIcon: NotificationService.dnd ? "󰂛" : "󰂚"
+                onActionClicked: NotificationService.toggleDnd()
             }
-            spacing: 10
 
-            // HEADER ROW
-            Row {
-                width: parent.width
+            Divider { Layout.fillWidth: true }
 
+            RowLayout {
+                Layout.fillWidth: true
+                visible: root.notificationCount > 0
+                SectionLabel { Layout.fillWidth: true; text: "Recent" }
                 Text {
-                    width: parent.width - actionButtons.width
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: "NOTIFICATIONS"
-                    font.family: Theme.shellFont
-                    font.pixelSize: 13
-                    font.weight: Font.DemiBold
-                    color: Theme.text
-                }
-
-                Row {
-                    id: actionButtons
-                    spacing: 6
-
-                    // DND BUTTON
-                    Rectangle {
-                        implicitWidth: dndText.implicitWidth + 12
-                        height: 24
-                        color: NotificationService.dnd ? Theme.red : dndMouse.containsMouse ? Theme.surface1 : Theme.surface0
-                        radius: Theme.radius
-
-                        Text {
-                            id: dndText
-                            anchors.centerIn: parent
-                            text: NotificationService.dnd ? "󰂛 DND" : "󰂚 DND"
-                            font.family: Theme.shellFont
-                            font.pixelSize: 10
-                            font.weight: Font.DemiBold
-                            color: NotificationService.dnd ? Theme.crust : Theme.text
-                        }
-
-                        MouseArea {
-                            id: dndMouse
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: NotificationService.toggleDnd()
-                        }
-                    }
-
-                    // CLEAR ALL BUTTON
-                    Rectangle {
-                        implicitWidth: clearText.implicitWidth + 12
-                        height: 24
-                        color: clearMouse.containsMouse ? Theme.surface1 : Theme.surface0
-                        radius: Theme.radius
-                        visible: NotificationService.trackedNotifications && NotificationService.trackedNotifications.values.length > 0
-
-                        Text {
-                            id: clearText
-                            anchors.centerIn: parent
-                            text: "󰎟 Clear"
-                            font.family: Theme.shellFont
-                            font.pixelSize: 10
-                            font.weight: Font.DemiBold
-                            color: Theme.subtext0
-                        }
-
-                        MouseArea {
-                            id: clearMouse
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: NotificationService.clearAll()
-                        }
-                    }
+                    text: "Clear all"
+                    font.family: Theme.appFont
+                    font.pixelSize: Theme.textSmall
+                    color: Theme.subtext0
+                    MouseArea { anchors.fill: parent; anchors.margins: -8; cursorShape: Qt.PointingHandCursor; onClicked: NotificationService.clearAll() }
                 }
             }
 
-            Rectangle {
-                width: parent.width
-                height: 1
-                color: Theme.surface0
+            EmptyState {
+                Layout.alignment: Qt.AlignCenter
+                visible: root.notificationCount === 0
+                icon: "󰂚"
+                message: "You're all caught up"
             }
 
-            // NOTIFICATION LIST OR EMPTY STATE
-            Item {
-                width: parent.width
-                height: parent.height - 42
+            ListView {
+                id: listView
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                visible: root.notificationCount > 0
+                clip: true
+                spacing: Theme.spacingSm
+                model: NotificationService.trackedNotifications
 
-                // Empty state
-                Column {
-                    anchors.centerIn: parent
-                    spacing: 8
-                    visible: !NotificationService.trackedNotifications || NotificationService.trackedNotifications.values.length === 0
+                delegate: Rectangle {
+                    id: card
+                    required property var modelData
+                    width: listView.width
+                    implicitHeight: cardContent.implicitHeight + Theme.spacingLg
+                    color: cardMouse.containsMouse ? Theme.surface0 : Theme.base
 
-                    Text {
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        font.family: Theme.shellFont
-                        font.pixelSize: 32
-                        color: Theme.surface2
-                        text: "󰂚"
+                    Rectangle {
+                        anchors { left: parent.left; top: parent.top; bottom: parent.bottom }
+                        width: 2
+                        color: card.modelData?.urgency === 2 ? Theme.red
+                            : card.modelData?.urgency === 1 ? Theme.lavender : Theme.surface2
                     }
 
-                    Text {
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        font.family: Theme.shellFont
-                        font.pixelSize: 11
-                        font.weight: Font.DemiBold
-                        color: Theme.subtext0
-                        text: "No Notifications"
-                    }
-                }
+                    ColumnLayout {
+                        id: cardContent
+                        anchors { left: parent.left; right: parent.right; top: parent.top; margins: Theme.spacingSm; leftMargin: Theme.spacingMd }
+                        spacing: Theme.spacingXs
 
-                // List view
-                ListView {
-                    id: listView
-                    anchors.fill: parent
-                    clip: true
-                    spacing: 8
-                    visible: NotificationService.trackedNotifications && NotificationService.trackedNotifications.values.length > 0
-
-                    model: NotificationService.trackedNotifications
-
-                    delegate: Rectangle {
-                        id: notifCard
-                        required property var modelData
-
-                        width: listView.width
-                        implicitHeight: cardCol.implicitHeight + 16
-
-                        color: Theme.mantle
-                        border.width: 1
-                        border.color: Theme.surface0
-                        radius: Theme.radius
-
-                        // Left urgency accent
-                        Rectangle {
-                            width: 3
-                            height: parent.height
-                            color: notifCard.modelData && notifCard.modelData.urgency === 2
-                                ? Theme.red
-                                : (notifCard.modelData && notifCard.modelData.urgency === 1 ? Theme.lavender : Theme.surface2)
+                        RowLayout {
+                            Layout.fillWidth: true
+                            IconImage {
+                                Layout.preferredWidth: 16
+                                Layout.preferredHeight: 16
+                                source: card.modelData?.appIcon ? Quickshell.iconPath(card.modelData.appIcon) : ""
+                                visible: status === Image.Ready
+                            }
+                            Text {
+                                Layout.fillWidth: true
+                                text: card.modelData?.appName || "Notification"
+                                elide: Text.ElideRight
+                                font.family: Theme.appFont
+                                font.pixelSize: Theme.textSmall
+                                font.weight: Font.Medium
+                                color: Theme.lavender
+                            }
+                            IconButton { icon: "󰅖"; foreground: Theme.subtext0; onClicked: NotificationService.dismiss(card.modelData) }
                         }
 
-                        Column {
-                            id: cardCol
-                            anchors {
-                                top: parent.top
-                                left: parent.left
-                                right: parent.right
-                                margins: 8
-                                leftMargin: 12
-                            }
-                            spacing: 4
-
-                            // Top row: App Name + Dismiss button
-                            Row {
-                                width: parent.width
-
-                                Row {
-                                    width: parent.width - 20
-                                    spacing: 6
-
-                                    IconImage {
-                                        width: 14
-                                        height: 14
-                                        anchors.verticalCenter: parent.verticalCenter
-                                        source: notifCard.modelData && notifCard.modelData.appIcon
-                                            ? Quickshell.iconPath(notifCard.modelData.appIcon)
-                                            : ""
-                                        visible: status === Image.Ready
-                                    }
-
-                                    Text {
-                                        anchors.verticalCenter: parent.verticalCenter
-                                        font.family: Theme.shellFont
-                                        font.pixelSize: 9
-                                        font.weight: Font.DemiBold
-                                        color: Theme.lavender
-                                        text: (notifCard.modelData && notifCard.modelData.appName) || "Notification"
-                                        elide: Text.ElideRight
-                                    }
-                                }
-
-                                Text {
-                                    font.family: Theme.shellFont
-                                    font.pixelSize: 11
-                                    color: itemCloseMouse.containsMouse ? Theme.red : Theme.subtext0
-                                    text: "󰅖"
-
-                                    MouseArea {
-                                        id: itemCloseMouse
-                                        anchors.fill: parent
-                                        hoverEnabled: true
-                                        cursorShape: Qt.PointingHandCursor
-                                        onClicked: {
-                                            if (notifCard.modelData)
-                                                notifCard.modelData.dismiss();
-                                        }
-                                    }
-                                }
-                            }
-
-                            // Summary
-                            Text {
-                                width: parent.width
-                                font.family: Theme.shellFont
-                                font.pixelSize: 11
-                                font.weight: Font.DemiBold
-                                color: Theme.text
-                                text: (notifCard.modelData && notifCard.modelData.summary) || ""
-                                wrapMode: Text.Wrap
-                                maximumLineCount: 2
-                                elide: Text.ElideRight
-                            }
-
-                            // Body
-                            Text {
-                                width: parent.width
-                                font.family: Theme.shellFont
-                                font.pixelSize: 10
-                                color: Theme.subtext1
-                                text: (notifCard.modelData && notifCard.modelData.body) || ""
-                                wrapMode: Text.Wrap
-                                maximumLineCount: 3
-                                elide: Text.ElideRight
-                                visible: text.length > 0
-                            }
-
-                            // Actions
-                            Row {
-                                width: parent.width
-                                spacing: 6
-                                visible: notifCard.modelData && notifCard.modelData.actions && notifCard.modelData.actions.length > 0
-
-                                Repeater {
-                                    model: (notifCard.modelData && notifCard.modelData.actions) || []
-
-                                    delegate: Rectangle {
-                                        id: actBtn
-                                        required property var modelData
-
-                                        implicitWidth: actLabel.implicitWidth + 12
-                                        height: 20
-                                        color: actMouse.containsMouse ? Theme.surface1 : Theme.surface0
-                                        radius: Theme.radius
-
-                                        Text {
-                                            id: actLabel
-                                            anchors.centerIn: parent
-                                            font.family: Theme.shellFont
-                                            font.pixelSize: 9
-                                            font.weight: Font.DemiBold
-                                            color: Theme.lavender
-                                            text: (actBtn.modelData && actBtn.modelData.text) || ""
-                                        }
-
-                                        MouseArea {
-                                            id: actMouse
-                                            anchors.fill: parent
-                                            hoverEnabled: true
-                                            cursorShape: Qt.PointingHandCursor
-                                            onClicked: {
-                                                if (actBtn.modelData)
-                                                    actBtn.modelData.invoke();
-                                            }
-                                        }
-                                    }
+                        Text {
+                            Layout.fillWidth: true
+                            text: card.modelData?.summary || ""
+                            wrapMode: Text.Wrap
+                            maximumLineCount: 2
+                            elide: Text.ElideRight
+                            font.family: Theme.appFont
+                            font.pixelSize: Theme.textBodyStrong
+                            font.weight: Font.Medium
+                            color: Theme.text
+                        }
+                        Text {
+                            Layout.fillWidth: true
+                            visible: text.length > 0
+                            text: card.modelData?.body || ""
+                            wrapMode: Text.Wrap
+                            maximumLineCount: 3
+                            elide: Text.ElideRight
+                            font.family: Theme.appFont
+                            font.pixelSize: Theme.textSmall
+                            color: Theme.subtext1
+                        }
+                        RowLayout {
+                            visible: card.modelData?.actions?.length > 0
+                            spacing: Theme.spacingSm
+                            Repeater {
+                                model: card.modelData?.actions || []
+                                Rectangle {
+                                    required property var modelData
+                                    implicitWidth: actionText.implicitWidth + Theme.spacingMd
+                                    implicitHeight: 24
+                                    color: actionMouse.containsMouse ? Theme.surface1 : Theme.surface0
+                                    Text { id: actionText; anchors.centerIn: parent; text: parent.modelData?.text || ""; font.family: Theme.appFont; font.pixelSize: Theme.textSmall; font.weight: Font.Medium; color: Theme.lavender }
+                                    MouseArea { id: actionMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: parent.modelData?.invoke() }
                                 }
                             }
                         }
                     }
+                    MouseArea { id: cardMouse; anchors.fill: parent; hoverEnabled: true; acceptedButtons: Qt.NoButton }
                 }
             }
         }

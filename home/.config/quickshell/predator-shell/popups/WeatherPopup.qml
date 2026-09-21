@@ -1,333 +1,128 @@
 import QtQuick
+import QtQuick.Layouts
 import Quickshell
 
 import qs.theme
 import qs.services
+import qs.components
 
 PopupWindow {
     id: root
-
     property Item anchorItem
 
     anchor.item: anchorItem
     anchor.edges: Edges.Bottom | Edges.Right
     anchor.gravity: Edges.Bottom | Edges.Left
-    anchor.margins.top: 8
-
-    implicitWidth: 320
-    implicitHeight: 336
-
+    anchor.rect.x: 0
+    anchor.rect.y: Theme.spacingLg
+    anchor.rect.width: anchorItem?.width ?? 1
+    anchor.rect.height: anchorItem?.height ?? 1
+    anchor.margins.top: 0
+    anchor.adjustment: PopupAdjustment.Slide
+    implicitWidth: Theme.popupCompact
+    // Three forecast rows plus the metrics block need stable room at 1.25x
+    // scaling; the previous height clipped the final forecast description.
+    implicitHeight: 384
     color: "transparent"
     grabFocus: true
 
-    Rectangle {
+    PopupSurface {
         anchors.fill: parent
+        presented: root.visible
 
-        color: Theme.base
-        border.width: 1
-        border.color: Theme.surface0
-        radius: Theme.radius
+        ColumnLayout {
+            anchors.fill: parent
+            anchors.margins: Theme.popupPadding
+            spacing: Theme.spacingMd
 
-        Column {
-            anchors {
-                fill: parent
-                margins: 14
+            PopupHeader {
+                Layout.fillWidth: true
+                icon: WeatherService.conditionIcon
+                title: WeatherService.city
+                subtitle: WeatherService.available
+                    ? WeatherService.conditionText + " · Updated " + WeatherService.lastUpdated
+                    : WeatherService.loading ? "Updating weather…" : "Weather unavailable"
+                actionIcon: "󰑐"
+                actionEnabled: !WeatherService.loading
+                onActionClicked: WeatherService.refresh()
             }
+            Divider { Layout.fillWidth: true }
 
-            spacing: 12
-
-            // HEADER ROW
-            Item {
-                width: parent.width
-                height: 28
-
-                Column {
-                    anchors {
-                        left: parent.left
-                        right: refreshBtn.left
-                        rightMargin: 8
-                        verticalCenter: parent.verticalCenter
-                    }
-                    spacing: 2
-
-                    Text {
-                        text: WeatherService.city + ", IN"
-                        font.family: Theme.shellFont
-                        font.pixelSize: 13
-                        font.weight: Font.DemiBold
-                        color: Theme.text
-                    }
-
-                    Text {
-                        text: "Updated " + WeatherService.lastUpdated
-                        font.family: Theme.shellFont
-                        font.pixelSize: 10
-                        color: Theme.subtext0
-                    }
-                }
-
-                // REFRESH BUTTON
-                Rectangle {
-                    id: refreshBtn
-                    width: 28
-                    height: 28
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.right: parent.right
-                    color: refreshMouse.containsMouse ? Theme.surface1 : Theme.surface0
-                    radius: Theme.radius
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: "󰑐"
-                        font.family: Theme.shellFont
-                        font.pixelSize: 14
-                        color: WeatherService.loading ? Theme.lavender : Theme.text
-                        rotation: WeatherService.loading ? 180 : 0
-
-                        Behavior on rotation {
-                            NumberAnimation { duration: 400 }
-                        }
-                    }
-
-                    MouseArea {
-                        id: refreshMouse
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: WeatherService.refresh()
-                    }
-                }
-            }
-
-            // HERO WEATHER ROW
-            Item {
-                width: parent.width
-                height: 60
-
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: Theme.spacingLg
                 Text {
-                    id: heroIcon
-                    anchors.left: parent.left
-                    anchors.verticalCenter: parent.verticalCenter
                     text: WeatherService.conditionIcon
                     font.family: Theme.shellFont
                     font.pixelSize: 38
                     color: Theme.lavender
                 }
-
-                Column {
-                    anchors.left: heroIcon.right
-                    anchors.leftMargin: 16
-                    anchors.verticalCenter: parent.verticalCenter
-                    spacing: 2
-
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    spacing: 0
                     Text {
-                        text: WeatherService.available
-                            ? Math.round(WeatherService.temperature) + "°C"
-                            : "--°C"
-                        font.family: Theme.shellFont
-                        font.pixelSize: 26
-                        font.weight: Font.Bold
+                        text: WeatherService.available ? Math.round(WeatherService.temperature) + "°" : "--°"
+                        font.family: Theme.appFont
+                        font.pixelSize: 28
+                        font.weight: Font.DemiBold
                         color: Theme.text
                     }
-
                     Text {
-                        text: WeatherService.conditionText
-                        font.family: Theme.shellFont
-                        font.pixelSize: 11
+                        text: "Feels like " + (WeatherService.available ? Math.round(WeatherService.feelsLike) + "°" : "--")
+                        font.family: Theme.appFont
+                        font.pixelSize: Theme.textSmall
                         color: Theme.subtext0
                     }
                 }
             }
 
-            // METRICS STATS CARDS (3 columns)
-            Row {
-                width: parent.width
-                spacing: 6
-
-                // Feels Like
-                Rectangle {
-                    width: (parent.width - 12) / 3
-                    height: 44
-                    color: Theme.surface0
-                    radius: Theme.radius
-
-                    Column {
-                        anchors.centerIn: parent
-                        spacing: 2
-
-                        Text {
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            text: "Feels like"
-                            font.family: Theme.shellFont
-                            font.pixelSize: 9
-                            color: Theme.subtext0
-                        }
-
-                        Text {
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            text: WeatherService.available
-                                ? Math.round(WeatherService.feelsLike) + "°C"
-                                : "--"
-                            font.family: Theme.shellFont
-                            font.pixelSize: 11
-                            font.weight: Font.DemiBold
-                            color: Theme.text
-                        }
-                    }
-                }
-
-                // Humidity
-                Rectangle {
-                    width: (parent.width - 12) / 3
-                    height: 44
-                    color: Theme.surface0
-                    radius: Theme.radius
-
-                    Column {
-                        anchors.centerIn: parent
-                        spacing: 2
-
-                        Text {
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            text: "Humidity"
-                            font.family: Theme.shellFont
-                            font.pixelSize: 9
-                            color: Theme.subtext0
-                        }
-
-                        Text {
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            text: WeatherService.available
-                                ? WeatherService.humidity + "%"
-                                : "--"
-                            font.family: Theme.shellFont
-                            font.pixelSize: 11
-                            font.weight: Font.DemiBold
-                            color: Theme.text
-                        }
-                    }
-                }
-
-                // Wind
-                Rectangle {
-                    width: (parent.width - 12) / 3
-                    height: 44
-                    color: Theme.surface0
-                    radius: Theme.radius
-
-                    Column {
-                        anchors.centerIn: parent
-                        spacing: 2
-
-                        Text {
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            text: "Wind"
-                            font.family: Theme.shellFont
-                            font.pixelSize: 9
-                            color: Theme.subtext0
-                        }
-
-                        Text {
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            text: WeatherService.available
-                                ? WeatherService.windSpeed + " km/h"
-                                : "--"
-                            font.family: Theme.shellFont
-                            font.pixelSize: 11
-                            font.weight: Font.DemiBold
-                            color: Theme.text
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: Theme.spacingSm
+                Repeater {
+                    model: [
+                        { icon: "󰖎", label: "Humidity", value: WeatherService.available ? WeatherService.humidity + "%" : "--" },
+                        { icon: "󰖝", label: "Wind", value: WeatherService.available ? WeatherService.windSpeed + " km/h" : "--" }
+                    ]
+                    Rectangle {
+                        required property var modelData
+                        Layout.fillWidth: true
+                        height: 48
+                        color: Theme.base
+                        RowLayout {
+                            anchors.fill: parent
+                            anchors.leftMargin: Theme.spacingSm
+                            anchors.rightMargin: Theme.spacingSm
+                            Text { text: parent.parent.modelData.icon; font.family: Theme.shellFont; font.pixelSize: 14; color: Theme.sapphire }
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                spacing: 0
+                                Text { text: parent.parent.parent.modelData.label; font.family: Theme.appFont; font.pixelSize: Theme.textSmall; color: Theme.subtext0 }
+                                Text { text: parent.parent.parent.modelData.value; font.family: Theme.appFont; font.pixelSize: Theme.textBody; font.weight: Font.Medium; color: Theme.text }
+                            }
                         }
                     }
                 }
             }
 
-            // SEPARATOR
-            Rectangle {
-                width: parent.width
-                height: 1
-                color: Theme.surface0
-            }
-
-            // FORECAST HEADER
-            Text {
-                text: "3-DAY FORECAST"
-                font.family: Theme.shellFont
-                font.pixelSize: 10
-                font.weight: Font.DemiBold
-                color: Theme.overlay1
-            }
-
-            // FORECAST LIST
-            Column {
-                width: parent.width
-                spacing: 6
-
+            SectionLabel { text: "3-day forecast" }
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 2
                 Repeater {
                     model: WeatherService.dailyForecast
-
-                    delegate: Rectangle {
+                    PopupRow {
                         required property var modelData
-
-                        width: parent.width
-                        height: 28
-                        color: "transparent"
-
-                        Item {
-                            anchors.fill: parent
-
-                            Text {
-                                id: dayName
-                                anchors.left: parent.left
-                                anchors.verticalCenter: parent.verticalCenter
-                                width: 68
-                                text: modelData.dayName
-                                font.family: Theme.shellFont
-                                font.pixelSize: 11
-                                font.weight: Font.Medium
-                                color: Theme.text
-                            }
-
-                            Text {
-                                id: condIcon
-                                anchors.left: dayName.right
-                                anchors.leftMargin: 8
-                                anchors.verticalCenter: parent.verticalCenter
-                                width: 20
-                                text: modelData.conditionIcon
-                                font.family: Theme.shellFont
-                                font.pixelSize: 13
-                                color: Theme.lavender
-                            }
-
-                            Text {
-                                anchors.left: condIcon.right
-                                anchors.leftMargin: 8
-                                anchors.right: tempRange.left
-                                anchors.rightMargin: 8
-                                anchors.verticalCenter: parent.verticalCenter
-                                text: modelData.conditionText
-                                font.family: Theme.shellFont
-                                font.pixelSize: 10
-                                color: Theme.subtext0
-                                elide: Text.ElideRight
-                            }
-
-                            Text {
-                                id: tempRange
-                                anchors.right: parent.right
-                                anchors.verticalCenter: parent.verticalCenter
-                                width: 88
-                                text: modelData.minTemp + "° / " + modelData.maxTemp + "°C"
-                                font.family: Theme.shellFont
-                                font.pixelSize: 11
-                                font.weight: Font.DemiBold
-                                color: Theme.text
-                                horizontalAlignment: Text.AlignRight
-                            }
-                        }
+                        Layout.fillWidth: true
+                        icon: modelData.conditionIcon
+                        label: modelData.dayName
+                        description: modelData.conditionText
+                        value: modelData.minTemp + "°  /  " + modelData.maxTemp + "°"
+                        interactive: false
                     }
                 }
             }
+            Item { Layout.fillHeight: true }
         }
     }
 }

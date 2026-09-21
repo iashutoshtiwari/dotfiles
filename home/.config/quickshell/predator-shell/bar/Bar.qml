@@ -52,10 +52,21 @@ Scope {
                 if (!targetPopup)
                     return;
                 const wasVisible = targetPopup.visible;
-                closeAllPopups();
-                if (!wasVisible) {
-                    targetPopup.visible = true;
+                // Switching popups is immediate so two layer surfaces never overlap.
+                // A same-button dismissal may use the popup's short exit motion.
+                for (let i = 0; i < allPopups.length; i++) {
+                    const popup = allPopups[i];
+                    if (popup && popup !== targetPopup && popup.visible)
+                        popup.visible = false;
                 }
+                if (wasVisible && targetPopup.dismiss)
+                    targetPopup.dismiss();
+                else if (wasVisible)
+                    targetPopup.visible = false;
+                else if (targetPopup.present)
+                    targetPopup.present();
+                else
+                    targetPopup.visible = true;
             }
 
             function closeAllPopups(): void {
@@ -141,46 +152,55 @@ Scope {
 
                     NotificationButton {
                         id: notificationButton
+                        active: notificationCenter.visible
                         onClicked: root.togglePopup(notificationCenter)
                     }
 
                     NetworkButton {
                         id: networkButton
+                        active: networkPopup.visible
                         onClicked: root.togglePopup(networkPopup)
                     }
 
                     BluetoothButton {
                         id: bluetoothButton
+                        active: bluetoothPopup.visible
                         onClicked: root.togglePopup(bluetoothPopup)
                     }
 
                     DisplayButton {
                         id: displayButton
+                        active: displayPopup.visible || wallpaperPicker.visible
                         onClicked: root.togglePopup(displayPopup)
                     }
 
                     AudioButton {
                         id: audioButton
+                        active: audioPopup.visible
                         onClicked: root.togglePopup(audioPopup)
                     }
 
                     BatteryButton {
                         id: batteryButton
+                        active: powerPopup.visible
                         onClicked: root.togglePopup(powerPopup)
                     }
 
                     WeatherButton {
                         id: weatherButton
+                        active: weatherPopup.visible
                         onClicked: root.togglePopup(weatherPopup)
                     }
 
                     ClockButton {
                         id: clockButton
+                        active: clockPopup.visible
                         onClicked: root.togglePopup(clockPopup)
                     }
 
                     PowerButton {
                         id: powerButton
+                        active: powerMenuPopup.visible
                         onClicked: root.togglePopup(powerMenuPopup)
                     }
                 }
