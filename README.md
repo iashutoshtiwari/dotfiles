@@ -6,6 +6,12 @@ JetBrains Mono Nerd Font in the shell, and Inter in desktop applications.
 
 ![Predator desktop running Hyprland, Quickshell and Kitty](docs/screenshot.png)
 
+> [!WARNING]
+> This repository is primarily a personal backup and reference for one specific
+> machine. A clean, 1:1 installation has not been fully tested, so I do not
+> recommend applying it wholesale to another system. You are welcome to study,
+> copy and adapt any parts that are useful for your own setup.
+
 The repository is usable as a daily desktop without the custom login screen. The
 greetd configuration and this machine's NVIDIA setup are optional and should only
 be adopted after the user session works.
@@ -264,3 +270,8 @@ directory from a TTY or SSH session.
 This repository intentionally does not install a full desktop environment. It
 does not use Waybar, SwayNC, SDDM, KDE Plasma or GNOME. Rofi is only the
 application/emoji launcher; Quickshell owns the desktop shell UI.
+
+## License
+
+Licensed under the [MIT License](LICENSE). You are free to use this repository as
+inspiration or adapt its components for your own desktop.

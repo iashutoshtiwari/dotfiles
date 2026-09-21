@@ -1,9 +1,14 @@
+bibata-cursor-theme-bin
+brave-origin-bin
+darkly
 desktop-plus-bin
 google-chrome
+kvantum-theme-catppuccin-git
 lib32-nvidia-580xx-utils
 nvidia-580xx-dkms
 nvidia-580xx-settings
 nvidia-580xx-utils
+papirus-folders-catppuccin-git
 visual-studio-code-bin
 yay
 yay-debug
