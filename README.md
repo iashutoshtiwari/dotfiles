@@ -1,140 +1,266 @@
 # Predator Arch Desktop
 
-Source of truth for the Acer Predator Helios 300 desktop. Read [AGENTS.md](AGENTS.md)
-before changes and [CHECKLIST.md](CHECKLIST.md) for scope and verification status.
-The initial [handoff audit](docs/handoff-audit.md) records observed facts and gaps.
+A complete, opinionated Arch Linux desktop built around Hyprland, Quickshell and
+UWSM. It uses Catppuccin Mocha with a Lavender accent, a compact square-edged UI,
+JetBrains Mono Nerd Font in the shell, and Inter in desktop applications.
 
-## Architecture
+![Predator desktop running Hyprland, Quickshell and Kitty](docs/screenshot.png)
 
-Login follows greetd → temporary Hyprland compositor → Quickshell greeter →
-`predator-session` → UWSM → user Hyprland. Keep UWSM responsible for the session;
-logout uses `uwsm stop`. The greeter compositor's direct exit is intentional.
-Intel HD 630 is the intended desktop renderer; NVIDIA Pascal is for PRIME offload.
-Do not change GPU ordering, initramfs, or boot configuration for desktop polish.
+The repository is usable as a daily desktop without the custom login screen. The
+greetd configuration and this machine's NVIDIA setup are optional and should only
+be adopted after the user session works.
 
-The user shell is `home/.config/quickshell/predator-shell/`: `shell.qml` composes
-`bar/`, with separate `services/`, `components/`, `popups/`, and `theme/`.
-Future launcher, notifications and OSD code should have their own directories.
-Hyprlock handles authentication; Hypridle requests lock at 600 seconds and DPMS
-off at 660 seconds. Hyprpaper displays wallpapers. TLP + tlp-pd provide power
-profiles; do not enable power-profiles-daemon alongside them.
+## What is included
 
-Catppuccin Mocha, Lavender, square geometry, JetBrains Mono Nerd Font shell UI,
-Inter application UI, Papirus icons, restrained animation and no compositor blur.
+- Hyprland configuration in Lua, with workspaces, restrained animations,
+  scratchpad, resize mode, media keys, screenshots and session controls.
+- A native Quickshell bar with audio, brightness, battery, Bluetooth, network,
+  weather, notifications, tray, MPRIS media controls and expanding workspace
+  indicators.
+- Matching popups, notification toasts, OSDs, calendar and wallpaper picker.
+- Hyprpaper, Hyprlock and Hypridle configuration.
+- Kitty, Rofi, Zsh, Starship, GTK, Qt6 and fontconfig theming.
+- Optional greetd + Quickshell graphical login flow.
+- Safe scripts for wallpaper selection, screenshots, system deployment and state
+  snapshots.
 
-Application theming is deliberately split by toolkit. Qt6 uses qt6ct with the
-installed Catppuccin Kvantum style, Papirus-Dark icons and Inter; KDE
-semantic colors come from the user-installed Catppuccin Mocha Lavender color
-scheme in `~/.local/share/color-schemes`. GTK3/GTK4 use the installed Catppuccin
-theme through their settings files, without a global `GTK_THEME` override. The
-session-wide Qt and cursor variables live in `home/.config/environment.d/`; run
-`scripts/setup-theme.sh` after installing or restoring the dotfiles. The setup
-script also sets the supported GSettings dark preference used by GTK4/libadwaita.
-There are currently no relevant Qt5 applications; `qt5ct` remains installed only
-as a package removal candidate until the next package audit.
+## Before installing
 
-## Layout and live configuration
+This is a real machine configuration, not a hardware-neutral distribution. Read
+and change these values first:
 
-- `home/` mirrors home files. The Hyprland directory, Predator shell directory,
-  Kitty directory, shell autostart entry and `set-wallpaper` script are currently symlinked here.
-- `system/` holds copies of five explicitly managed root-owned greeter files.
-  Editing these copies does not deploy them.
-- `state/` holds generated inventories, not an installation manifest.
-- `scripts/` holds management commands.
+| Setting | File | Current value |
+| --- | --- | --- |
+| Monitor scale | `home/.config/hypr/hyprland.lua` | `1.25` |
+| Weather city and coordinates | `home/.config/quickshell/predator-shell/services/WeatherService.qml` | Lucknow, India |
+| Wallpaper directory and helper | `home/.config/quickshell/predator-shell/services/WallpaperService.qml` | `/home/ashutosh/...` |
+| Screenshot helper bindings | `home/.config/hypr/hyprland.lua` | `/home/ashutosh/...` |
+| Session label | `home/.config/quickshell/predator-shell/popups/PowerMenuPopup.qml` | `ashutosh · predator` |
+| User PATH | `home/.config/environment.d/10-path.conf` | `/home/ashutosh/.local/bin` |
+| Qt color-scheme path | `home/.config/qt6ct/qt6ct.conf` | `/home/ashutosh/...` |
+| Greeter account | `system/etc/xdg/quickshell/predator-greeter/shell.qml` | `ashutosh` |
 
-`set-wallpaper ~/Pictures/Wallpapers/image.jpg` atomically updates the single
-selection symlink `~/.local/state/predator-shell/wallpaper`, then applies it through
-Hyprpaper IPC (starting the user service if needed). A failed command restores the
-previous selection. Hyprpaper resolves that link on startup; Hyprlock reads its
-image target with `readlink -e`. `set-wallpaper --current` exposes the selection
-for future Quickshell integration. The tracked config is never rewritten.
-Images and selection state stay outside Git. Commas and line breaks in image
-paths are rejected because the IPC format cannot represent them unambiguously.
+Replace `/home/ashutosh` with your home directory and change the greeter account
+before deploying the login screen. Review every match with:
 
-The original text state is retained as `wallpaper.pre-symlink`. To roll back this
-migration, first restore the previous selector/Hyprpaper/Hyprlock files together
-from Git, then replace the symlink with that saved text file and restart only
-Hyprpaper. Keep the backup. Reboot persistence and a real lock/unlock still need
-interactive verification; daemon restart and the lock image command were tested.
+```bash
+rg -n '/home/ashutosh|ashutosh|Lucknow' home system
+```
 
-## v1.1 interaction reference
+The tracked package snapshots describe the original laptop. Do **not** blindly
+install its `nvidia-580xx-*` packages. Select graphics drivers appropriate for
+your GPU and current Arch kernel.
 
-- `Super+Space` opens the application-first Rofi launcher; `Super+.` opens the
-  emoji picker.
-- `Super+grave` toggles one guarded Kitty scratchpad on the `special:scratchpad`
-  workspace. The guard prevents duplicate terminals.
-- `Super+R` enters resize mode. `h/j/k/l` or the arrow keys resize by 16px;
-  `Escape` or `Enter` exits the mode.
-- `Print`, `Super+Shift+S`, `Shift+Print`, and `Ctrl+Print` capture area, area,
-  screen, and active window respectively. Captures are saved and copied to the
-  clipboard, with detached notification actions to copy again, open, or reveal
-  the resulting file.
-- `Super+W` opens the wallpaper picker. `Super+Backspace` opens the session
-  power menu. `Super+Escape` locks the session.
+## 1. Install Arch and the core packages
 
-The design tokens and motion policy are documented in [DESIGN.md](DESIGN.md).
-The bar shows a temporary `RESIZE` indicator while the resize submap is active.
+Start with a working Arch installation, a non-root user with `sudo`, networking,
+and the correct graphics driver. Then install the repository's official-package
+baseline:
 
-## Reinstall outline
+```bash
+sudo pacman -S --needed \
+  base-devel git hyprland uwsm quickshell greetd \
+  hypridle hyprlock hyprpaper hyprpolkitagent \
+  xdg-desktop-portal-hyprland xdg-desktop-portal-gtk \
+  pipewire pipewire-alsa pipewire-audio pipewire-pulse wireplumber \
+  networkmanager bluez bluez-utils upower brightnessctl playerctl \
+  kitty rofi rofi-calc rofi-emoji \
+  grim slurp wl-clipboard libnotify xdg-utils xdg-user-dirs \
+  qt6-wayland qt6ct kvantum dolphin \
+  papirus-icon-theme inter-font ttf-jetbrains-mono-nerd noto-fonts-emoji \
+  zsh starship zsh-autosuggestions zsh-syntax-highlighting \
+  curl file rsync python
+```
 
-This is a recovery guide, not yet an unattended bootstrap script.
+Some names can move between Arch repositories over time. If Pacman cannot find a
+package, check the current Arch package database instead of substituting an
+untrusted binary.
 
-1. Prepare Arch, the user account, networking and SSH recovery independently.
-   Review `state/packages-official.txt` and `state/packages-foreign.txt`; install
-   needed official packages with pacman. Do not blindly install every snapshot
-   entry or substitute a current NVIDIA branch for the required Pascal branch.
-2. Clone into `~/dotfiles`. Recheck installed versions against upstream docs.
-   The current greeter username is machine-specific;
-   review them before deploying on a different account.
-3. Compare existing configuration with each repository source. Move any existing
-   destination to a unique rollback backup, then create the links below.
-   Never run these over existing directories or with `ln -sf`:
+For the exact appearance, also install these optional theme packages from a
+source you trust:
 
-   ```sh
-   ln -s "$HOME/dotfiles/home/.config/hypr" "$HOME/.config/hypr"
-   ln -s "$HOME/dotfiles/home/.config/quickshell/predator-shell" "$HOME/.config/quickshell/predator-shell"
-   ln -s "$HOME/dotfiles/home/.config/kitty" "$HOME/.config/kitty"
-   ln -s "$HOME/dotfiles/home/.local/bin/set-wallpaper" "$HOME/.local/bin/set-wallpaper"
-   ln -s "$HOME/dotfiles/home/.config/autostart/predator-shell.desktop" "$HOME/.config/autostart/predator-shell.desktop"
-   ```
+- Bibata Modern Classic cursor theme
+- Darkly Qt style
+- Catppuccin Mocha Lavender Kvantum theme
+- Catppuccin Mocha Lavender GTK theme
 
-   Create missing parent directories first and verify each result with `readlink -f`.
-   Retain `*.pre-dotfiles` backups until explicit approval to remove them.
+The last known machine inventory is in `state/packages-official.txt` and
+`state/packages-foreign.txt`; it is reference material, not an install manifest.
 
-4. Restore a wallpaper into `~/Pictures/Wallpapers/` and initialize its state with
-   `set-wallpaper` in a running session. Check the lock screen image separately.
-5. Reconcile user service enablement against `state/services-user.txt`.
-   The tracked XDG autostart entry starts the shell through the existing UWSM
-   session autostart target; do not add a second shell startup command.
-6. Review `scripts/deploy-system.sh --dry-run`. After version-specific validation,
-   use `sudo scripts/deploy-system.sh --apply`. The script validates its explicit
-   sources and shell entrypoint syntax, refuses destination symlinks, preserves
-   backups, and installs root:root 0644 configs / 0755 executables. It does not
-   validate QML/Lua behavior, enable units, or restart greetd.
-7. Validate a login with a TTY/SSH recovery session available before relying on
-   greetd at boot. Verify locking/unlocking, audio, network and wallpaper persistence.
+## 2. Clone the repository
 
-## Recovery and changes
+The examples assume `~/dotfiles`, but the user configuration can live anywhere:
 
-For user configs, save uncommitted work first. Use `git show COMMIT:path` to inspect
-a known-good file, then restore only the affected file from that revision. Avoid
-whole-tree resets. Symlinked files are live; Hyprland/Quickshell may reload them.
-Use nano from a TTY or SSH if the graphical session is unusable.
+```bash
+git clone <your-fork-or-clone-url> ~/dotfiles
+cd ~/dotfiles
+```
 
-System deployment saves originals under `/var/backups/predator-desktop.*` with a
-manifest. From TTY/SSH, restore each listed original using `sudo cp -a` from its
-backup path to the corresponding absolute destination. For NEW entries, remove
-only that exact newly deployed file. Deployment is atomic per file, not across
-all five files: a failure requires consulting the whole manifest. Restart greetd
-only deliberately from recovery; doing so terminates graphical login/session work.
+Make the machine-specific edits listed above before creating links.
 
-`scripts/snapshot.sh` generates package/service inventories as the desktop user,
-without sudo. It stages all command results before replacing snapshots and never
-imports live configs over repository files. To adopt a deliberate live system
-change, compare and copy only that named managed file, review the diff and commit.
-Never hand-edit state snapshots or copy NetworkManager secrets into Git.
+## 3. Link the user configuration
 
-Work one subsystem per commit: inspect, check installed-version documentation,
-implement, validate, inspect logs and diff, update the checklist, then commit.
-Do not push automatically. Login, lock and reboot tests require deliberate user
-interaction; a running process alone is not proof of end-to-end success.
+The commands below refuse to overwrite existing paths. Back up any configuration
+you already have, then run them from the repository root:
+
+```bash
+mkdir -p ~/.config ~/.config/quickshell ~/.config/autostart ~/.local/bin
+
+ln -s "$PWD/home/.config/hypr" ~/.config/hypr
+ln -s "$PWD/home/.config/quickshell/predator-shell" ~/.config/quickshell/predator-shell
+ln -s "$PWD/home/.config/kitty" ~/.config/kitty
+ln -s "$PWD/home/.config/rofi" ~/.config/rofi
+ln -s "$PWD/home/.config/gtk-3.0" ~/.config/gtk-3.0
+ln -s "$PWD/home/.config/gtk-4.0" ~/.config/gtk-4.0
+ln -s "$PWD/home/.config/qt6ct" ~/.config/qt6ct
+ln -s "$PWD/home/.config/fontconfig" ~/.config/fontconfig
+ln -s "$PWD/home/.config/environment.d" ~/.config/environment.d
+ln -s "$PWD/home/.config/kdeglobals" ~/.config/kdeglobals
+ln -s "$PWD/home/.config/kvantum" ~/.config/kvantum
+ln -s "$PWD/home/.config/starship.toml" ~/.config/starship.toml
+ln -s "$PWD/home/.config/zsh" ~/.config/zsh
+ln -s "$PWD/home/.config/autostart/predator-shell.desktop" ~/.config/autostart/predator-shell.desktop
+ln -s "$PWD/home/.local/bin/set-wallpaper" ~/.local/bin/set-wallpaper
+ln -s "$PWD/home/.local/bin/screenshot" ~/.local/bin/screenshot
+```
+
+If any `ln` command reports that a file exists, stop and move that exact path to
+a backup first. Do not use `ln -sf` on directories.
+
+Set Zsh's configuration directory and optionally make it your login shell:
+
+```bash
+ln -s "$PWD/home/.config/zsh/.zshenv" ~/.zshenv
+chsh -s /bin/zsh
+```
+
+Install the pinned KDE color scheme and apply the GTK preferences:
+
+```bash
+scripts/setup-theme.sh
+fc-cache -f
+```
+
+Log out and back in after changing `environment.d` or the login shell.
+
+## 4. Initialize services and wallpaper
+
+Enable the services needed by the desktop:
+
+```bash
+sudo systemctl enable --now NetworkManager bluetooth
+systemctl --user enable --now pipewire.socket pipewire-pulse.socket wireplumber.service
+systemctl --user enable --now hypridle.service hyprpaper.service hyprpolkitagent.service
+```
+
+Put at least one JPEG, PNG, WebP or JPEG XL image in
+`~/Pictures/Wallpapers`, start a Hyprland session, and select it:
+
+```bash
+mkdir -p ~/Pictures/Wallpapers ~/Pictures/Screenshots
+set-wallpaper ~/Pictures/Wallpapers/your-wallpaper.jpg
+```
+
+The selector stores an atomic symlink at
+`~/.local/state/predator-shell/wallpaper`. Hyprpaper and Hyprlock share it, so the
+desktop and lock screen use the same image.
+
+## 5. Start the desktop
+
+The simplest first run is from a TTY:
+
+```bash
+uwsm start -- hyprland.desktop
+```
+
+The XDG autostart entry launches one Quickshell instance inside the UWSM session.
+If you need to test the shell independently:
+
+```bash
+qs -c predator-shell
+```
+
+Keep another TTY or SSH session available during the first run. Confirm the bar,
+audio, networking, lock screen, wallpaper and logout before enabling a graphical
+login manager.
+
+## Optional: install the greetd login screen
+
+The files under `system/` mirror root-owned paths; editing them does not change
+the live system. After changing the hard-coded greeter username, inspect the exact
+deployment first:
+
+```bash
+scripts/deploy-system.sh --dry-run
+sudo scripts/deploy-system.sh --apply
+```
+
+The apply mode backs up every changed destination under
+`/var/backups/predator-desktop.*` and prints a recovery manifest. It deliberately
+does not restart greetd. From a recovery TTY, enable it only after the regular
+UWSM session has been proven:
+
+```bash
+sudo systemctl enable greetd.service
+sudo systemctl start greetd.service
+```
+
+Starting greetd can terminate or replace the current graphical login flow. Do it
+only when unsaved work is closed and recovery access is available.
+
+## Key bindings
+
+| Keys | Action |
+| --- | --- |
+| `Super + Return` | Open Kitty |
+| `Super + Space` | Application launcher |
+| `Super + .` | Emoji picker |
+| `Super + W` | Wallpaper picker |
+| `Super + grave` | Kitty scratchpad |
+| `Super + R` | Resize mode; use arrows or `h/j/k/l` |
+| `Super + Escape` | Lock |
+| `Super + Backspace` | Session power menu |
+| `Print` / `Super + Shift + S` | Select an area to capture |
+| `Shift + Print` | Capture the screen |
+| `Ctrl + Print` | Capture the active window |
+| `Super + Shift + Q` | End the UWSM session |
+
+Workspaces use `Super + 1…5`; add `Shift` to move the active window. Mouse-wheel
+over the workspace strip moves through workspaces. The indicator grows with
+higher-numbered workspaces and always leaves a trailing empty destination.
+
+## Maintenance and troubleshooting
+
+Useful checks:
+
+```bash
+hyprctl configerrors
+quickshell list
+journalctl --user -b -u quickshell.service
+systemctl --failed
+systemctl --user --failed
+```
+
+Refresh the package and enabled-service snapshots after intentional system
+changes. Run this as the desktop user, never with `sudo`:
+
+```bash
+scripts/snapshot.sh
+```
+
+The Quickshell source is organized by responsibility under
+`home/.config/quickshell/predator-shell/`: `bar/`, `components/`, `popups/`,
+`services/`, `notifications/`, `osd/` and `theme/`. Design rules and tokens are
+documented in [DESIGN.md](DESIGN.md). Remaining machine-level verification is
+tracked in [CHECKLIST.md](CHECKLIST.md).
+
+For recovery, restore only the affected link or file from your backup. Avoid
+whole-tree resets on a live symlinked configuration. For a failed system-file
+deployment, follow the manifest in the newest `/var/backups/predator-desktop.*`
+directory from a TTY or SSH session.
+
+## Scope
+
+This repository intentionally does not install a full desktop environment. It
+does not use Waybar, SwayNC, SDDM, KDE Plasma or GNOME. Rofi is only the
+application/emoji launcher; Quickshell owns the desktop shell UI.

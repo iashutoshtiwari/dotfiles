@@ -29,7 +29,7 @@ if command -v gsettings >/dev/null 2>&1; then
     gsettings set org.gnome.desktop.interface icon-theme Papirus-Dark
     gsettings set org.gnome.desktop.interface cursor-theme Bibata-Modern-Classic
     gsettings set org.gnome.desktop.interface cursor-size 24
-    gsettings set org.gnome.desktop.interface font-name 'Inter 11'
+    gsettings set org.gnome.desktop.interface font-name 'Inter 10'
 fi
 
 printf 'Installed %s\n' "$scheme_path"

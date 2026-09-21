@@ -2,7 +2,7 @@
 """
 phase5-smoke.py — Verification suite for Phase 5 Architecture, Consistency & Polish:
 - Unified Popup Coordinator mutual exclusion and global closeAll
-- Multiple-of-4 scaling consistency across all 10 shell popups
+- Multiple-of-4 scaling consistency across all shell popups
 - Emoji & Symbols picker availability and data integrity
 - Hyprland configuration syntax, window rules, and updated bindings (Super+Space, Super+Escape, Super+period)
 - Quickshell runtime health (zero errors)
@@ -14,6 +14,8 @@ import re
 import subprocess
 import sys
 import time
+
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 def run(cmd):
     return subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
@@ -38,7 +40,7 @@ def test_popup_coordinator_ipc():
 
 def test_multiple_of_four_scaling():
     print("[2/5] Verifying multiple-of-4 subpixel scaling compliance across popups...")
-    popups_dir = os.path.expanduser("~/dotfiles/home/.config/quickshell/predator-shell/popups")
+    popups_dir = os.path.join(REPO_ROOT, "home/.config/quickshell/predator-shell/popups")
     qml_files = [os.path.join(popups_dir, f) for f in os.listdir(popups_dir) if f.endswith(".qml")]
     
     assert len(qml_files) >= 9, f"Found only {len(qml_files)} popup files"
@@ -75,13 +77,14 @@ def test_emoji_picker():
     assert shutil.which("rofi") is not None, "rofi not found in PATH"
 
     # Verify rofi-emoji plugin installed
-    plugin_path = "/usr/lib/rofi/libemoji.so"
+    plugin_path = "/usr/lib/rofi/emoji.so"
     assert os.path.isfile(plugin_path), (
         f"rofi-emoji plugin not found at {plugin_path}. "
         "Run: sudo pacman -S rofi-emoji"
     )
 
-    # Verify hyprland bind dispatches rofi -show emoji
+    # Lua bindings are represented as __lua by Hyprland, so verify both the
+    # live key registration and the tracked command source.
     res = run(["hyprctl", "binds", "-j"])
     binds = json.loads(res.stdout)
     emoji_bind = next(
@@ -90,8 +93,11 @@ def test_emoji_picker():
         None
     )
     assert emoji_bind is not None, "SUPER + period keybinding not found in Hyprland"
-    assert "rofi" in emoji_bind.get("dispatcher", "") or "rofi" in emoji_bind.get("arg", ""), \
-        f"SUPER+period does not dispatch rofi: {emoji_bind}"
+    config_path = os.path.join(REPO_ROOT, "home/.config/hypr/hyprland.lua")
+    with open(config_path, "r", encoding="utf-8") as config_file:
+        config = config_file.read()
+    assert re.search(r'bind\("SUPER \+ period".*?rofi -show emoji', config, re.DOTALL), \
+        "Tracked SUPER+period binding does not dispatch rofi -show emoji"
 
     # Verify wl-clipboard works
     subprocess.run(["wl-copy", "✨"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
