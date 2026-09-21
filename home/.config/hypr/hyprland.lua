@@ -70,6 +70,73 @@ hl.config({
     }
 })
 
+-- ---------------------------------------------------------------------------
+-- Motion
+-- ---------------------------------------------------------------------------
+
+-- A fast ease-out curve keeps transitions responsive without the bounce that
+-- makes a technical desktop feel playful. Durations are in deciseconds.
+hl.curve("predatorEase", {
+    type = "bezier",
+    points = {{0.16, 1.0}, {0.3, 1.0}}
+})
+
+hl.animation({
+    leaf = "windows",
+    enabled = true,
+    speed = 2.0,
+    bezier = "predatorEase",
+    style = "popin 94%"
+})
+hl.animation({
+    leaf = "windowsIn",
+    enabled = true,
+    speed = 2.0,
+    bezier = "predatorEase",
+    style = "popin 94%"
+})
+hl.animation({
+    leaf = "windowsOut",
+    enabled = true,
+    speed = 1.4,
+    bezier = "predatorEase",
+    style = "popin 96%"
+})
+hl.animation({
+    leaf = "workspaces",
+    enabled = true,
+    speed = 2.2,
+    bezier = "predatorEase",
+    style = "slidefade 18%"
+})
+hl.animation({
+    leaf = "specialWorkspace",
+    enabled = true,
+    speed = 1.8,
+    bezier = "predatorEase",
+    style = "slidefade 12%"
+})
+hl.animation({
+    leaf = "layersIn",
+    enabled = true,
+    speed = 1.8,
+    bezier = "predatorEase",
+    style = "slide top"
+})
+hl.animation({
+    leaf = "layersOut",
+    enabled = true,
+    speed = 1.2,
+    bezier = "predatorEase",
+    style = "slide top"
+})
+hl.animation({
+    leaf = "fade",
+    enabled = true,
+    speed = 1.4,
+    bezier = "predatorEase"
+})
+
 -- Five persistent workspaces
 for i = 1, 5 do
     hl.workspace_rule({
@@ -138,10 +205,31 @@ hl.window_rule({
     float = true
 })
 
+hl.window_rule({
+    name = "scratchpad-terminal",
+    match = { class = "^predator-scratchpad$" },
+    workspace = "special:scratchpad",
+    float = true,
+    center = true,
+    size = { "monitor_w * 0.70", "monitor_h * 0.62" },
+    stay_focused = true,
+    animation = "popin 94%"
+})
+
 local mod = "SUPER"
 
 -- Applications
 hl.bind(mod .. " + RETURN", hl.dsp.exec_cmd("uwsm app -- kitty"))
+
+-- A single persistent terminal follows the special-workspace toggle. The
+-- process guard prevents Super+grave from spawning duplicates.
+hl.bind(mod .. " + grave", hl.dsp.exec_cmd(
+    "pgrep -u \"$USER\" -f 'kitty --class predator-scratchpad' >/dev/null || " ..
+    "uwsm app -- kitty --class predator-scratchpad; " ..
+    "hyprctl dispatch togglespecialworkspace scratchpad"
+), {
+    description = "Toggle terminal scratchpad"
+})
 
 -- Window management
 hl.bind(mod .. " + Q", hl.dsp.window.close())
@@ -203,6 +291,25 @@ hl.bind(mod .. " + mouse:272", hl.dsp.window.drag(), {
 hl.bind(mod .. " + mouse:273", hl.dsp.window.resize(), {
     mouse = true
 })
+
+-- Modal resize mode: arrows and vim keys use a 16px increment, then remain
+-- available until Escape or Enter returns to the normal keymap.
+hl.bind(mod .. " + R", hl.dsp.submap("resize"), {
+    description = "Enter resize mode"
+})
+
+hl.define_submap("resize", function()
+    hl.bind("h", hl.dsp.window.resize({ x = -16, y = 0, relative = true }), { repeating = true })
+    hl.bind("left", hl.dsp.window.resize({ x = -16, y = 0, relative = true }), { repeating = true })
+    hl.bind("l", hl.dsp.window.resize({ x = 16, y = 0, relative = true }), { repeating = true })
+    hl.bind("right", hl.dsp.window.resize({ x = 16, y = 0, relative = true }), { repeating = true })
+    hl.bind("k", hl.dsp.window.resize({ x = 0, y = -16, relative = true }), { repeating = true })
+    hl.bind("up", hl.dsp.window.resize({ x = 0, y = -16, relative = true }), { repeating = true })
+    hl.bind("j", hl.dsp.window.resize({ x = 0, y = 16, relative = true }), { repeating = true })
+    hl.bind("down", hl.dsp.window.resize({ x = 0, y = 16, relative = true }), { repeating = true })
+    hl.bind("escape", hl.dsp.submap("reset"))
+    hl.bind("return", hl.dsp.submap("reset"))
+end)
 
 -- Audio
 hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"), {

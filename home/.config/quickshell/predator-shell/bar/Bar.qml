@@ -103,11 +103,21 @@ Scope {
 
                 radius: Theme.radius
 
-                Workspaces {
+                Row {
                     anchors {
                         left: parent.left
                         leftMargin: 10
                         verticalCenter: parent.verticalCenter
+                    }
+
+                    spacing: Theme.spacingSm
+
+                    Workspaces {
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+
+                    ModeIndicator {
+                        anchors.verticalCenter: parent.verticalCenter
                     }
                 }
 

@@ -49,10 +49,23 @@ Singleton {
     readonly property int spacingSm: 8
     readonly property int spacingMd: 12
     readonly property int spacingLg: 16
+    readonly property int spacingXl: 24
+
+    // Shared shell geometry. Keep surfaces square; circular geometry belongs to
+    // indicators whose shape communicates a point or status.
+    readonly property int borderWidth: 1
+    readonly property int activeBorderWidth: 2
+    readonly property int workspaceSlot: 31
+    readonly property int workspaceDot: 8
+    readonly property int workspaceActiveDot: 10
 
     // Intentionally boxy.
     readonly property int radius: 0
 
     readonly property int animationFast: 120
     readonly property int animationNormal: 180
+    readonly property int animationDeliberate: 240
+    readonly property int animationExit: 90
+
+    readonly property real disabledOpacity: 0.55
 }

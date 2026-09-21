@@ -7,99 +7,127 @@ import qs.theme
 Item {
     id: root
 
-    implicitWidth: row.implicitWidth
+    readonly property int activeWorkspaceIndex:
+        Hyprland.focusedWorkspace && Hyprland.focusedWorkspace.id >= 1
+            ? Math.min(4, Hyprland.focusedWorkspace.id - 1)
+            : 0
+
+    implicitWidth: workspaceSlots.width
     implicitHeight: 28
 
-    Row {
-        id: row
+    Item {
+        id: workspaceSlots
 
         anchors.verticalCenter: parent.verticalCenter
+        width: 5 * Theme.workspaceSlot - Theme.spacingSm
+        height: parent.height
 
-        spacing: 4
+        // One accent marker travels between fixed slots so switching workspace
+        // never changes layout or starts five competing animations.
+        Rectangle {
+            z: 0
+            x: root.activeWorkspaceIndex * Theme.workspaceSlot + 6.5
+            anchors.verticalCenter: parent.verticalCenter
 
-        Repeater {
-            model: 5
+            width: Theme.workspaceActiveDot
+            height: width
+            radius: width / 2
+            color: Theme.accent
 
-            delegate: Item {
-                id: workspace
+            Behavior on x {
+                NumberAnimation {
+                    duration: Theme.animationNormal
+                    easing.type: Easing.OutCubic
+                }
+            }
+        }
 
-                required property int index
+        Row {
+            anchors.fill: parent
+            spacing: Theme.spacingSm
 
-                property int workspaceId: index + 1
+            Repeater {
+                model: 5
 
-                property bool active:
-                    Hyprland.focusedWorkspace !== null
-                    && Hyprland.focusedWorkspace.id === workspaceId
+                delegate: Item {
+                    id: workspace
 
-                width: 27
-                height: 28
+                    required property int index
 
-                Rectangle {
-                    anchors.centerIn: parent
+                    readonly property int workspaceId: index + 1
+                    readonly property bool active:
+                        Hyprland.focusedWorkspace !== null
+                        && Hyprland.focusedWorkspace.id === workspaceId
 
-                    width: 22
-                    height: 22
+                    z: 1
+                    width: Theme.workspaceSlot - Theme.spacingSm
+                    height: parent.height
 
-                    // It's a workspace dot, so this is the one place
-                    // where circular geometry is intentional.
-                    radius: 11
+                    Rectangle {
+                        anchors.centerIn: parent
 
-                    color: workspace.active
-                        ? Theme.accent
-                        : "transparent"
+                        width: workspace.active
+                            ? Theme.workspaceActiveDot
+                            : Theme.workspaceDot
+                        height: width
 
-                    border.width: workspace.active ? 0 : 1
-                    border.color: Theme.surface1
+                        // Workspace markers are the intentional exception to
+                        // the shell's otherwise square geometry.
+                        radius: width / 2
+                        color: {
+                            if (workspace.active)
+                                return "transparent";
+                            return workspaceMouse.containsMouse
+                                ? Theme.surface2
+                                : Theme.surface1;
+                        }
 
-                    Behavior on color {
-                        ColorAnimation {
-                            duration: Theme.animationFast
+                        Behavior on color {
+                            ColorAnimation {
+                                duration: Theme.animationFast
+                            }
                         }
                     }
-                }
 
-                Text {
-                    anchors.centerIn: parent
+                    Text {
+                        anchors.centerIn: parent
 
-                    text: workspace.workspaceId
+                        text: workspace.workspaceId
+                        color: workspace.active ? Theme.crust : Theme.subtext0
+                        font.family: Theme.shellFont
+                        font.pixelSize: 11
+                        font.weight: Font.DemiBold
+                    }
 
-                    font.family: Theme.shellFont
-                    font.pixelSize: 11
-                    font.weight: Font.DemiBold
+                    MouseArea {
+                        id: workspaceMouse
 
-                    color: workspace.active
-                        ? Theme.crust
-                        : Theme.subtext0
-                }
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
 
-                MouseArea {
-                    anchors.fill: parent
-
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-
-                    onClicked: {
-                        const existing =
-                            Hyprland.workspaces.values.find(
-                                ws => ws.id === workspace.workspaceId
+                        onClicked: {
+                            const existing = Hyprland.workspaces.values.find(
+                                candidate => candidate.id === workspace.workspaceId
                             );
 
-                        if (existing) {
-                            existing.activate();
-                            return;
-                        }
+                            if (existing) {
+                                existing.activate();
+                                return;
+                            }
 
-                        // Empty workspace fallback.
-                        if (Hyprland.usingLua) {
-                            Hyprland.dispatch(
-                                'hl.dsp.focus({ workspace = "'
-                                + workspace.workspaceId
-                                + '" })'
-                            );
-                        } else {
-                            Hyprland.dispatch(
-                                "workspace " + workspace.workspaceId
-                            );
+                            // Empty workspaces do not have model objects yet.
+                            if (Hyprland.usingLua) {
+                                Hyprland.dispatch(
+                                    'hl.dsp.focus({ workspace = "'
+                                    + workspace.workspaceId
+                                    + '" })'
+                                );
+                            } else {
+                                Hyprland.dispatch(
+                                    "workspace " + workspace.workspaceId
+                                );
+                            }
                         }
                     }
                 }
