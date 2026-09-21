@@ -17,7 +17,7 @@ imply a broken live system. See [audit evidence](docs/handoff-audit.md).
 | B — Persistence | TODO | Selector and independent daemon-restart persistence verified; next login/reboot still needs testing. |
 | B — Lock integration | IN PROGRESS | Exact image command verified against shared symlink; actual locked image and successful unlock still require interaction. |
 | B — Wallpaper picker | TODO | Only after backend verification; optional manual rotation, no automatic rotation. |
-| C — Kitty | IN PROGRESS | Mocha/font/opacity configured; fix unknown window_border_radius key; verify font rendering, transparency and multiple tabs. |
+| C — Kitty | IN PROGRESS | Removed unsupported border-radius key; installed parser loads without warnings, Mocha/11.5pt/0.94 opacity/10px padding/tab threshold verified; fontconfig resolves JetBrains Mono. Visual rendering/transparency/multiple tabs remain. |
 | D — Brightness | TODO | Identify internal backlight, service/slider/percentage, keyboard controls; no unsupported external-display claims. |
 | E — Night light | TODO | Verify installed/current Hyprsunset support; enable/temperature/manual schedule; no geolocation dependency. |
 | F — Shared OSD | TODO | Single reusable framework: output/mute/mic/brightness, optional supported keyboard light and reliable Caps Lock; brief/subtle/no overlap. |
