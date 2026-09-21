@@ -232,4 +232,8 @@ hl.bind("SUPER + SHIFT + Q", hl.dsp.exec_cmd("uwsm stop"), {
 
 hl.bind("SUPER + Escape", hl.dsp.exec_cmd("loginctl lock-session"))
 
+hl.bind("SUPER + Backspace", hl.dsp.exec_cmd("qs ipc -c predator-shell call powermenu toggle"), {
+    description = "Toggle session power menu"
+})
+
 hl.bind("SUPER + SPACE", hl.dsp.exec_cmd("rofi -show drun"))

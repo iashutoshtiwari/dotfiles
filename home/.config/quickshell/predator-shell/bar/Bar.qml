@@ -57,80 +57,114 @@ Scope {
                 }
 
                 Row {
-    anchors {
-        right: parent.right
-        rightMargin: 10
-        verticalCenter: parent.verticalCenter
-    }
+                    anchors {
+                        right: parent.right
+                        rightMargin: 10
+                        verticalCenter: parent.verticalCenter
+                    }
 
-    spacing: 4
+                    spacing: 4
 
-	NetworkButton {
-        id: networkButton
+                    TrayWidget {
+                        id: trayWidget
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
 
-        onClicked:
-            networkPopup.visible = !networkPopup.visible
-    }
-	BluetoothButton {
-    id: bluetoothButton
+                    NotificationButton {
+                        id: notificationButton
+                        onClicked:
+                            notificationCenter.visible = !notificationCenter.visible
+                    }
 
-    onClicked:
-        bluetoothPopup.visible = !bluetoothPopup.visible
-}
+                    NetworkButton {
+                        id: networkButton
 
-    DisplayButton {
-        id: displayButton
+                        onClicked:
+                            networkPopup.visible = !networkPopup.visible
+                    }
 
-        onClicked:
-            displayPopup.visible = !displayPopup.visible
-    }
+                    BluetoothButton {
+                        id: bluetoothButton
 
-    AudioButton {
-        id: audioButton
+                        onClicked:
+                            bluetoothPopup.visible = !bluetoothPopup.visible
+                    }
 
-        onClicked:
-            audioPopup.visible = !audioPopup.visible
-    }
-	
-    BatteryButton {
-    id: batteryButton
+                    DisplayButton {
+                        id: displayButton
 
-    onClicked:
-        powerPopup.visible = !powerPopup.visible
-    }
+                        onClicked:
+                            displayPopup.visible = !displayPopup.visible
+                    }
 
-    ClockButton {
-        id: clockButton
+                    AudioButton {
+                        id: audioButton
 
-        onClicked:
-            clockPopup.visible = !clockPopup.visible
-    }
-}
+                        onClicked:
+                            audioPopup.visible = !audioPopup.visible
+                    }
+
+                    BatteryButton {
+                        id: batteryButton
+
+                        onClicked:
+                            powerPopup.visible = !powerPopup.visible
+                    }
+
+                    ClockButton {
+                        id: clockButton
+
+                        onClicked:
+                            clockPopup.visible = !clockPopup.visible
+                    }
+
+                    PowerButton {
+                        id: powerButton
+
+                        onClicked:
+                            powerMenuPopup.visible = !powerMenuPopup.visible
+                    }
+                }
             }
-NetworkPopup {
-    id: networkPopup
-    anchorItem: networkButton
-}
-BluetoothPopup {
-    id: bluetoothPopup
-    anchorItem: bluetoothButton
-}
-DisplayPopup {
-    id: displayPopup
-    anchorItem: displayButton
-}
-AudioPopup {
-    id: audioPopup
-    anchorItem: audioButton
-}
-PowerPopup {
-    id: powerPopup
-    anchorItem: batteryButton
-}
+
+            NotificationCenter {
+                id: notificationCenter
+                anchorItem: notificationButton
+            }
+
+            NetworkPopup {
+                id: networkPopup
+                anchorItem: networkButton
+            }
+
+            BluetoothPopup {
+                id: bluetoothPopup
+                anchorItem: bluetoothButton
+            }
+
+            DisplayPopup {
+                id: displayPopup
+                anchorItem: displayButton
+            }
+
+            AudioPopup {
+                id: audioPopup
+                anchorItem: audioButton
+            }
+
+            PowerPopup {
+                id: powerPopup
+                anchorItem: batteryButton
+            }
 
             ClockPopup {
                 id: clockPopup
                 anchorItem: clockButton
+            }
+
+            PowerMenuPopup {
+                id: powerMenuPopup
+                anchorItem: powerButton
             }
         }
     }
