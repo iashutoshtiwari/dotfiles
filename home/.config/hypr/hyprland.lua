@@ -192,10 +192,11 @@ hl.animation({
 })
 
 -- Shell surfaces own their internal transitions. Disabling compositor motion
--- here prevents the bar, OSD, and notification cards from animating twice.
+-- here prevents the bar, OSD, notification cards, and action center from
+-- animating twice. The action center owns its own horizontal slide via QML.
 hl.layer_rule({
     name = "predator-shell-motion-owned-by-qml",
-    match = { namespace = "^(quickshell|predator-notifications|predator-osd)$" },
+    match = { namespace = "^(quickshell|predator-notifications|predator-osd|predator-action-center)$" },
     no_anim = true
 })
 hl.layer_rule({
@@ -466,6 +467,15 @@ hl.bind("SUPER + Escape", hl.dsp.exec_cmd("qs ipc -c predator-shell call popups 
 
 hl.bind("SUPER + Backspace", hl.dsp.exec_cmd("qs ipc -c predator-shell call powermenu toggle"), {
     description = "Toggle session power menu"
+})
+
+-- Action Center: Super+N toggles the right-side Action Center drawer.
+-- The IPC call reaches the ActionCenter IpcHandler (target: "actionCenter").
+-- Closes drawer if open; opens on the current monitor's action center if closed.
+-- Super+Space and Super+period already call popups closeAll which closes the
+-- action center via its dismiss() path in Bar's closeAllPopups().
+hl.bind("SUPER + N", hl.dsp.exec_cmd("qs ipc -c predator-shell call actionCenter toggle"), {
+    description = "Toggle Action Center"
 })
 
 hl.bind("SUPER + SPACE", hl.dsp.exec_cmd("qs ipc -c predator-shell call popups closeAll; rofi -show drun"), {

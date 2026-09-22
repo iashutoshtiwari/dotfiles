@@ -71,6 +71,9 @@ Singleton {
     readonly property int popupWide: 392
     readonly property int popupPadding: 16
 
+    // Action Center drawer width (360–420px range, using popupWide value)
+    readonly property int actionCenterWidth: 392
+
     // Shared shell geometry. Keep surfaces square; circular geometry belongs to
     // indicators whose shape communicates a point or status.
     readonly property int borderWidth: 1

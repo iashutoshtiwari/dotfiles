@@ -1,0 +1,4 @@
+module qs.actioncenter
+ActionCenter 1.0 ActionCenter.qml
+NotificationList 1.0 NotificationList.qml
+NotificationCard 1.0 NotificationCard.qml

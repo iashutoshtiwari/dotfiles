@@ -10,6 +10,11 @@ Singleton {
     property bool dnd: false
     property int unreadCount: 0
 
+    // Set to true by ActionCenter while it is open.
+    // When true: new notifications do not increment unreadCount
+    // (they are already visible in the drawer), and toasts are suppressed.
+    property bool actionCenterOpen: false
+
     // Toasts signal for transient popup banners
     signal toastRequested(var notif)
 
@@ -22,12 +27,19 @@ Singleton {
         imageSupported: true
 
         onNotification: notif => {
-            // Keep notification in tracked history
+            // Keep notification in tracked history regardless of DND or AC state
             notif.tracked = true;
-            root.unreadCount++;
 
-            // Trigger visual toast banner if DND is inactive
-            if (!root.dnd) {
+            // Only increment unread if the action center is not currently open.
+            // When the drawer is open the user is already looking at notifications.
+            if (!root.actionCenterOpen) {
+                root.unreadCount++;
+            }
+
+            // Trigger visual toast banner if DND is off AND action center is closed.
+            // When the action center is open, the notification appears in-drawer so
+            // a duplicate toast would be redundant.
+            if (!root.dnd && !root.actionCenterOpen) {
                 root.toastRequested(notif);
             }
         }

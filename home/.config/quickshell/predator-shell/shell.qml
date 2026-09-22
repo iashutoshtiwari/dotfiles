@@ -5,6 +5,7 @@ import Quickshell
 import qs.bar
 import qs.osd
 import qs.notifications
+import qs.actioncenter
 
 ShellRoot {
     Bar {}

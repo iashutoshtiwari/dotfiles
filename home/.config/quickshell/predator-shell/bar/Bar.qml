@@ -4,278 +4,322 @@ import Quickshell.Io
 
 import qs.theme
 import qs.popups
+import qs.actioncenter
+
+// Bar creates one instance of the bar panel and its associated Action Center
+// overlay per screen. This ensures the Action Center opens on the same monitor
+// as the button that triggered it.
 
 Scope {
     Variants {
         model: Quickshell.screens
 
-        PanelWindow {
-            id: root
+        // ── Per-screen scope ─────────────────────────────────────────────
+        Scope {
+            id: perScreen
 
             required property var modelData
 
-            screen: modelData
+            // Reference to the Action Center overlay for this screen.
+            // Bar uses this to include it in allPopups coordination.
+            property var actionCenterRef: actionCenterOverlay
 
-            anchors {
-                top: true
-                left: true
-                right: true
+            // ── Action Center overlay (full-screen, Overlay layer) ────────
+            // This is a separate PanelWindow from the bar, living at Overlay
+            // layer so it draws above normal windows without disturbing tiling.
+            ActionCenter {
+                id: actionCenterOverlay
+                modelData: perScreen.modelData
             }
 
-            margins {
-                top: Theme.barMargin
-                left: Theme.barMargin
-                right: Theme.barMargin
-            }
+            // ── Top bar panel ─────────────────────────────────────────────
+            PanelWindow {
+                id: root
 
-            implicitHeight: Theme.barHeight
+                screen: perScreen.modelData
 
-            exclusiveZone:
-                Theme.barHeight + Theme.barMargin
-
-            color: "transparent"
-
-            readonly property var allPopups: [
-                notificationCenter,
-                networkPopup,
-                bluetoothPopup,
-                displayPopup,
-                wallpaperPicker,
-                audioPopup,
-                powerPopup,
-                weatherPopup,
-                clockPopup,
-                mediaPopup,
-                powerMenuPopup
-            ]
-
-            function togglePopup(targetPopup): void {
-                if (!targetPopup)
-                    return;
-                const wasVisible = targetPopup.visible;
-                // Switching popups is immediate so two layer surfaces never overlap.
-                // A same-button dismissal may use the popup's short exit motion.
-                for (let i = 0; i < allPopups.length; i++) {
-                    const popup = allPopups[i];
-                    if (popup && popup !== targetPopup && popup.visible)
-                        popup.visible = false;
+                anchors {
+                    top: true
+                    left: true
+                    right: true
                 }
-                if (wasVisible && targetPopup.dismiss)
-                    targetPopup.dismiss();
-                else if (wasVisible)
-                    targetPopup.visible = false;
-                else if (targetPopup.present)
-                    targetPopup.present();
-                else
-                    targetPopup.visible = true;
-            }
 
-            function closeAllPopups(): void {
-                for (let i = 0; i < allPopups.length; i++) {
-                    const p = allPopups[i];
-                    if (p && p.visible) {
-                        p.visible = false;
+                margins {
+                    top: Theme.barMargin
+                    left: Theme.barMargin
+                    right: Theme.barMargin
+                }
+
+                implicitHeight: Theme.barHeight
+
+                exclusiveZone:
+                    Theme.barHeight + Theme.barMargin
+
+                color: "transparent"
+
+                // ── Popup coordinator ─────────────────────────────────────
+                // allPopups includes all transient surfaces on this screen.
+                // Action Center is included so opening any popup closes the
+                // drawer, and opening the drawer closes all popups.
+                readonly property var allPopups: [
+                    actionCenterOverlay,
+                    networkPopup,
+                    bluetoothPopup,
+                    displayPopup,
+                    wallpaperPicker,
+                    audioPopup,
+                    powerPopup,
+                    weatherPopup,
+                    clockPopup,
+                    mediaPopup,
+                    powerMenuPopup
+                ]
+
+                // Returns true if a surface is currently logically open.
+                // ActionCenter uses .open; regular PopupWindows use .visible.
+                function isOpen(surface): bool {
+                    if (!surface) return false;
+                    if (typeof surface.open === "boolean")
+                        return surface.open;
+                    return surface.visible ?? false;
+                }
+
+                function closeOne(surface): void {
+                    if (!surface) return;
+                    if (surface.dismiss)
+                        surface.dismiss();
+                    else
+                        surface.visible = false;
+                }
+
+                function togglePopup(targetPopup): void {
+                    if (!targetPopup)
+                        return;
+                    const wasOpen = root.isOpen(targetPopup);
+                    // Close all other surfaces before toggling target.
+                    for (let i = 0; i < allPopups.length; i++) {
+                        const popup = allPopups[i];
+                        if (popup && popup !== targetPopup && root.isOpen(popup))
+                            root.closeOne(popup);
                     }
-                }
-            }
-
-            IpcHandler {
-                target: "popups"
-
-                function closeAll(): void {
-                    root.closeAllPopups();
+                    if (wasOpen)
+                        root.closeOne(targetPopup);
+                    else if (targetPopup.present)
+                        targetPopup.present();
+                    else
+                        targetPopup.visible = true;
                 }
 
-                function toggle(name: string): void {
-                    const map = {
-                        "notifications": notificationCenter,
-                        "network": networkPopup,
-                        "bluetooth": bluetoothPopup,
-                        "display": displayPopup,
-                        "wallpaper": wallpaperPicker,
-                        "audio": audioPopup,
-                        "power": powerPopup,
-                        "weather": weatherPopup,
-                        "clock": clockPopup,
-                        "media": mediaPopup,
-                        "powermenu": powerMenuPopup
-                    };
-                    const target = map[name];
-                    if (target)
-                        root.togglePopup(target);
-                }
-            }
-
-            Rectangle {
-                anchors.fill: parent
-
-                // Slight translucency softens the floating bar without making
-                // content behind it visually distracting.
-                color: Qt.rgba(Theme.mantle.r, Theme.mantle.g, Theme.mantle.b, 0.96)
-
-                border.width: 1
-                border.color: Theme.surface0
-
-                radius: Theme.radius
-
-                Row {
-                    anchors {
-                        left: parent.left
-                        leftMargin: 10
-                        verticalCenter: parent.verticalCenter
-                    }
-
-                    spacing: Theme.spacingSm
-
-                    Workspaces {
-                        anchors.verticalCenter: parent.verticalCenter
-                    }
-
-                    ModeIndicator {
-                        anchors.verticalCenter: parent.verticalCenter
+                function closeAllPopups(): void {
+                    for (let i = 0; i < allPopups.length; i++) {
+                        const p = allPopups[i];
+                        if (p && root.isOpen(p))
+                            root.closeOne(p);
                     }
                 }
 
-                // ── Center: Media + Weather + Clock ──────────────────
-                Row {
-                    anchors.centerIn: parent
-                    spacing: 4
 
-                    MediaWidget {
-                        id: mediaWidget
-                        anchors.verticalCenter: parent.verticalCenter
-                        active: mediaPopup.visible
-                        onClicked: root.togglePopup(mediaPopup)
+                IpcHandler {
+                    target: "popups"
+
+                    function closeAll(): void {
+                        root.closeAllPopups();
                     }
 
-                    WeatherButton {
-                        id: weatherButton
-                        anchors.verticalCenter: parent.verticalCenter
-                        active: weatherPopup.visible
-                        onClicked: root.togglePopup(weatherPopup)
+                    function toggle(name: string): void {
+                        const map = {
+                            "actioncenter": actionCenterOverlay,
+                            "network": networkPopup,
+                            "bluetooth": bluetoothPopup,
+                            "display": displayPopup,
+                            "wallpaper": wallpaperPicker,
+                            "audio": audioPopup,
+                            "power": powerPopup,
+                            "weather": weatherPopup,
+                            "clock": clockPopup,
+                            "media": mediaPopup,
+                            "powermenu": powerMenuPopup
+                        };
+                        const target = map[name];
+                        if (target)
+                            root.togglePopup(target);
+                    }
+                }
+
+                Rectangle {
+                    anchors.fill: parent
+
+                    // Slight translucency softens the floating bar without making
+                    // content behind it visually distracting.
+                    color: Qt.rgba(Theme.mantle.r, Theme.mantle.g, Theme.mantle.b, 0.96)
+
+                    border.width: 1
+                    border.color: Theme.surface0
+
+                    radius: Theme.radius
+
+                    // ── Left: workspaces + mode indicator ─────────────────
+                    Row {
+                        anchors {
+                            left: parent.left
+                            leftMargin: 10
+                            verticalCenter: parent.verticalCenter
+                        }
+
+                        spacing: Theme.spacingSm
+
+                        Workspaces {
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+
+                        ModeIndicator {
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
                     }
 
-                    ClockButton {
-                        id: clockButton
-                        anchors.verticalCenter: parent.verticalCenter
-                        active: clockPopup.visible
-                        onClicked: root.togglePopup(clockPopup)
+                    // ── Center: Media + Weather + Clock ────────────────────
+                    Row {
+                        anchors.centerIn: parent
+                        spacing: 4
+
+                        MediaWidget {
+                            id: mediaWidget
+                            anchors.verticalCenter: parent.verticalCenter
+                            active: mediaPopup.visible
+                            onClicked: root.togglePopup(mediaPopup)
+                        }
+
+                        WeatherButton {
+                            id: weatherButton
+                            anchors.verticalCenter: parent.verticalCenter
+                            active: weatherPopup.visible
+                            onClicked: root.togglePopup(weatherPopup)
+                        }
+
+                        ClockButton {
+                            id: clockButton
+                            anchors.verticalCenter: parent.verticalCenter
+                            active: clockPopup.visible
+                            onClicked: root.togglePopup(clockPopup)
+                        }
+                    }
+
+                    // ── Right: system buttons (left → right order) ─────────
+                    // Order: tray | network | bluetooth | display | audio |
+                    //        battery | power | [action center — rightmost]
+                    Row {
+                        anchors {
+                            right: parent.right
+                            rightMargin: 10
+                            verticalCenter: parent.verticalCenter
+                        }
+
+                        spacing: 4
+
+                        TrayWidget {
+                            id: trayWidget
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+
+                        NetworkButton {
+                            id: networkButton
+                            active: networkPopup.visible
+                            onClicked: root.togglePopup(networkPopup)
+                        }
+
+                        BluetoothButton {
+                            id: bluetoothButton
+                            active: bluetoothPopup.visible
+                            onClicked: root.togglePopup(bluetoothPopup)
+                        }
+
+                        DisplayButton {
+                            id: displayButton
+                            active: displayPopup.visible || wallpaperPicker.visible
+                            onClicked: root.togglePopup(displayPopup)
+                        }
+
+                        AudioButton {
+                            id: audioButton
+                            active: audioPopup.visible
+                            onClicked: root.togglePopup(audioPopup)
+                        }
+
+                        BatteryButton {
+                            id: batteryButton
+                            active: powerPopup.visible
+                            onClicked: root.togglePopup(powerPopup)
+                        }
+
+                        PowerButton {
+                            id: powerButton
+                            active: powerMenuPopup.visible
+                            onClicked: root.togglePopup(powerMenuPopup)
+                        }
+
+                        // Action Center — rightmost bar button
+                        ActionCenterButton {
+                            id: actionCenterButton
+                            anchors.verticalCenter: parent.verticalCenter
+                            active: actionCenterOverlay.open
+                            onClicked: root.togglePopup(actionCenterOverlay)
+                        }
                     }
                 }
 
-                // ── Right: system buttons ─────────────────────────────
-                Row {
-                    anchors {
-                        right: parent.right
-                        rightMargin: 10
-                        verticalCenter: parent.verticalCenter
-                    }
+                // ── Per-screen popup surfaces ──────────────────────────────
+                // These are anchored to their bar buttons on this screen.
 
-                    spacing: 4
-
-                    TrayWidget {
-                        id: trayWidget
-                        anchors.verticalCenter: parent.verticalCenter
-                    }
-
-                    NotificationButton {
-                        id: notificationButton
-                        active: notificationCenter.visible
-                        onClicked: root.togglePopup(notificationCenter)
-                    }
-
-                    NetworkButton {
-                        id: networkButton
-                        active: networkPopup.visible
-                        onClicked: root.togglePopup(networkPopup)
-                    }
-
-                    BluetoothButton {
-                        id: bluetoothButton
-                        active: bluetoothPopup.visible
-                        onClicked: root.togglePopup(bluetoothPopup)
-                    }
-
-                    DisplayButton {
-                        id: displayButton
-                        active: displayPopup.visible || wallpaperPicker.visible
-                        onClicked: root.togglePopup(displayPopup)
-                    }
-
-                    AudioButton {
-                        id: audioButton
-                        active: audioPopup.visible
-                        onClicked: root.togglePopup(audioPopup)
-                    }
-
-                    BatteryButton {
-                        id: batteryButton
-                        active: powerPopup.visible
-                        onClicked: root.togglePopup(powerPopup)
-                    }
-
-                    PowerButton {
-                        id: powerButton
-                        active: powerMenuPopup.visible
-                        onClicked: root.togglePopup(powerMenuPopup)
-                    }
+                NetworkPopup {
+                    id: networkPopup
+                    anchorItem: networkButton
                 }
-            }
 
-            NotificationCenter {
-                id: notificationCenter
-                anchorItem: notificationButton
-            }
+                BluetoothPopup {
+                    id: bluetoothPopup
+                    anchorItem: bluetoothButton
+                }
 
-            NetworkPopup {
-                id: networkPopup
-                anchorItem: networkButton
-            }
+                DisplayPopup {
+                    id: displayPopup
+                    anchorItem: displayButton
+                    onOpenWallpaperPicker: root.togglePopup(wallpaperPicker)
+                }
 
-            BluetoothPopup {
-                id: bluetoothPopup
-                anchorItem: bluetoothButton
-            }
+                WallpaperPicker {
+                    id: wallpaperPicker
+                    anchorItem: displayButton
+                }
 
-            DisplayPopup {
-                id: displayPopup
-                anchorItem: displayButton
-                onOpenWallpaperPicker: root.togglePopup(wallpaperPicker)
-            }
+                AudioPopup {
+                    id: audioPopup
+                    anchorItem: audioButton
+                }
 
-            WallpaperPicker {
-                id: wallpaperPicker
-                anchorItem: displayButton
-            }
+                PowerPopup {
+                    id: powerPopup
+                    anchorItem: batteryButton
+                }
 
-            AudioPopup {
-                id: audioPopup
-                anchorItem: audioButton
-            }
+                WeatherPopup {
+                    id: weatherPopup
+                    anchorItem: weatherButton
+                }
 
-            PowerPopup {
-                id: powerPopup
-                anchorItem: batteryButton
-            }
+                ClockPopup {
+                    id: clockPopup
+                    anchorItem: clockButton
+                }
 
-            WeatherPopup {
-                id: weatherPopup
-                anchorItem: weatherButton
-            }
+                MediaPopup {
+                    id: mediaPopup
+                    anchorItem: mediaWidget
+                }
 
-            ClockPopup {
-                id: clockPopup
-                anchorItem: clockButton
-            }
-
-            MediaPopup {
-                id: mediaPopup
-                anchorItem: mediaWidget
-            }
-
-            PowerMenuPopup {
-                id: powerMenuPopup
-                anchorItem: powerButton
+                PowerMenuPopup {
+                    id: powerMenuPopup
+                    anchorItem: powerButton
+                }
             }
         }
     }
