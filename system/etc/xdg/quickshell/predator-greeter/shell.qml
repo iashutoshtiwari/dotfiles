@@ -364,7 +364,7 @@ ShellRoot {
 
                         Text {
                             anchors.horizontalCenter: parent.horizontalCenter
-                            text: "Predator Shell"
+                            text: "Ghost"
                             color: theme.subtext0
                             font.family: theme.uiFont
                             font.pixelSize: 11
@@ -510,7 +510,7 @@ ShellRoot {
                             bottom: parent.bottom
                             margins: theme.spacingXl
                         }
-                        text: "PREDATOR"
+                        text: "GHOST"
                         color: theme.overlay0
                         font.family: theme.iconFont
                         font.pixelSize: 10
