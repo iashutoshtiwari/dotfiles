@@ -109,7 +109,9 @@ Scope {
             Rectangle {
                 anchors.fill: parent
 
-                color: Theme.base
+                // Slight translucency softens the floating bar without making
+                // content behind it visually distracting.
+                color: Qt.rgba(Theme.mantle.r, Theme.mantle.g, Theme.mantle.b, 0.96)
 
                 border.width: 1
                 border.color: Theme.surface0
