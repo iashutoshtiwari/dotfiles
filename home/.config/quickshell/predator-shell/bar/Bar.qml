@@ -136,13 +136,34 @@ Scope {
                     }
                 }
 
-                MediaWidget {
-                    id: mediaWidget
+                // ── Center: Media + Weather + Clock ──────────────────
+                Row {
                     anchors.centerIn: parent
-                    active: mediaPopup.visible
-                    onClicked: root.togglePopup(mediaPopup)
+                    spacing: 4
+
+                    MediaWidget {
+                        id: mediaWidget
+                        anchors.verticalCenter: parent.verticalCenter
+                        active: mediaPopup.visible
+                        onClicked: root.togglePopup(mediaPopup)
+                    }
+
+                    WeatherButton {
+                        id: weatherButton
+                        anchors.verticalCenter: parent.verticalCenter
+                        active: weatherPopup.visible
+                        onClicked: root.togglePopup(weatherPopup)
+                    }
+
+                    ClockButton {
+                        id: clockButton
+                        anchors.verticalCenter: parent.verticalCenter
+                        active: clockPopup.visible
+                        onClicked: root.togglePopup(clockPopup)
+                    }
                 }
 
+                // ── Right: system buttons ─────────────────────────────
                 Row {
                     anchors {
                         right: parent.right
@@ -191,18 +212,6 @@ Scope {
                         id: batteryButton
                         active: powerPopup.visible
                         onClicked: root.togglePopup(powerPopup)
-                    }
-
-                    WeatherButton {
-                        id: weatherButton
-                        active: weatherPopup.visible
-                        onClicked: root.togglePopup(weatherPopup)
-                    }
-
-                    ClockButton {
-                        id: clockButton
-                        active: clockPopup.visible
-                        onClicked: root.togglePopup(clockPopup)
                     }
 
                     PowerButton {
