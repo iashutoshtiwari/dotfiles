@@ -60,8 +60,9 @@ It replaces the old `NotificationCenter` popup and is architected to grow into a
 general system control surface.
 
 **Geometry:** 392 px wide (`Theme.actionCenterWidth`), starts immediately below the
-floating bar, extends to the bottom of the monitor. Does not push or resize tiled
-windows (`exclusiveZone: 0`, Overlay layer).
+floating bar, extends toward the bottom with `Theme.barMargin` (8px) margin on the
+right and bottom edges to preserve the floating shell design. Does not push or resize
+tiled windows (`exclusiveZone: 0`, Overlay layer).
 
 **Motion:** QML-owned horizontal slide — opens right→left in `motionSpatial` (~230 ms,
 OutCubic), closes left→right in `motionNormal` (~170 ms, InCubic). Hyprland has

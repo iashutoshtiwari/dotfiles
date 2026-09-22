@@ -158,10 +158,12 @@ PanelWindow {
     Rectangle {
         id: drawer
 
+        readonly property real drawerWidth: Math.min(Theme.actionCenterWidth, root.width - Theme.barMargin * 2)
+
         // drawerX drives the Behavior-animated position.
         // Separated from x so we can read the animated value for animationActive.
         property real drawerX: root.open
-            ? root.width - Theme.actionCenterWidth
+            ? root.width - drawerWidth - Theme.barMargin
             : root.width
 
         // Animate the position change smoothly.
@@ -173,9 +175,10 @@ PanelWindow {
         }
 
         x: drawerX
-        width: Theme.actionCenterWidth
+        width: drawerWidth
         anchors.top: parent.top
         anchors.bottom: parent.bottom
+        anchors.bottomMargin: Theme.barMargin
 
         // Block all pointer events so backdrop MouseArea is not triggered
         // by clicks inside the drawer.
@@ -191,13 +194,9 @@ PanelWindow {
 
         // ── Surface ───────────────────────────────────────────────────
         color: Theme.mantle
-
-        // Subtle 1px left border — marks the drawer edge
-        Rectangle {
-            anchors { left: parent.left; top: parent.top; bottom: parent.bottom }
-            width: 1
-            color: Theme.surface1
-        }
+        border.width: Theme.borderWidth
+        border.color: Theme.surface1
+        radius: Theme.radius
 
         // ── Keyboard: Escape closes ───────────────────────────────────
         Keys.onEscapePressed: root.dismiss()
