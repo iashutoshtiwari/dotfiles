@@ -10,10 +10,11 @@ files=(
     etc/greetd/config.toml
     etc/greetd/hyprland-greeter.lua
     etc/xdg/quickshell/predator-greeter/shell.qml
+    etc/xdg/quickshell/predator-greeter/wallpaper.svg
     usr/local/libexec/predator-greeter
     usr/local/libexec/predator-session
 )
-modes=(644 644 644 755 755)
+modes=(644 644 644 644 755 755)
 changed=()
 for i in "${!files[@]}"; do
     rel=${files[i]}
@@ -46,7 +47,14 @@ sh -n "$repo/system/usr/local/libexec/predator-session"
 [[ $mode == --apply && ${#changed[@]} -gt 0 ]] || exit 0
 [[ $EUID == 0 ]] || { echo 'Apply requires root: sudo scripts/deploy-system.sh --apply' >&2; exit 1; }
 umask 077
-backup=$(mktemp -d /var/backups/predator-desktop.XXXXXXXX)
+backup_root=/var/backups
+if [[ ! -e $backup_root ]]; then
+    install -d -o root -g root -m 755 -- "$backup_root"
+fi
+[[ -d $backup_root && ! -L $backup_root ]] || {
+    echo "Unsafe backup directory: $backup_root" >&2; exit 1;
+}
+backup=$(mktemp -d "$backup_root/predator-desktop.XXXXXXXX")
 printf 'Backup and recovery manifest: %s\n' "$backup"
 # Back up every affected destination before the first replacement.
 for i in "${changed[@]}"; do

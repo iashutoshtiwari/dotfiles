@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# UWSM owns the real user session, environment propagation, XDG autostart and
+# orderly compositor shutdown. systemd-cat keeps startup output off the VT.
 exec /usr/bin/systemd-cat \
   --identifier=predator-session \
   /usr/bin/uwsm start -- hyprland.desktop

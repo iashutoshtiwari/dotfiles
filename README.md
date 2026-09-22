@@ -193,10 +193,32 @@ login manager.
 ## Optional: install the greetd login screen
 
 The files under `system/` mirror root-owned paths; editing them does not change
-the live system. After changing the hard-coded greeter username, inspect the exact
-deployment first:
+the live system. The login path is:
+
+```text
+greetd
+  → temporary minimal Hyprland compositor
+  → Quickshell Predator greeter
+  → greetd/PAM authentication
+  → predator-session
+  → UWSM
+  → the real user Hyprland session
+```
+
+The greeter uses its own system-readable wallpaper because the restricted
+`greeter` account cannot and should not traverse the user's private home
+directory. Missing artwork falls back to Catppuccin Crust, and nonessential
+visual failures do not change PAM or session behavior. Its interface uses
+JetBrains Mono Nerd Font to match Predator Shell.
+
+Before deployment, change both `accountName` and `displayName` in
+`system/etc/xdg/quickshell/predator-greeter/shell.qml`. Keep TTY or SSH recovery
+access available and inspect the exact deployment:
 
 ```bash
+hyprland --verify-config --config system/etc/greetd/hyprland-greeter.lua
+sh -n system/usr/local/libexec/predator-greeter
+sh -n system/usr/local/libexec/predator-session
 scripts/deploy-system.sh --dry-run
 sudo scripts/deploy-system.sh --apply
 ```
@@ -213,6 +235,31 @@ sudo systemctl start greetd.service
 
 Starting greetd can terminate or replace the current graphical login flow. Do it
 only when unsaved work is closed and recovery access is available.
+
+Greeter and session output is kept off the graphical VT but remains available in
+the journal:
+
+```bash
+journalctl -b -u greetd.service
+journalctl -b -t predator-greeter-compositor
+journalctl -b -t predator-session
+```
+
+After deployment, test wrong and correct passwords, an empty submission,
+keyboard-only login, logout and second login. Test the restart and shutdown
+confirmations only when it is safe to actually restart or power off. A repository
+dry-run cannot prove those end-to-end behaviors.
+
+If the graphical greeter fails, switch to another TTY, stop greetd, and log in
+normally:
+
+```bash
+sudo systemctl stop greetd.service
+```
+
+Restore the affected files using the manifest in the newest
+`/var/backups/predator-desktop.*` directory, then start greetd again. The deploy
+script never changes `/etc/pam.d/greetd`.
 
 ## Key bindings
 

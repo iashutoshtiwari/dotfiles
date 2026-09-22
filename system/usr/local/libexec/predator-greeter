@@ -1,6 +1,11 @@
 #!/bin/sh
+set -u
 
-/usr/bin/quickshell -c predator-greeter
+# Output is inherited by the compositor's systemd-cat pipe, keeping the VT
+# clean while retaining diagnostics in the journal.
+/usr/bin/quickshell --no-duplicate --no-color -c predator-greeter
+status=$?
 
 # This is the temporary greeter compositor, not the user's UWSM session.
-exec /usr/bin/hyprctl dispatch 'hl.dsp.exit()'
+/usr/bin/hyprctl dispatch 'hl.dsp.exit()' >/dev/null 2>&1 || true
+exit "$status"

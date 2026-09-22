@@ -1,19 +1,116 @@
 import QtQuick
 import Quickshell
 import Quickshell.Services.Greetd
+import Quickshell.Wayland
 
 ShellRoot {
     id: root
 
-    property string statusMessage: ""
-    property string password: ""
+    readonly property string accountName: "ashutosh"
+    readonly property string displayName: "Ashutosh"
 
-    function authenticate() {
-        if (password.length === 0)
+    readonly property int stateIdle: 0
+    readonly property int stateAuthenticating: 1
+    readonly property int stateError: 2
+    readonly property int stateStarting: 3
+
+    property int authState: stateIdle
+    property string statusMessage: "Ready to sign in"
+    property string clockText: ""
+    property string dateText: ""
+    property var primaryWindow: null
+
+    readonly property bool busy:
+        authState === stateAuthenticating || authState === stateStarting
+
+    QtObject {
+        id: theme
+
+        readonly property color crust: "#11111b"
+        readonly property color mantle: "#181825"
+        readonly property color surface0: "#313244"
+        readonly property color surface1: "#45475a"
+        readonly property color overlay0: "#6c7086"
+        readonly property color text: "#cdd6f4"
+        readonly property color subtext1: "#bac2de"
+        readonly property color subtext0: "#a6adc8"
+        readonly property color lavender: "#b4befe"
+        readonly property color red: "#f38ba8"
+        readonly property color yellow: "#f9e2af"
+        readonly property color green: "#a6e3a1"
+
+        readonly property string uiFont: "JetBrainsMono Nerd Font"
+        readonly property string iconFont: "JetBrainsMono Nerd Font"
+
+        readonly property int spacingXs: 4
+        readonly property int spacingSm: 8
+        readonly property int spacingMd: 12
+        readonly property int spacingXl: 24
+
+        readonly property int animationFast: 120
+        readonly property int animationNormal: 200
+    }
+
+    function updateClock() {
+        const now = new Date();
+        clockText = Qt.formatDateTime(now, "HH:mm");
+        dateText = Qt.formatDateTime(now, "dddd, d MMMM");
+    }
+
+    function setError(message) {
+        authState = stateError;
+        statusMessage = message;
+        errorReset.restart();
+
+        if (primaryWindow) {
+            primaryWindow.clearPassword();
+            primaryWindow.focusPassword();
+        }
+    }
+
+    function clearTransientError() {
+        if (authState !== stateError)
             return;
 
-        statusMessage = "Authenticating…";
-        Greetd.createSession("ashutosh");
+        authState = stateIdle;
+        statusMessage = "Ready to sign in";
+        errorReset.stop();
+    }
+
+    function authenticate() {
+        if (busy || !primaryWindow)
+            return;
+
+        if (!Greetd.available) {
+            setError("Authentication service unavailable");
+            return;
+        }
+
+        if (!primaryWindow.hasPassword()) {
+            setError("Enter your password");
+            return;
+        }
+
+        errorReset.stop();
+        authState = stateAuthenticating;
+        statusMessage = "Signing in…";
+        Greetd.createSession(accountName);
+    }
+
+    Component.onCompleted: updateClock()
+
+    Timer {
+        interval: 30000
+        running: true
+        repeat: true
+        onTriggered: root.updateClock()
+    }
+
+    Timer {
+        id: errorReset
+
+        interval: 5000
+        onTriggered: root.clearTransientError()
     }
 
     Connections {
@@ -21,164 +118,539 @@ ShellRoot {
 
         function onAuthMessage(message, error, responseRequired, echoResponse) {
             if (error) {
-                root.statusMessage = message;
+                root.setError("Authentication failed");
                 return;
             }
 
-            if (responseRequired)
-                Greetd.respond(root.password);
+            if (responseRequired && root.primaryWindow) {
+                // Keep the password only in the input field until PAM asks for it,
+                // then clear the field immediately after handing it to greetd.
+                Greetd.respond(root.primaryWindow.takePassword());
+            }
         }
 
         function onAuthFailure(message) {
-            root.statusMessage =
-                message && message.length > 0
-                    ? message
-                    : "Authentication failed";
-
-            root.password = "";
-            passwordInput.text = "";
-            passwordInput.forceActiveFocus();
+            // Do not expose raw PAM or greetd implementation details onscreen.
+            root.setError("Incorrect password");
         }
 
         function onReadyToLaunch() {
-            root.statusMessage = "Starting Hyprland…";
+            root.authState = root.stateStarting;
+            root.statusMessage = "Starting session…";
 
-            Greetd.launch([
-    "/usr/local/libexec/predator-session"
-]);
+            // greetd expects launch promptly after authentication. UWSM owns the
+            // real session, so no decorative delay is inserted here.
+            Greetd.launch(["/usr/local/libexec/predator-session"]);
         }
 
         function onError(error) {
-            root.statusMessage = error;
+            root.setError("Unable to start the session");
         }
     }
 
-    PanelWindow {
-        anchors {
-            top: true
-            bottom: true
-            left: true
-            right: true
-        }
+    Variants {
+        model: Quickshell.screens
 
-        focusable: true
-        exclusiveZone: 0
+        PanelWindow {
+            id: greeterWindow
 
-        color: "#1e1e2e"
+            required property var modelData
+            readonly property bool isPrimary: modelData === Quickshell.screens[0]
 
-        Column {
-            anchors.centerIn: parent
-
-            width: 360
-            spacing: 16
-
-            Text {
-                anchors.horizontalCenter: parent.horizontalCenter
-
-                text: Qt.formatDateTime(new Date(), "HH:mm")
-
-                font.family: "JetBrainsMono Nerd Font"
-                font.pixelSize: 52
-                font.weight: Font.Medium
-
-                color: "#cdd6f4"
+            function hasPassword() {
+                return formLoader.item && formLoader.item.hasPassword();
             }
 
-            Text {
-                anchors.horizontalCenter: parent.horizontalCenter
+            function takePassword() {
+                return formLoader.item ? formLoader.item.takePassword() : "";
+            }
 
-                text: "ashutosh"
+            function clearPassword() {
+                if (formLoader.item)
+                    formLoader.item.clearPassword();
+            }
 
-                font.family: "JetBrainsMono Nerd Font"
-                font.pixelSize: 15
-                font.weight: Font.DemiBold
+            function focusPassword() {
+                if (formLoader.item)
+                    formLoader.item.focusPassword();
+            }
 
-                color: "#b4befe"
+            screen: modelData
+            focusable: isPrimary
+            exclusiveZone: 0
+            color: theme.crust
+
+            anchors {
+                top: true
+                right: true
+                bottom: true
+                left: true
+            }
+
+            WlrLayershell.layer: WlrLayer.Overlay
+            WlrLayershell.keyboardFocus:
+                isPrimary ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+            WlrLayershell.namespace: "predator-greeter"
+
+            Component.onCompleted: {
+                if (isPrimary)
+                    root.primaryWindow = greeterWindow;
+            }
+
+            Component.onDestruction: {
+                if (root.primaryWindow === greeterWindow)
+                    root.primaryWindow = null;
+            }
+
+            Image {
+                anchors.fill: parent
+                source: Qt.resolvedUrl("wallpaper.svg")
+                fillMode: Image.PreserveAspectCrop
+                asynchronous: false
+                cache: true
             }
 
             Rectangle {
-                width: parent.width
-                height: 44
+                anchors.fill: parent
+                color: "#9911111b"
+            }
 
-                color: "#181825"
+            Loader {
+                id: formLoader
 
-                border.width: 1
-                border.color: passwordInput.activeFocus
-                    ? "#b4befe"
-                    : "#45475a"
+                anchors.fill: parent
+                active: greeterWindow.isPrimary
+                sourceComponent: primaryContent
+            }
 
-                TextInput {
-                    id: passwordInput
+            Component {
+                id: primaryContent
 
-                    anchors {
-                        fill: parent
-                        leftMargin: 12
-                        rightMargin: 12
+                Item {
+                    id: content
+
+                    property bool powerOpen: false
+                    property string pendingPowerAction: ""
+
+                    function hasPassword() {
+                        return passwordInput.text.length > 0;
                     }
 
-                    focus: true
+                    function takePassword() {
+                        const response = passwordInput.text;
+                        passwordInput.clear();
+                        return response;
+                    }
 
-                    verticalAlignment: TextInput.AlignVCenter
+                    function clearPassword() {
+                        passwordInput.clear();
+                    }
 
-                    echoMode: TextInput.Password
+                    function focusPassword() {
+                        Qt.callLater(function() {
+                            passwordInput.forceActiveFocus();
+                        });
+                    }
 
-                    font.family: "JetBrainsMono Nerd Font"
-                    font.pixelSize: 13
+                    function closePowerMenu() {
+                        powerOpen = false;
+                        pendingPowerAction = "";
+                        focusPassword();
+                    }
 
-                    color: "#cdd6f4"
+                    function togglePowerMenu() {
+                        if (powerOpen) {
+                            closePowerMenu();
+                            return;
+                        }
 
-                    selectionColor: "#b4befe"
-                    selectedTextColor: "#11111b"
+                        powerOpen = true;
+                        pendingPowerAction = "";
+                        Qt.callLater(function() {
+                            const firstAction = powerActions.itemAt(0);
+                            if (firstAction)
+                                firstAction.forceActiveFocus();
+                        });
+                    }
 
-                    onTextChanged:
-                        root.password = text
+                    function handlePowerAction(action) {
+                        if (action === "Cancel") {
+                            closePowerMenu();
+                        } else if (pendingPowerAction === action) {
+                            const command = action === "Restart" ? "reboot" : "poweroff";
+                            Quickshell.execDetached(["systemctl", command]);
+                            closePowerMenu();
+                        } else {
+                            pendingPowerAction = action;
+                            Qt.callLater(function() {
+                                const confirmation = powerActions.itemAt(0);
+                                if (confirmation)
+                                    confirmation.forceActiveFocus();
+                            });
+                        }
+                    }
 
-                    Keys.onReturnPressed:
-                        root.authenticate()
-                }
-            }
-
-            Rectangle {
-                width: parent.width
-                height: 38
-
-                color: "#b4befe"
-
-                Text {
-                    anchors.centerIn: parent
-
-                    text: "LOGIN"
-
-                    font.family: "JetBrainsMono Nerd Font"
-                    font.pixelSize: 11
-                    font.weight: Font.DemiBold
-
-                    color: "#11111b"
-                }
-
-                MouseArea {
                     anchors.fill: parent
-                    cursorShape: Qt.PointingHandCursor
+                    opacity: 0
 
-                    onClicked:
-                        root.authenticate()
+                    Component.onCompleted: {
+                        focusPassword();
+                        entrance.start();
+                    }
+
+                    NumberAnimation {
+                        id: entrance
+
+                        target: content
+                        property: "opacity"
+                        from: 0
+                        to: 1
+                        duration: theme.animationNormal
+                        easing.type: Easing.OutCubic
+                    }
+
+                    Column {
+                        anchors {
+                            horizontalCenter: parent.horizontalCenter
+                            top: parent.top
+                            topMargin: Math.max(72, parent.height * 0.12)
+                        }
+                        spacing: theme.spacingXs
+
+                        Text {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            text: root.clockText
+                            color: theme.text
+                            font.family: theme.uiFont
+                            font.pixelSize: 56
+                            font.weight: Font.Medium
+                        }
+
+                        Text {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            text: root.dateText
+                            color: theme.subtext1
+                            font.family: theme.uiFont
+                            font.pixelSize: 15
+                        }
+                    }
+
+                    Column {
+                        id: loginForm
+
+                        anchors.centerIn: parent
+                        width: 360
+                        spacing: theme.spacingMd
+
+                        Text {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            text: root.displayName
+                            color: theme.text
+                            font.family: theme.uiFont
+                            font.pixelSize: 22
+                            font.weight: Font.DemiBold
+                        }
+
+                        Text {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            text: "Predator Shell"
+                            color: theme.subtext0
+                            font.family: theme.uiFont
+                            font.pixelSize: 11
+                            font.letterSpacing: 0.8
+                        }
+
+                        Item {
+                            width: 1
+                            height: theme.spacingSm
+                        }
+
+                        Rectangle {
+                            id: passwordFrame
+
+                            width: parent.width
+                            height: 48
+                            color: theme.mantle
+                            border.width: root.authState === root.stateError ? 2 : 1
+                            border.color: root.authState === root.stateError
+                                ? theme.red
+                                : passwordInput.activeFocus
+                                    ? theme.lavender
+                                    : theme.surface1
+
+                            Behavior on border.color {
+                                ColorAnimation { duration: theme.animationFast }
+                            }
+
+                            Text {
+                                anchors {
+                                    left: parent.left
+                                    leftMargin: theme.spacingMd
+                                    verticalCenter: parent.verticalCenter
+                                }
+                                visible: passwordInput.text.length === 0
+                                text: root.busy ? "" : "Password"
+                                color: theme.overlay0
+                                font.family: theme.uiFont
+                                font.pixelSize: 13
+                            }
+
+                            TextInput {
+                                id: passwordInput
+
+                                anchors {
+                                    fill: parent
+                                    leftMargin: theme.spacingMd
+                                    rightMargin: submitButton.width + theme.spacingMd
+                                }
+                                enabled: !root.busy
+                                focus: true
+                                verticalAlignment: TextInput.AlignVCenter
+                                echoMode: TextInput.Password
+                                passwordMaskDelay: 0
+                                passwordCharacter: "▪"
+                                selectByMouse: false
+                                color: enabled ? theme.text : theme.overlay0
+                                selectionColor: theme.lavender
+                                selectedTextColor: theme.crust
+                                font.family: theme.uiFont
+                                font.pixelSize: 15
+                                font.letterSpacing: 3
+
+                                onTextEdited: root.clearTransientError()
+
+                                Keys.onReturnPressed: root.authenticate()
+                                Keys.onEnterPressed: root.authenticate()
+                                Keys.onEscapePressed: {
+                                    clear();
+                                    root.clearTransientError();
+                                }
+                            }
+
+                            Rectangle {
+                                id: submitButton
+
+                                anchors {
+                                    top: parent.top
+                                    right: parent.right
+                                    bottom: parent.bottom
+                                }
+                                width: 52
+                                color: root.busy
+                                    ? theme.surface1
+                                    : submitMouse.pressed
+                                        ? theme.subtext1
+                                        : submitMouse.containsMouse
+                                            ? theme.text
+                                            : theme.lavender
+
+                                Behavior on color {
+                                    ColorAnimation { duration: theme.animationFast }
+                                }
+
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: root.busy ? "···" : "→"
+                                    color: root.busy ? theme.overlay0 : theme.crust
+                                    font.family: theme.uiFont
+                                    font.pixelSize: 20
+                                    font.weight: Font.DemiBold
+                                }
+
+                                MouseArea {
+                                    id: submitMouse
+
+                                    anchors.fill: parent
+                                    enabled: !root.busy
+                                    hoverEnabled: true
+                                    cursorShape: Qt.PointingHandCursor
+                                    onClicked: root.authenticate()
+                                }
+                            }
+                        }
+
+                        Item {
+                            width: parent.width
+                            height: 20
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: root.statusMessage
+                                color: root.authState === root.stateError
+                                    ? theme.red
+                                    : root.authState === root.stateStarting
+                                        ? theme.green
+                                        : root.authState === root.stateAuthenticating
+                                            ? theme.lavender
+                                            : theme.subtext0
+                                font.family: theme.uiFont
+                                font.pixelSize: 11
+
+                                Behavior on color {
+                                    ColorAnimation { duration: theme.animationFast }
+                                }
+                            }
+                        }
+                    }
+
+                    Text {
+                        anchors {
+                            left: parent.left
+                            bottom: parent.bottom
+                            margins: theme.spacingXl
+                        }
+                        text: "PREDATOR"
+                        color: theme.overlay0
+                        font.family: theme.iconFont
+                        font.pixelSize: 10
+                        font.letterSpacing: 1.4
+                    }
+
+                    Rectangle {
+                        id: powerButton
+
+                        anchors {
+                            right: parent.right
+                            bottom: parent.bottom
+                            margins: theme.spacingXl
+                        }
+                        width: 40
+                        height: 40
+                        activeFocusOnTab: true
+                        color: powerMouse.containsMouse ? theme.surface0 : theme.mantle
+                        border.width: 1
+                        border.color: content.powerOpen || activeFocus
+                            ? theme.lavender
+                            : theme.surface1
+
+                        Keys.onReturnPressed: content.togglePowerMenu()
+                        Keys.onEnterPressed: content.togglePowerMenu()
+                        Keys.onSpacePressed: content.togglePowerMenu()
+                        Keys.onEscapePressed: content.closePowerMenu()
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: "󰐥"
+                            color: content.powerOpen ? theme.lavender : theme.subtext1
+                            font.family: theme.iconFont
+                            font.pixelSize: 15
+                        }
+
+                        MouseArea {
+                            id: powerMouse
+
+                            anchors.fill: parent
+                            enabled: !root.busy
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: content.togglePowerMenu()
+                        }
+                    }
+
+                    Rectangle {
+                        id: powerMenu
+
+                        anchors {
+                            right: powerButton.right
+                            bottom: powerButton.top
+                            bottomMargin: theme.spacingSm
+                        }
+                        width: 220
+                        height: 112
+                        visible: opacity > 0
+                        opacity: content.powerOpen ? 1 : 0
+                        color: theme.mantle
+                        border.width: 1
+                        border.color: theme.surface1
+                        clip: true
+
+                        Behavior on opacity {
+                            NumberAnimation {
+                                duration: theme.animationFast
+                                easing.type: Easing.OutCubic
+                            }
+                        }
+
+                        Column {
+                            anchors {
+                                fill: parent
+                                margins: theme.spacingSm
+                            }
+                            spacing: theme.spacingXs
+
+                            Text {
+                                width: parent.width
+                                height: 24
+                                text: content.pendingPowerAction.length > 0
+                                    ? "Confirm " + content.pendingPowerAction.toLowerCase()
+                                    : "POWER"
+                                color: content.pendingPowerAction.length > 0
+                                    ? theme.yellow
+                                    : theme.subtext0
+                                verticalAlignment: Text.AlignVCenter
+                                font.family: theme.uiFont
+                                font.pixelSize: 10
+                                font.weight: Font.DemiBold
+                                font.letterSpacing: 0.7
+                            }
+
+                            Repeater {
+                                id: powerActions
+
+                                model: content.pendingPowerAction.length > 0
+                                    ? [content.pendingPowerAction, "Cancel"]
+                                    : ["Restart", "Shutdown"]
+
+                                Rectangle {
+                                    required property string modelData
+
+                                    width: 204
+                                    height: 32
+                                    activeFocusOnTab: content.powerOpen
+                                    color: actionMouse.containsMouse || activeFocus
+                                        ? modelData === "Shutdown" || modelData === "Restart"
+                                            ? "#33f38ba8"
+                                            : theme.surface0
+                                        : "transparent"
+
+                                    Keys.onReturnPressed:
+                                        content.handlePowerAction(modelData)
+                                    Keys.onEnterPressed:
+                                        content.handlePowerAction(modelData)
+                                    Keys.onSpacePressed:
+                                        content.handlePowerAction(modelData)
+                                    Keys.onEscapePressed: content.closePowerMenu()
+
+                                    Text {
+                                        anchors {
+                                            left: parent.left
+                                            leftMargin: theme.spacingSm
+                                            verticalCenter: parent.verticalCenter
+                                        }
+                                        text: parent.modelData
+                                        color: parent.modelData === "Cancel"
+                                            ? theme.subtext1
+                                            : content.pendingPowerAction.length > 0
+                                                ? theme.red
+                                                : theme.text
+                                        font.family: theme.uiFont
+                                        font.pixelSize: 12
+                                    }
+
+                                    MouseArea {
+                                        id: actionMouse
+
+                                        anchors.fill: parent
+                                        hoverEnabled: true
+                                        cursorShape: Qt.PointingHandCursor
+                                        onClicked:
+                                            content.handlePowerAction(parent.modelData)
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
-            }
-
-            Text {
-                width: parent.width
-
-                visible: root.statusMessage.length > 0
-
-                horizontalAlignment: Text.AlignHCenter
-                wrapMode: Text.Wrap
-
-                text: root.statusMessage
-
-                font.family: "JetBrainsMono Nerd Font"
-                font.pixelSize: 10
-
-                color: "#a6adc8"
             }
         }
     }
