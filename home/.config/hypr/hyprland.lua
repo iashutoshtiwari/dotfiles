@@ -74,67 +74,141 @@ hl.config({
 -- Motion
 -- ---------------------------------------------------------------------------
 
--- A fast ease-out curve keeps transitions responsive without the bounce that
--- makes a technical desktop feel playful. Durations are in deciseconds.
-hl.curve("predatorEase", {
+-- Three curves cover entrance, exit, and directional movement. Durations are
+-- deciseconds; transforms stay deliberately small so motion reads as feedback.
+hl.curve("predatorEnter", {
     type = "bezier",
     points = {{0.16, 1.0}, {0.3, 1.0}}
+})
+hl.curve("predatorExit", {
+    type = "bezier",
+    points = {{0.4, 0.0}, {1.0, 1.0}}
+})
+hl.curve("predatorSpatial", {
+    type = "bezier",
+    points = {{0.22, 0.72}, {0.2, 1.0}}
 })
 
 hl.animation({
     leaf = "windows",
     enabled = true,
-    speed = 2.0,
-    bezier = "predatorEase",
-    style = "popin 94%"
+    speed = 1.9,
+    bezier = "predatorEnter",
+    style = "popin 98%"
 })
 hl.animation({
     leaf = "windowsIn",
     enabled = true,
-    speed = 2.0,
-    bezier = "predatorEase",
-    style = "popin 94%"
+    speed = 1.9,
+    bezier = "predatorEnter",
+    style = "popin 98%"
 })
 hl.animation({
     leaf = "windowsOut",
     enabled = true,
-    speed = 1.4,
-    bezier = "predatorEase",
-    style = "popin 96%"
+    speed = 1.3,
+    bezier = "predatorExit",
+    style = "popin 99%"
+})
+hl.animation({
+    leaf = "windowsMove",
+    enabled = false
 })
 hl.animation({
     leaf = "workspaces",
     enabled = true,
-    speed = 2.2,
-    bezier = "predatorEase",
-    style = "slidefade 18%"
+    speed = 2.3,
+    bezier = "predatorSpatial",
+    style = "slidefade 10%"
 })
 hl.animation({
     leaf = "specialWorkspace",
     enabled = true,
     speed = 1.8,
-    bezier = "predatorEase",
-    style = "slidefade 12%"
+    bezier = "predatorEnter",
+    style = "fade"
 })
 hl.animation({
     leaf = "layersIn",
     enabled = true,
-    speed = 1.8,
-    bezier = "predatorEase",
-    style = "slide top"
+    speed = 1.6,
+    bezier = "predatorEnter",
+    style = "fade"
 })
 hl.animation({
     leaf = "layersOut",
     enabled = true,
-    speed = 1.2,
-    bezier = "predatorEase",
-    style = "slide top"
+    speed = 1.0,
+    bezier = "predatorExit",
+    style = "fade"
 })
 hl.animation({
     leaf = "fade",
     enabled = true,
-    speed = 1.4,
-    bezier = "predatorEase"
+    speed = 1.3,
+    bezier = "predatorEnter"
+})
+hl.animation({
+    leaf = "fadeOut",
+    enabled = true,
+    speed = 1.0,
+    bezier = "predatorExit"
+})
+hl.animation({
+    leaf = "fadeSwitch",
+    enabled = true,
+    speed = 1.1,
+    bezier = "predatorEnter"
+})
+hl.animation({
+    leaf = "fadeLayersIn",
+    enabled = true,
+    speed = 1.5,
+    bezier = "predatorEnter"
+})
+hl.animation({
+    leaf = "fadeLayersOut",
+    enabled = true,
+    speed = 1.0,
+    bezier = "predatorExit"
+})
+hl.animation({
+    leaf = "fadePopupsIn",
+    enabled = true,
+    speed = 1.0,
+    bezier = "predatorEnter"
+})
+hl.animation({
+    leaf = "fadePopupsOut",
+    enabled = true,
+    speed = 0.8,
+    bezier = "predatorExit"
+})
+hl.animation({
+    leaf = "border",
+    enabled = true,
+    speed = 1.2,
+    bezier = "predatorEnter"
+})
+
+-- Shell surfaces own their internal transitions. Disabling compositor motion
+-- here prevents the bar, OSD, and notification cards from animating twice.
+hl.layer_rule({
+    name = "predator-shell-motion-owned-by-qml",
+    match = { namespace = "^(quickshell|predator-notifications|predator-osd)$" },
+    no_anim = true
+})
+hl.layer_rule({
+    name = "wallpaper-never-animates",
+    match = { namespace = "^hyprpaper$" },
+    no_anim = true
+})
+-- Both the application launcher and emoji picker expose the observed `rofi`
+-- namespace. They appear in place with the short global layer fade.
+hl.layer_rule({
+    name = "rofi-fades-in-place",
+    match = { namespace = "^rofi$" },
+    animation = "fade"
 })
 
 -- Five persistent workspaces
@@ -213,7 +287,7 @@ hl.window_rule({
     center = true,
     size = { "monitor_w * 0.70", "monitor_h * 0.62" },
     stay_focused = true,
-    animation = "popin 94%"
+    animation = "popin 98%"
 })
 
 local mod = "SUPER"
