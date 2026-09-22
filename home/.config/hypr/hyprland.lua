@@ -398,7 +398,7 @@ hl.bind("SUPER + SPACE", hl.dsp.exec_cmd("qs ipc -c predator-shell call popups c
     description = "Launch application menu"
 })
 
-hl.bind("SUPER + period", hl.dsp.exec_cmd("qs ipc -c predator-shell call popups closeAll; rofi -show emoji"), {
+hl.bind("SUPER + period", hl.dsp.exec_cmd("qs ipc -c predator-shell call popups closeAll; /home/ashutosh/.local/bin/emoji-picker"), {
     description = "Launch emoji and symbol picker"
 })
 

@@ -53,6 +53,7 @@ pipewire-alsa
 pipewire-audio
 pipewire-pulse
 playerctl
+plymouth
 qt5ct
 qt6-wayland
 qt6ct
@@ -78,6 +79,7 @@ wayland-protocols
 wget
 wireplumber
 wl-clipboard
+wtype
 x42-plugins-lv2
 xdg-desktop-portal-gtk
 xdg-desktop-portal-hyprland

@@ -1,0 +1,11 @@
+#!/bin/sh
+
+# Let Rofi exit completely before wtype sends input to the window that regains
+# focus. rofi-emoji's built-in insert action can run before focus is restored.
+emoji=$(rofi -modi emoji -show emoji -emoji-mode stdout) || exit 0
+[ -n "$emoji" ] || exit 0
+
+# Keep a clipboard fallback, matching rofi-emoji's normal insert mode.
+printf '%s' "$emoji" | wl-copy
+sleep 0.15
+printf '%s' "$emoji" | wtype -

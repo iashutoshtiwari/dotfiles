@@ -13,9 +13,13 @@ PopupWindow {
     property Item anchorItem
     readonly property var player: MprisService.activePlayer
     readonly property bool hasTrack: player !== null && MprisService.title.length > 0
-    readonly property bool progressAvailable: player?.positionSupported
-        && player?.lengthSupported && player.length > 0
+    readonly property bool progressAvailable: player !== null
+        && player.positionSupported && player.lengthSupported && player.length > 0
         && player.length < 86400
+    readonly property bool canSeek: player !== null && player.canSeek
+    readonly property real progressRatio: progressAvailable
+        ? Math.max(0, Math.min(1, player.position / player.length))
+        : 0
 
     anchor.item: anchorItem
     anchor.edges: Edges.Bottom
@@ -157,7 +161,7 @@ PopupWindow {
                     color: Theme.surface1
 
                     Rectangle {
-                        width: parent.width * Math.max(0, Math.min(1, root.player.position / root.player.length))
+                        width: parent.width * root.progressRatio
                         height: parent.height
                         color: Theme.lavender
                     }
@@ -167,18 +171,20 @@ PopupWindow {
                         height: 8
                         anchors.verticalCenter: parent.verticalCenter
                         x: Math.max(0, Math.min(parent.width - width,
-                            parent.width * root.player.position / root.player.length - width / 2))
+                            parent.width * root.progressRatio - width / 2))
                         color: Theme.lavender
-                        visible: root.player.canSeek
+                        visible: root.canSeek
                     }
 
                     MouseArea {
                         anchors.fill: parent
                         anchors.topMargin: -8
                         anchors.bottomMargin: -8
-                        enabled: root.player?.canSeek
+                        enabled: root.canSeek
                         cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
                         function seekToMouse(): void {
+                            if (!root.player || !root.canSeek)
+                                return;
                             root.player.position = Math.max(0, Math.min(1, mouseX / width)) * root.player.length;
                         }
                         onPressed: seekToMouse()

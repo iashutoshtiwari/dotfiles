@@ -128,6 +128,7 @@ ln -s "$PWD/home/.config/zsh" ~/.config/zsh
 ln -s "$PWD/home/.config/autostart/predator-shell.desktop" ~/.config/autostart/predator-shell.desktop
 ln -s "$PWD/home/.local/bin/set-wallpaper" ~/.local/bin/set-wallpaper
 ln -s "$PWD/home/.local/bin/screenshot" ~/.local/bin/screenshot
+ln -s "$PWD/home/.local/bin/emoji-picker" ~/.local/bin/emoji-picker
 ```
 
 If any `ln` command reports that a file exists, stop and move that exact path to

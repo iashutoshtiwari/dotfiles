@@ -83,6 +83,16 @@ def test_emoji_picker():
         "Run: sudo pacman -S rofi-emoji"
     )
 
+    picker_path = os.path.join(REPO_ROOT, "home/.local/bin/emoji-picker")
+    assert os.path.isfile(picker_path), f"Emoji picker helper missing: {picker_path}"
+    assert os.access(picker_path, os.X_OK), f"Emoji picker helper is not executable: {picker_path}"
+    with open(picker_path, "r", encoding="utf-8") as picker_file:
+        picker = picker_file.read()
+    assert "-emoji-mode stdout" in picker, "Emoji picker does not wait for Rofi output"
+    assert re.search(r'sleep\s+0\.\d+', picker), "Emoji picker has no focus-restoration delay"
+    assert "wtype -" in picker, "Emoji picker does not dispatch the selection through wtype"
+    assert "wl-copy" in picker, "Emoji picker does not preserve the clipboard fallback"
+
     # Lua bindings are represented as __lua by Hyprland, so verify both the
     # live key registration and the tracked command source.
     res = run(["hyprctl", "binds", "-j"])
@@ -96,8 +106,8 @@ def test_emoji_picker():
     config_path = os.path.join(REPO_ROOT, "home/.config/hypr/hyprland.lua")
     with open(config_path, "r", encoding="utf-8") as config_file:
         config = config_file.read()
-    assert re.search(r'bind\("SUPER \+ period".*?rofi -show emoji', config, re.DOTALL), \
-        "Tracked SUPER+period binding does not dispatch rofi -show emoji"
+    assert re.search(r'bind\("SUPER \+ period".*?/home/ashutosh/\.local/bin/emoji-picker', config, re.DOTALL), \
+        "Tracked SUPER+period binding does not dispatch the emoji picker helper"
 
     # Verify wl-clipboard works
     subprocess.run(["wl-copy", "✨"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
@@ -105,7 +115,7 @@ def test_emoji_picker():
     assert clip.stdout.strip() == "✨", "wl-copy test failed"
 
     print(f"      rofi-emoji plugin: {plugin_path} ✓")
-    print("      SUPER + period → rofi -show emoji: OK")
+    print("      SUPER + period → delayed Wayland insertion helper: OK")
     print("      wl-clipboard: OK")
     print("      PASSED")
 
