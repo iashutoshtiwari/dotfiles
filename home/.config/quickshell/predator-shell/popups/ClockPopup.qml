@@ -58,14 +58,14 @@ PopupWindow {
     SequentialAnimation {
         id: monthTransition
         ParallelAnimation {
-            NumberAnimation { target: calendarGrid; property: "opacity"; to: 0; duration: Theme.animationExit; easing.type: Easing.InCubic }
-            NumberAnimation { target: calendarGrid; property: "x"; to: -8 * root.pendingMonthOffset; duration: Theme.animationExit; easing.type: Easing.InCubic }
+            NumberAnimation { target: calendarGrid; property: "opacity"; to: 0; duration: Theme.motionExitFast; easing.type: Easing.InCubic }
+            NumberAnimation { target: calendarGrid; property: "x"; to: (Theme.reducedMotion ? 0 : -10) * root.pendingMonthOffset; duration: Theme.motionExitFast; easing.type: Easing.InCubic }
         }
         ScriptAction { script: root.applyMonthShift() }
-        PropertyAction { target: calendarGrid; property: "x"; value: 8 * root.pendingMonthOffset }
+        PropertyAction { target: calendarGrid; property: "x"; value: (Theme.reducedMotion ? 0 : 10) * root.pendingMonthOffset }
         ParallelAnimation {
-            NumberAnimation { target: calendarGrid; property: "opacity"; to: 1; duration: Theme.animationNormal; easing.type: Easing.OutCubic }
-            NumberAnimation { target: calendarGrid; property: "x"; to: 0; duration: Theme.animationNormal; easing.type: Easing.OutCubic }
+            NumberAnimation { target: calendarGrid; property: "opacity"; to: 1; duration: Theme.motionFast; easing.type: Easing.OutCubic }
+            NumberAnimation { target: calendarGrid; property: "x"; to: 0; duration: Theme.motionFast; easing.type: Easing.OutCubic }
         }
     }
 

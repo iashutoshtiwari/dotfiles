@@ -15,9 +15,9 @@ Rectangle {
     radius: Theme.radius
 
     opacity: 0
-    scale: 0.985
+    scale: Theme.reducedMotion ? 1 : 0.99
     transformOrigin: Item.TopRight
-    y: -6
+    y: Theme.reducedMotion ? 0 : -4
 
     states: State {
         name: "presented"
@@ -38,7 +38,7 @@ Rectangle {
             ParallelAnimation {
                 NumberAnimation {
                     properties: "opacity,scale,y"
-                    duration: Theme.animationNormal
+                    duration: Theme.motionNormal
                     easing.type: Easing.OutCubic
                 }
             }
@@ -50,7 +50,7 @@ Rectangle {
                 ParallelAnimation {
                     NumberAnimation {
                         properties: "opacity,scale,y"
-                        duration: Theme.animationExit
+                        duration: Theme.motionExit
                         easing.type: Easing.InCubic
                     }
                 }

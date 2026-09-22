@@ -46,8 +46,7 @@ Item {
         width: root.workspaceCount * Theme.workspaceSlot - Theme.spacingSm
         height: parent.height
 
-        // A single marker follows Hyprland's committed workspace. Its 170ms
-        // ease-out closely matches the compositor's short slidefade motion.
+        // The marker shares the compositor's 230ms directional settling time.
         Rectangle {
             z: 2
             visible: root.activeWorkspaceIndex >= 0
@@ -60,7 +59,7 @@ Item {
 
             Behavior on x {
                 NumberAnimation {
-                    duration: Theme.animationNormal
+                    duration: Theme.motionSpatial
                     easing.type: Easing.OutCubic
                 }
             }
@@ -89,7 +88,7 @@ Item {
                     Rectangle {
                         anchors.fill: parent
                         color: slotMouse.containsMouse ? Theme.surface0 : "transparent"
-                        Behavior on color { ColorAnimation { duration: Theme.animationFast } }
+                        Behavior on color { ColorAnimation { duration: Theme.motionFast; easing.type: Easing.OutCubic } }
                     }
 
                     Rectangle {
@@ -102,7 +101,7 @@ Item {
                             : slotMouse.containsMouse ? Theme.surface2
                             : slot.occupied ? Theme.subtext0 : Theme.overlay0
 
-                        Behavior on color { ColorAnimation { duration: Theme.animationFast } }
+                        Behavior on color { ColorAnimation { duration: Theme.motionFast; easing.type: Easing.OutCubic } }
                     }
 
                     MouseArea {

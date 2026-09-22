@@ -22,7 +22,7 @@ Rectangle {
         : "transparent"
     radius: Theme.radius
 
-    Behavior on color { ColorAnimation { duration: Theme.animationFast } }
+    Behavior on color { ColorAnimation { duration: Theme.motionFast; easing.type: Easing.OutCubic } }
 
     Rectangle {
         width: 2

@@ -27,16 +27,40 @@ PanelWindow {
     }
 
     implicitWidth: 360
-    implicitHeight: toastColumn.implicitHeight
+    implicitHeight: toastList.contentHeight
 
-    visible: activeToasts.length > 0
+    visible: layerVisible
 
     property var activeToasts: []
+    property bool layerVisible: false
+
+    onActiveToastsChanged: {
+        if (activeToasts.length > 0) {
+            hideLayerTimer.stop();
+            layerVisible = true;
+        } else {
+            hideLayerTimer.restart();
+        }
+    }
+
+    Timer {
+        id: hideLayerTimer
+        interval: Theme.motionExit
+        onTriggered: root.layerVisible = false
+    }
 
     function addToast(notif): void {
         if (!notif)
             return;
-        activeToasts = [notif, ...activeToasts.filter(t => t && t.id !== notif.id)];
+        const existingIndex = activeToasts.findIndex(t => t && t.id === notif.id);
+        if (existingIndex < 0) {
+            activeToasts = [notif, ...activeToasts];
+            return;
+        }
+
+        const updated = activeToasts.slice();
+        updated[existingIndex] = notif;
+        activeToasts = updated;
     }
 
     function removeToast(notifId): void {
@@ -51,19 +75,35 @@ PanelWindow {
         }
     }
 
-    Column {
-        id: toastColumn
+    ListView {
+        id: toastList
         width: parent.width
         spacing: 8
+        implicitHeight: contentHeight
+        interactive: false
+        model: root.activeToasts
 
-        Repeater {
-            model: root.activeToasts
+        add: Transition {
+            ParallelAnimation {
+                NumberAnimation { property: "opacity"; from: 0; to: 1; duration: Theme.motionNormal; easing.type: Easing.OutCubic }
+                NumberAnimation { property: "x"; from: Theme.reducedMotion ? 0 : 12; to: 0; duration: Theme.motionNormal; easing.type: Easing.OutCubic }
+            }
+        }
+        remove: Transition {
+            ParallelAnimation {
+                NumberAnimation { property: "opacity"; to: 0; duration: Theme.motionExit; easing.type: Easing.InCubic }
+                NumberAnimation { property: "x"; to: Theme.reducedMotion ? 0 : 6; duration: Theme.motionExit; easing.type: Easing.InCubic }
+            }
+        }
+        displaced: Transition {
+            NumberAnimation { properties: "x,y"; duration: Theme.motionNormal; easing.type: Easing.OutCubic }
+        }
 
-            delegate: Rectangle {
+        delegate: Rectangle {
                 id: toastCard
                 required property var modelData
 
-                width: toastColumn.width
+                width: toastList.width
                 implicitHeight: cardContent.implicitHeight + 20
 
                 color: Theme.base
@@ -235,7 +275,6 @@ PanelWindow {
                         }
                     }
                 }
-            }
         }
     }
 }

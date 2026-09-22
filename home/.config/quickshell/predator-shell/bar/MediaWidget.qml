@@ -77,10 +77,15 @@ Item {
         }
 
         Text {
+            id: playbackStateIcon
             text: MprisService.playing ? "󰏤" : "󰐊"
             font.family: Theme.shellFont
             font.pixelSize: 12
             color: MprisService.playing ? Theme.lavender : Theme.overlay1
+            scale: MprisService.playing || Theme.reducedMotion ? 1 : 0.94
+
+            Behavior on color { ColorAnimation { duration: Theme.motionFast; easing.type: Easing.OutCubic } }
+            Behavior on scale { NumberAnimation { duration: Theme.motionFast; easing.type: Easing.OutCubic } }
         }
     }
 

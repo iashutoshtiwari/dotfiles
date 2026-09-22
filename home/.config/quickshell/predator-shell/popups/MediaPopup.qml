@@ -59,8 +59,15 @@ PopupWindow {
 
     SequentialAnimation {
         id: trackChange
-        NumberAnimation { target: trackInfo; property: "opacity"; to: 0.35; duration: Theme.animationExit }
-        NumberAnimation { target: trackInfo; property: "opacity"; to: 1; duration: Theme.animationNormal; easing.type: Easing.OutCubic }
+        ParallelAnimation {
+            NumberAnimation { target: trackInfo; property: "opacity"; to: 0; duration: Theme.motionExitFast; easing.type: Easing.InCubic }
+            NumberAnimation { target: trackInfo; property: "y"; to: Theme.reducedMotion ? 0 : -3; duration: Theme.motionExitFast; easing.type: Easing.InCubic }
+        }
+        PropertyAction { target: trackInfo; property: "y"; value: Theme.reducedMotion ? 0 : 3 }
+        ParallelAnimation {
+            NumberAnimation { target: trackInfo; property: "opacity"; to: 1; duration: Theme.motionFast; easing.type: Easing.OutCubic }
+            NumberAnimation { target: trackInfo; property: "y"; to: 0; duration: Theme.motionFast; easing.type: Easing.OutCubic }
+        }
     }
 
     PopupSurface {
@@ -161,9 +168,14 @@ PopupWindow {
                     color: Theme.surface1
 
                     Rectangle {
+                        id: progressFill
                         width: parent.width * root.progressRatio
                         height: parent.height
                         color: Theme.lavender
+
+                        Behavior on width {
+                            NumberAnimation { duration: Theme.motionFast; easing.type: Easing.OutCubic }
+                        }
                     }
 
                     Rectangle {

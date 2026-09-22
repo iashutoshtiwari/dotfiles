@@ -82,11 +82,16 @@ Singleton {
     // Intentionally boxy.
     readonly property int radius: 0
 
-    readonly property int animationInstant: 70
-    readonly property int animationFast: 110
-    readonly property int animationNormal: 170
-    readonly property int animationDeliberate: 240
-    readonly property int animationExit: 105
+    // Motion is centralized so interaction feedback, spatial movement, and
+    // exits share one cadence. Reduced motion retains only short fades.
+    readonly property bool reducedMotion: false
+    readonly property int motionMicro: reducedMotion ? 60 : 80
+    readonly property int motionFast: reducedMotion ? 70 : 100
+    readonly property int motionToggle: reducedMotion ? 70 : 130
+    readonly property int motionNormal: reducedMotion ? 80 : 170
+    readonly property int motionSpatial: reducedMotion ? 90 : 230
+    readonly property int motionExitFast: reducedMotion ? 60 : 90
+    readonly property int motionExit: reducedMotion ? 70 : 110
 
     readonly property real disabledOpacity: 0.55
     readonly property real secondaryOpacity: 0.72

@@ -21,10 +21,12 @@ Rectangle {
     border.color: active ? Theme.lavender : "transparent"
     radius: Theme.radius
     opacity: enabled ? 1 : Theme.disabledOpacity
+    scale: mouse.pressed && !Theme.reducedMotion ? 0.98 : 1
 
     Behavior on color {
-        ColorAnimation { duration: Theme.animationFast }
+        ColorAnimation { duration: Theme.motionFast; easing.type: Easing.OutCubic }
     }
+    Behavior on scale { NumberAnimation { duration: Theme.motionMicro; easing.type: Easing.OutCubic } }
 
     Text {
         anchors.centerIn: parent

@@ -15,12 +15,18 @@ Rectangle {
         : "transparent"
     radius: Theme.radius
 
-    Behavior on color { ColorAnimation { duration: Theme.animationFast } }
+    Behavior on color { ColorAnimation { duration: Theme.motionFast; easing.type: Easing.OutCubic } }
 
     Rectangle {
         anchors { left: parent.left; right: parent.right; bottom: parent.bottom }
         height: 2
         color: Theme.lavender
-        visible: root.active
+        opacity: root.active ? 1 : 0
+        Behavior on opacity {
+            NumberAnimation {
+                duration: root.active ? Theme.motionToggle : Theme.motionExitFast
+                easing.type: root.active ? Easing.OutCubic : Easing.InCubic
+            }
+        }
     }
 }

@@ -29,6 +29,7 @@ Item {
     }
 
     Rectangle {
+        id: fill
         anchors {
             left: track.left
             verticalCenter: track.verticalCenter
@@ -38,6 +39,11 @@ Item {
         height: track.height
 
         color: Theme.accent
+
+        Behavior on width {
+            enabled: !mouseArea.pressed
+            NumberAnimation { duration: Theme.motionFast; easing.type: Easing.OutCubic }
+        }
     }
 
     Rectangle {
@@ -58,6 +64,11 @@ Item {
         radius: 0
 
         color: Theme.accent
+
+        Behavior on x {
+            enabled: !mouseArea.pressed
+            NumberAnimation { duration: Theme.motionFast; easing.type: Easing.OutCubic }
+        }
     }
 
     MouseArea {

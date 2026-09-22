@@ -431,11 +431,25 @@ PanelWindow {
         anchors.fill: parent
 
         opacity: root.shown ? 1.0 : 0.0
+        scale: root.shown || Theme.reducedMotion ? 1.0 : 0.99
+        y: root.shown || Theme.reducedMotion ? 0 : 4
 
         Behavior on opacity {
             NumberAnimation {
-                duration: Theme.animationNormal
-                easing.type: Easing.OutCubic
+                duration: root.shown ? Theme.motionNormal : Theme.motionExit
+                easing.type: root.shown ? Easing.OutCubic : Easing.InCubic
+            }
+        }
+        Behavior on scale {
+            NumberAnimation {
+                duration: root.shown ? Theme.motionNormal : Theme.motionExit
+                easing.type: root.shown ? Easing.OutCubic : Easing.InCubic
+            }
+        }
+        Behavior on y {
+            NumberAnimation {
+                duration: root.shown ? Theme.motionNormal : Theme.motionExit
+                easing.type: root.shown ? Easing.OutCubic : Easing.InCubic
             }
         }
 
@@ -498,6 +512,13 @@ PanelWindow {
                         width: parent.width * Math.max(0, Math.min(1, root.currentLevel / 100))
                         height: parent.height
                         color: root.isMuted ? Theme.red : Theme.lavender
+
+                        Behavior on width {
+                            NumberAnimation { duration: Theme.motionFast; easing.type: Easing.OutCubic }
+                        }
+                        Behavior on color {
+                            ColorAnimation { duration: Theme.motionFast; easing.type: Easing.OutCubic }
+                        }
                     }
                 }
             }
