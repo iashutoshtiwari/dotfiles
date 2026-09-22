@@ -58,10 +58,11 @@ PanelWindow {
         right: true
     }
 
-    // Margin from top = bar height + bar margin so the drawer starts
-    // immediately below the floating bar without overlap or gap.
+    // Exclusive zone from the top bar (exclusiveZone = barHeight + barMargin = 46,
+    // plus top margin = 8 -> 54 total reserved) is automatically respected
+    // by Hyprland's layer surface arrangement, placing the top anchor at y = 54.
     margins {
-        top: Theme.barHeight + Theme.barMargin * 2
+        top: 0
         left: 0
         right: 0
         bottom: 0
