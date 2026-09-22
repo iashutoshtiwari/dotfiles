@@ -47,8 +47,9 @@ ShellRoot {
         readonly property int spacingMd: 12
         readonly property int spacingXl: 24
 
-        readonly property int animationFast: 120
-        readonly property int animationNormal: 200
+        readonly property int motionFast: 100
+        readonly property int motionNormal: 190
+        readonly property int motionExit: 100
     }
 
     function updateClock() {
@@ -292,21 +293,31 @@ ShellRoot {
 
                     anchors.fill: parent
                     opacity: 0
+                    transform: Translate { id: entranceOffset; y: 4 }
 
                     Component.onCompleted: {
                         focusPassword();
                         entrance.start();
                     }
 
-                    NumberAnimation {
+                    ParallelAnimation {
                         id: entrance
-
-                        target: content
-                        property: "opacity"
-                        from: 0
-                        to: 1
-                        duration: theme.animationNormal
-                        easing.type: Easing.OutCubic
+                        NumberAnimation {
+                            target: content
+                            property: "opacity"
+                            from: 0
+                            to: 1
+                            duration: theme.motionNormal
+                            easing.type: Easing.OutCubic
+                        }
+                        NumberAnimation {
+                            target: entranceOffset
+                            property: "y"
+                            from: 4
+                            to: 0
+                            duration: theme.motionNormal
+                            easing.type: Easing.OutCubic
+                        }
                     }
 
                     Column {
@@ -379,7 +390,7 @@ ShellRoot {
                                     : theme.surface1
 
                             Behavior on border.color {
-                                ColorAnimation { duration: theme.animationFast }
+                                ColorAnimation { duration: theme.motionFast; easing.type: Easing.OutCubic }
                             }
 
                             Text {
@@ -445,7 +456,7 @@ ShellRoot {
                                             : theme.lavender
 
                                 Behavior on color {
-                                    ColorAnimation { duration: theme.animationFast }
+                                    ColorAnimation { duration: theme.motionFast; easing.type: Easing.OutCubic }
                                 }
 
                                 Text {
@@ -487,7 +498,7 @@ ShellRoot {
                                 font.pixelSize: 11
 
                                 Behavior on color {
-                                    ColorAnimation { duration: theme.animationFast }
+                                    ColorAnimation { duration: theme.motionFast; easing.type: Easing.OutCubic }
                                 }
                             }
                         }
@@ -559,6 +570,7 @@ ShellRoot {
                         height: 112
                         visible: opacity > 0
                         opacity: content.powerOpen ? 1 : 0
+                        scale: content.powerOpen ? 1 : 0.99
                         color: theme.mantle
                         border.width: 1
                         border.color: theme.surface1
@@ -566,8 +578,14 @@ ShellRoot {
 
                         Behavior on opacity {
                             NumberAnimation {
-                                duration: theme.animationFast
-                                easing.type: Easing.OutCubic
+                                duration: content.powerOpen ? theme.motionFast : theme.motionExit
+                                easing.type: content.powerOpen ? Easing.OutCubic : Easing.InCubic
+                            }
+                        }
+                        Behavior on scale {
+                            NumberAnimation {
+                                duration: content.powerOpen ? theme.motionFast : theme.motionExit
+                                easing.type: content.powerOpen ? Easing.OutCubic : Easing.InCubic
                             }
                         }
 
