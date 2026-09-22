@@ -15,11 +15,24 @@ other indicators whose shape communicates a point.
 
 ## Motion
 
-Motion is feedback, not decoration. Quickshell uses fast 120ms and normal 180ms
-transitions, with a shorter 90ms exit where appropriate. Hyprland uses one
-restrained Bézier curve: windows pop in from 94%, close faster, workspaces use a
-short slide-fade, and special workspaces use an even shorter slide-fade. There
-are no continuous or looping effects.
+Motion is feedback, not decoration. Shell motion uses a compact 80/100/130/170/
+230ms family for micro, hover, toggle, popup, and spatial feedback; exits are
+90–110ms. Entrances use a strong ease-out, exits use ease-in, and spatial motion
+settles without overshoot. `Theme.reducedMotion` removes translations and scale
+while retaining short fades.
+
+Hyprland owns application windows, workspaces, normal Wayland popups, and Rofi.
+Windows materialize from 98% over 190ms and close from 99% over 130ms. Pointer
+move/resize interpolation is disabled. Workspaces use a directional 10%
+slide-fade over 230ms; the Quickshell marker uses the same perceived duration.
+Special workspaces fade in place. Layer surfaces fade globally, with Rofi
+explicitly fading and QML-driven shell layers excluded to prevent double motion.
+
+Quickshell owns internal popup, notification, and OSD motion. Popup cards use a
+4px/1% entrance, notifications travel at most 12px, and the OSD uses 4px/1%.
+Repeated OSD updates animate only the value and do not replay the entrance.
+There are no looping animations, animated shaders, gradients, or idle timers
+whose only purpose is rendering motion.
 
 ## Depth and blur
 
