@@ -9,12 +9,13 @@ mode=${1:---dry-run}
 files=(
     etc/greetd/config.toml
     etc/greetd/hyprland-greeter.lua
+    etc/systemd/zram-generator.conf
     etc/xdg/quickshell/predator-greeter/shell.qml
     etc/xdg/quickshell/predator-greeter/wallpaper.svg
     usr/local/libexec/predator-greeter
     usr/local/libexec/predator-session
 )
-modes=(644 644 644 644 755 755)
+modes=(644 644 644 644 644 755 755)
 changed=()
 for i in "${!files[@]}"; do
     rel=${files[i]}

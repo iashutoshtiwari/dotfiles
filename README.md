@@ -66,29 +66,28 @@ baseline:
 ```bash
 sudo pacman -S --needed \
   base-devel git hyprland uwsm quickshell greetd \
-  hypridle hyprlock hyprpaper hyprpolkitagent \
+  hypridle hyprlock hyprpaper hyprpolkitagent hyprsunset \
   xdg-desktop-portal-hyprland xdg-desktop-portal-gtk \
   pipewire pipewire-alsa pipewire-audio pipewire-pulse wireplumber \
   networkmanager bluez bluez-utils upower brightnessctl playerctl \
   kitty rofi rofi-calc rofi-emoji \
-  grim slurp wl-clipboard libnotify xdg-utils xdg-user-dirs \
+  grim slurp wl-clipboard libnotify xdg-utils xdg-user-dirs unzip \
   qt6-wayland qt6ct kvantum dolphin \
   papirus-icon-theme inter-font ttf-jetbrains-mono-nerd noto-fonts-emoji \
-  zsh starship zsh-autosuggestions zsh-syntax-highlighting \
-  curl file rsync python
+  zsh starship zsh-autosuggestions zsh-syntax-highlighting zsh-completions \
+  zram-generator curl file rsync python intel-ucode intel-media-driver vulkan-intel
 ```
 
 Some names can move between Arch repositories over time. If Pacman cannot find a
 package, check the current Arch package database instead of substituting an
 untrusted binary.
 
-For the exact appearance, also install these optional theme packages from a
-source you trust:
+For the exact appearance, also install these optional theme and driver packages from AUR:
 
-- Bibata Modern Classic cursor theme
-- Darkly Qt style
-- Catppuccin Mocha Lavender Kvantum theme
-- Catppuccin Mocha Lavender GTK theme
+- Bibata Modern Classic cursor theme (`bibata-cursor-theme-bin`)
+- Darkly Qt style (`darkly`)
+- Catppuccin Mocha Lavender Kvantum theme (`kvantum-theme-catppuccin-git`)
+- NVIDIA driver for GTX 1050 Ti (`nvidia-580xx-dkms`, `nvidia-prime`)
 
 The last known machine inventory is in `state/packages-official.txt` and
 `state/packages-foreign.txt`; it is reference material, not an install manifest.
@@ -106,11 +105,19 @@ Make the machine-specific edits listed above before creating links.
 
 ## 3. Link the user configuration
 
-The commands below refuse to overwrite existing paths. Back up any configuration
-you already have, then run them from the repository root:
+Use the safe bootstrap script. It detects existing files, safely backs up any collisions
+into `~/.config/predator-dotfiles-backup-<timestamp>`, copies bundled wallpapers, and validates
+all symlinks:
 
 ```bash
-mkdir -p ~/.config ~/.config/quickshell ~/.config/autostart ~/.local/bin
+scripts/bootstrap-user.sh --dry-run
+scripts/bootstrap-user.sh --apply
+```
+
+If you prefer linking manually, run:
+
+```bash
+mkdir -p ~/.config ~/.config/quickshell ~/.config/autostart ~/.config/environment.d ~/.config/fontconfig ~/.config/kvantum ~/.config/qt6ct ~/.config/xdg-desktop-portal ~/.local/bin ~/Pictures/Wallpapers
 
 ln -s "$PWD/home/.config/hypr" ~/.config/hypr
 ln -s "$PWD/home/.config/quickshell/predator-shell" ~/.config/quickshell/predator-shell
@@ -118,21 +125,23 @@ ln -s "$PWD/home/.config/kitty" ~/.config/kitty
 ln -s "$PWD/home/.config/rofi" ~/.config/rofi
 ln -s "$PWD/home/.config/gtk-3.0" ~/.config/gtk-3.0
 ln -s "$PWD/home/.config/gtk-4.0" ~/.config/gtk-4.0
-ln -s "$PWD/home/.config/qt6ct" ~/.config/qt6ct
-ln -s "$PWD/home/.config/fontconfig" ~/.config/fontconfig
-ln -s "$PWD/home/.config/environment.d" ~/.config/environment.d
-ln -s "$PWD/home/.config/kdeglobals" ~/.config/kdeglobals
-ln -s "$PWD/home/.config/kvantum" ~/.config/kvantum
-ln -s "$PWD/home/.config/starship.toml" ~/.config/starship.toml
 ln -s "$PWD/home/.config/zsh" ~/.config/zsh
+ln -s "$PWD/home/.config/kdeglobals" ~/.config/kdeglobals
+ln -s "$PWD/home/.config/starship.toml" ~/.config/starship.toml
+ln -s "$PWD/home/.config/darklyrc" ~/.config/darklyrc
+ln -s "$PWD/home/.config/dolphinrc" ~/.config/dolphinrc
+ln -s "$PWD/home/.config/environment.d/10-path.conf" ~/.config/environment.d/10-path.conf
+ln -s "$PWD/home/.config/environment.d/20-theme.conf" ~/.config/environment.d/20-theme.conf
+ln -s "$PWD/home/.config/fontconfig/fonts.conf" ~/.config/fontconfig/fonts.conf
+ln -s "$PWD/home/.config/kvantum/kvantum.kvconfig" ~/.config/kvantum/kvantum.kvconfig
+ln -s "$PWD/home/.config/qt6ct/qt6ct.conf" ~/.config/qt6ct/qt6ct.conf
+ln -s "$PWD/home/.config/qt6ct/style-colors.conf" ~/.config/qt6ct/style-colors.conf
 ln -s "$PWD/home/.config/autostart/predator-shell.desktop" ~/.config/autostart/predator-shell.desktop
+ln -s "$PWD/home/.config/xdg-desktop-portal/hyprland-portals.conf" ~/.config/xdg-desktop-portal/hyprland-portals.conf
 ln -s "$PWD/home/.local/bin/set-wallpaper" ~/.local/bin/set-wallpaper
 ln -s "$PWD/home/.local/bin/screenshot" ~/.local/bin/screenshot
 ln -s "$PWD/home/.local/bin/emoji-picker" ~/.local/bin/emoji-picker
 ```
-
-If any `ln` command reports that a file exists, stop and move that exact path to
-a backup first. Do not use `ln -sf` on directories.
 
 Set Zsh's configuration directory and optionally make it your login shell:
 
@@ -141,7 +150,7 @@ ln -s "$PWD/home/.config/zsh/.zshenv" ~/.zshenv
 chsh -s /bin/zsh
 ```
 
-Install the pinned KDE color scheme and apply the GTK preferences:
+Install the pinned KDE color scheme, GTK theme, and apply preferences:
 
 ```bash
 scripts/setup-theme.sh
@@ -155,7 +164,7 @@ Log out and back in after changing `environment.d` or the login shell.
 Enable the services needed by the desktop:
 
 ```bash
-sudo systemctl enable --now NetworkManager bluetooth
+sudo systemctl enable --now NetworkManager bluetooth systemd-zram-setup@zram0.service
 systemctl --user enable --now pipewire.socket pipewire-pulse.socket wireplumber.service
 systemctl --user enable --now hypridle.service hyprpaper.service hyprpolkitagent.service
 ```

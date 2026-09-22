@@ -15,8 +15,6 @@
 home/.local/state/
 home/.cache/
 
-# Wallpaper images themselves
-home/Pictures/Wallpapers/
 
 # Secrets / credentials
 *.key
