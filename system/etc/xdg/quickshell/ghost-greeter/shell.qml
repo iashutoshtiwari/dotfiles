@@ -39,7 +39,8 @@ ShellRoot {
         readonly property color yellow: "#f9e2af"
         readonly property color green: "#a6e3a1"
 
-        readonly property string uiFont: "JetBrainsMono Nerd Font"
+        readonly property string uiFont: "Inter"
+        readonly property string monoFont: "JetBrainsMono Nerd Font"
         readonly property string iconFont: "JetBrainsMono Nerd Font"
 
         readonly property int spacingXs: 4
@@ -332,7 +333,7 @@ ShellRoot {
                             anchors.horizontalCenter: parent.horizontalCenter
                             text: root.clockText
                             color: theme.text
-                            font.family: theme.uiFont
+                            font.family: theme.monoFont
                             font.pixelSize: 56
                             font.weight: Font.Medium
                         }

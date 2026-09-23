@@ -129,7 +129,7 @@ PopupWindow {
                     Text {
                         text: NetworkService.scanning ? "Scanning…" : "Rescan"
                         font.family: Theme.appFont
-                        font.pixelSize: Theme.textSmall
+                        font.pixelSize: Theme.fontCaption
                         color: NetworkService.scanning ? Theme.sapphire : Theme.lavender
                         MouseArea {
                             anchors.fill: parent
@@ -180,7 +180,7 @@ PopupWindow {
                     visible: root.connectionMessage.length > 0
                     text: root.connectionMessage
                     font.family: Theme.appFont
-                    font.pixelSize: Theme.textSmall
+                    font.pixelSize: Theme.fontCaption
                     color: Theme.red
                 }
 
@@ -203,6 +203,7 @@ PopupWindow {
                     description: NetworkService.ipv4Gateway.length > 0
                         ? "Gateway " + NetworkService.ipv4Gateway : "No gateway"
                     value: NetworkService.ipv4Address
+                    valueFont: Theme.monoFont
                     interactive: false
                 }
             }
@@ -236,6 +237,7 @@ PopupWindow {
                         icon: "󰒍"
                         label: modelData.label
                         value: modelData.detail
+                        valueFont: modelData.value === "automatic" ? Theme.appFont : Theme.monoFont
                         onClicked: NetworkService.applyDns(modelData.value, "")
                     }
                 }
@@ -245,7 +247,7 @@ PopupWindow {
                     Layout.fillWidth: true
                     height: 38
                     color: Theme.base
-                    border.width: 1
+                    border.width: Theme.surfaceBorder
                     border.color: customDns.activeFocus ? Theme.lavender : Theme.surface1
                     TextInput {
                         id: customDns
@@ -254,8 +256,8 @@ PopupWindow {
                         anchors.rightMargin: 10
                         verticalAlignment: TextInput.AlignVCenter
                         clip: true
-                        font.family: Theme.appFont
-                        font.pixelSize: Theme.textBody
+                        font.family: Theme.monoFont
+                        font.pixelSize: Theme.fontBody
                         color: Theme.text
                         selectionColor: Theme.lavender
                         selectedTextColor: Theme.crust
@@ -264,8 +266,8 @@ PopupWindow {
                             anchors.verticalCenter: parent.verticalCenter
                             visible: customDns.text.length === 0 && !customDns.activeFocus
                             text: "1.1.1.1, 1.0.0.1"
-                            font.family: Theme.appFont
-                            font.pixelSize: Theme.textBody
+                            font.family: Theme.monoFont
+                            font.pixelSize: Theme.fontBody
                             color: Theme.overlay0
                         }
                     }
@@ -282,7 +284,7 @@ PopupWindow {
                     text: NetworkService.dnsStatus
                     visible: text.length > 0
                     font.family: Theme.appFont
-                    font.pixelSize: Theme.textSmall
+                    font.pixelSize: Theme.fontCaption
                     color: text === "DNS applied" ? Theme.green : Theme.red
                 }
                 Item { Layout.fillHeight: true }
@@ -342,14 +344,14 @@ PopupWindow {
                     Text {
                         text: "Cancel"
                         font.family: Theme.appFont
-                        font.pixelSize: Theme.textSmall
+                        font.pixelSize: Theme.fontCaption
                         color: Theme.subtext0
                         MouseArea { anchors.fill: parent; anchors.margins: -6; cursorShape: Qt.PointingHandCursor; onClicked: { root.pendingNetwork = null; passwordInput.text = ""; } }
                     }
                     Text {
                         text: "Connect"
                         font.family: Theme.appFont
-                        font.pixelSize: Theme.textSmall
+                        font.pixelSize: Theme.fontCaption
                         font.weight: Font.DemiBold
                         color: Theme.lavender
                         MouseArea { anchors.fill: parent; anchors.margins: -6; cursorShape: Qt.PointingHandCursor; onClicked: { NetworkService.connectWithPassword(root.pendingNetwork, passwordInput.text); root.pendingNetwork = null; passwordInput.text = ""; } }

@@ -153,7 +153,7 @@ Scope {
                     // content behind it visually distracting.
                     color: Qt.rgba(Theme.mantle.r, Theme.mantle.g, Theme.mantle.b, 0.96)
 
-                    border.width: 1
+                    border.width: Theme.surfaceBorder
                     border.color: Theme.surface0
 
                     radius: Theme.radius
@@ -180,7 +180,7 @@ Scope {
                     // ── Center: Media + Weather + Clock ────────────────────
                     Row {
                         anchors.centerIn: parent
-                        spacing: 4
+                        spacing: Theme.spacingXs
 
                         MediaWidget {
                             id: mediaWidget
@@ -214,7 +214,7 @@ Scope {
                             verticalCenter: parent.verticalCenter
                         }
 
-                        spacing: 4
+                        spacing: Theme.spacingXs
 
                         TrayWidget {
                             id: trayWidget

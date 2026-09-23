@@ -165,7 +165,7 @@ PanelWindow {
                             Text {
                                 anchors.verticalCenter: parent.verticalCenter
                                 font.family: Theme.appFont
-                                font.pixelSize: 10
+                                font.pixelSize: Theme.fontCaption
                                 font.weight: Font.DemiBold
                                 color: Theme.lavender
                                 text: (toastCard.modelData && toastCard.modelData.appName) || "Notification"
@@ -182,8 +182,8 @@ PanelWindow {
 
                             Text {
                                 anchors.centerIn: parent
-                                font.family: Theme.shellFont
-                                font.pixelSize: 12
+                                font.family: Theme.iconFont
+                                font.pixelSize: Theme.iconSmall
                                 color: Theme.subtext0
                                 text: "󰅖"
                             }
@@ -207,7 +207,7 @@ PanelWindow {
                     Text {
                         width: parent.width
                         font.family: Theme.appFont
-                        font.pixelSize: 12
+                        font.pixelSize: Theme.fontBodyStrong
                         font.weight: Font.DemiBold
                         color: Theme.text
                         text: (toastCard.modelData && toastCard.modelData.summary) || ""
@@ -251,7 +251,7 @@ PanelWindow {
                                     id: actionLabel
                                     anchors.centerIn: parent
                                     font.family: Theme.appFont
-                                    font.pixelSize: 10
+                                    font.pixelSize: Theme.fontCaption
                                     font.weight: Font.DemiBold
                                     color: Theme.lavender
                                     text: (actionBtn.modelData && actionBtn.modelData.text) || ""

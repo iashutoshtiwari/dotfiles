@@ -53,7 +53,7 @@ PopupWindow {
                 spacing: Theme.spacingLg
                 Text {
                     text: WeatherService.conditionIcon
-                    font.family: Theme.shellFont
+                    font.family: Theme.iconFont
                     font.pixelSize: 38
                     color: Theme.lavender
                 }
@@ -62,15 +62,15 @@ PopupWindow {
                     spacing: 0
                     Text {
                         text: WeatherService.available ? Math.round(WeatherService.temperature) + "°" : "--°"
-                        font.family: Theme.appFont
-                        font.pixelSize: 28
+                        font.family: Theme.monoFont
+                        font.pixelSize: Theme.fontDisplay
                         font.weight: Font.DemiBold
                         color: Theme.text
                     }
                     Text {
                         text: "Feels like " + (WeatherService.available ? Math.round(WeatherService.feelsLike) + "°" : "--")
                         font.family: Theme.appFont
-                        font.pixelSize: Theme.textSmall
+                        font.pixelSize: Theme.fontCaption
                         color: Theme.subtext0
                     }
                 }
@@ -93,12 +93,12 @@ PopupWindow {
                             anchors.fill: parent
                             anchors.leftMargin: Theme.spacingSm
                             anchors.rightMargin: Theme.spacingSm
-                            Text { text: parent.parent.modelData.icon; font.family: Theme.shellFont; font.pixelSize: 14; color: Theme.sapphire }
+                            Text { text: parent.parent.modelData.icon; font.family: Theme.iconFont; font.pixelSize: 14; color: Theme.sapphire }
                             ColumnLayout {
                                 Layout.fillWidth: true
                                 spacing: 0
-                                Text { text: parent.parent.parent.modelData.label; font.family: Theme.appFont; font.pixelSize: Theme.textSmall; color: Theme.subtext0 }
-                                Text { text: parent.parent.parent.modelData.value; font.family: Theme.appFont; font.pixelSize: Theme.textBody; font.weight: Font.Medium; color: Theme.text }
+                                Text { text: parent.parent.parent.modelData.label; font.family: Theme.appFont; font.pixelSize: Theme.fontCaption; color: Theme.subtext0 }
+                                Text { text: parent.parent.parent.modelData.value; font.family: Theme.monoFont; font.pixelSize: Theme.fontBody; font.weight: Font.Medium; color: Theme.text }
                             }
                         }
                     }
@@ -118,6 +118,7 @@ PopupWindow {
                         label: modelData.dayName
                         description: modelData.conditionText
                         value: modelData.minTemp + "°  /  " + modelData.maxTemp + "°"
+                        valueFont: Theme.monoFont
                         interactive: false
                     }
                 }

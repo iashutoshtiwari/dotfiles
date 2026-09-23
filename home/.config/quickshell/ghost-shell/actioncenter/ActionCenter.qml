@@ -135,8 +135,8 @@ PanelWindow {
         anchors.fill: parent
         color: Qt.rgba(Theme.crust.r, Theme.crust.g, Theme.crust.b, 1)
 
-        // ~0.28 opacity — subtle dimming without making desktop disappear
-        opacity: root.open ? 0.28 : 0.0
+        // Subtle dimming without making desktop disappear
+        opacity: root.open ? Theme.backdropOpacity : 0.0
 
         Behavior on opacity {
             NumberAnimation {
@@ -223,7 +223,7 @@ PanelWindow {
                     Text {
                         text: "Action Center"
                         font.family: Theme.appFont
-                        font.pixelSize: Theme.textHeading
+                        font.pixelSize: Theme.fontHeading
                         font.weight: Font.DemiBold
                         color: Theme.text
                     }
@@ -238,7 +238,7 @@ PanelWindow {
                             return n + (n === 1 ? " notification" : " notifications");
                         }
                         font.family: Theme.appFont
-                        font.pixelSize: Theme.textSmall
+                        font.pixelSize: Theme.fontCaption
                         color: NotificationService.dnd ? Theme.red : Theme.subtext0
                         Behavior on color { ColorAnimation { duration: Theme.motionFast } }
                     }
@@ -261,7 +261,7 @@ PanelWindow {
                     Text {
                         anchors.centerIn: parent
                         text: NotificationService.dnd ? "󰂛" : "󰂚"
-                        font.family: Theme.shellFont
+                        font.family: Theme.iconFont
                         font.pixelSize: 16
                         color: NotificationService.dnd ? Theme.red : Theme.subtext0
                         Behavior on color { ColorAnimation { duration: Theme.motionFast } }

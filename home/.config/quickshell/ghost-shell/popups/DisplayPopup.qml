@@ -68,8 +68,8 @@ PopupWindow {
                     width: 80
                     horizontalAlignment: Text.AlignRight
                     text: BrightnessService.brightnessPercent + "%"
-                    font.family: Theme.appFont
-                    font.pixelSize: 13
+                    font.family: Theme.monoFont
+                    font.pixelSize: Theme.fontValue
                     font.weight: Font.DemiBold
                     color: Theme.lavender
                 }
@@ -87,7 +87,7 @@ PopupWindow {
             // BRIGHTNESS PRESETS
             Row {
                 width: parent.width
-                spacing: 8
+                spacing: Theme.spacingSm
 
                 Repeater {
                     model: [25, 50, 75, 100]
@@ -96,13 +96,13 @@ PopupWindow {
                         required property int modelData
 
                         width: (content.width - 24) / 4
-                        height: 24
+                        height: Theme.controlCompact
 
                         color: BrightnessService.brightnessPercent === modelData
                             ? Theme.surface1
                             : Theme.surface0
 
-                        border.width: 1
+                        border.width: Theme.surfaceBorder
                         border.color: BrightnessService.brightnessPercent === modelData
                             ? Theme.lavender
                             : Theme.surface0
@@ -112,8 +112,8 @@ PopupWindow {
                         Text {
                             anchors.centerIn: parent
                             text: modelData + "%"
-                            font.family: Theme.shellFont
-                            font.pixelSize: 10
+                            font.family: Theme.monoFont
+                            font.pixelSize: Theme.fontCaption
                             font.weight: Font.Medium
                             color: BrightnessService.brightnessPercent === modelData
                                 ? Theme.lavender
@@ -153,7 +153,7 @@ PopupWindow {
 
                         Text {
                             text: "󰌌"
-                            font.family: Theme.shellFont
+                            font.family: Theme.iconFont
                             font.pixelSize: 13
                             color: KeyboardBacklightService.brightness > 0 ? Theme.lavender : Theme.overlay1
                             anchors.verticalCenter: parent.verticalCenter
@@ -161,8 +161,8 @@ PopupWindow {
 
                         Text {
                             text: "KEYBOARD BACKLIGHT"
-                            font.family: Theme.shellFont
-                            font.pixelSize: 12
+                            font.family: Theme.appFont
+                            font.pixelSize: Theme.fontBody
                             font.weight: Font.DemiBold
                             color: Theme.text
                             anchors.verticalCenter: parent.verticalCenter
@@ -183,7 +183,7 @@ PopupWindow {
                             }
                             return KeyboardBacklightService.brightness + " / " + KeyboardBacklightService.maximum;
                         }
-                        font.family: Theme.shellFont
+                        font.family: Theme.monoFont
                         font.pixelSize: 11
                         font.weight: Font.DemiBold
                         color: KeyboardBacklightService.brightness > 0 ? Theme.lavender : Theme.subtext0
@@ -321,8 +321,8 @@ PopupWindow {
                                 id: labelItem
                                 anchors.centerIn: parent
                                 text: parent.labelText
-                                font.family: Theme.shellFont
-                                font.pixelSize: 10
+                                font.family: Theme.monoFont
+                                font.pixelSize: Theme.fontCaption
                                 font.weight: KeyboardBacklightService.brightness === parent.index ? Font.DemiBold : Font.Normal
                                 color: KeyboardBacklightService.brightness === parent.index ? Theme.lavender : Theme.overlay1
                             }
@@ -354,16 +354,16 @@ PopupWindow {
 
                     Text {
                         text: "NIGHT LIGHT"
-                        font.family: Theme.shellFont
-                        font.pixelSize: 12
+                        font.family: Theme.appFont
+                        font.pixelSize: Theme.fontBody
                         font.weight: Font.DemiBold
                         color: Theme.text
                     }
 
                     Text {
                         text: NightLightService.statusText
-                        font.family: Theme.shellFont
-                        font.pixelSize: 10
+                        font.family: Theme.appFont
+                        font.pixelSize: Theme.fontCaption
                         color: Theme.subtext0
                     }
                 }
@@ -379,8 +379,8 @@ PopupWindow {
                     Text {
                         anchors.centerIn: parent
                         text: NightLightService.enabled ? "ON" : "OFF"
-                        font.family: Theme.shellFont
-                        font.pixelSize: 10
+                        font.family: Theme.monoFont
+                        font.pixelSize: Theme.fontCaption
                         font.weight: Font.Bold
                         color: NightLightService.enabled ? Theme.crust : Theme.subtext0
                     }
@@ -405,8 +405,8 @@ PopupWindow {
                     Text {
                         width: parent.width - 80
                         text: "Color Temperature"
-                        font.family: Theme.shellFont
-                        font.pixelSize: 10
+                        font.family: Theme.appFont
+                        font.pixelSize: Theme.fontCaption
                         color: Theme.overlay1
                     }
 
@@ -414,8 +414,8 @@ PopupWindow {
                         width: 80
                         horizontalAlignment: Text.AlignRight
                         text: NightLightService.temperature + "K"
-                        font.family: Theme.shellFont
-                        font.pixelSize: 10
+                        font.family: Theme.monoFont
+                        font.pixelSize: Theme.fontCaption
                         color: Theme.peach
                     }
                 }
@@ -464,7 +464,7 @@ PopupWindow {
                             Text {
                                 anchors.centerIn: parent
                                 text: modelData.name
-                                font.family: Theme.shellFont
+                                font.family: Theme.appFont
                                 font.pixelSize: 9
                                 font.weight: Font.Medium
                                 color: NightLightService.temperature === modelData.temp
@@ -506,8 +506,8 @@ PopupWindow {
                     Text {
                         width: parent.width - 40
                         text: "Schedule: 20:00 – 07:00"
-                        font.family: Theme.shellFont
-                        font.pixelSize: 10
+                        font.family: Theme.appFont
+                        font.pixelSize: Theme.fontCaption
                         color: Theme.text
                     }
 
@@ -515,7 +515,7 @@ PopupWindow {
                         width: 40
                         horizontalAlignment: Text.AlignRight
                         text: NightLightService.scheduleEnabled ? "󰄲" : "󰄱"
-                        font.family: Theme.shellFont
+                        font.family: Theme.iconFont
                         font.pixelSize: 14
                         color: NightLightService.scheduleEnabled ? Theme.lavender : Theme.overlay0
                     }
@@ -545,16 +545,16 @@ PopupWindow {
 
                     Text {
                         text: "WALLPAPER"
-                        font.family: Theme.shellFont
-                        font.pixelSize: 12
+                        font.family: Theme.appFont
+                        font.pixelSize: Theme.fontBody
                         font.weight: Font.DemiBold
                         color: Theme.text
                     }
 
                     Text {
                         text: WallpaperService.currentWallpaperName || "Default"
-                        font.family: Theme.shellFont
-                        font.pixelSize: 10
+                        font.family: Theme.appFont
+                        font.pixelSize: Theme.fontCaption
                         color: Theme.subtext0
                         elide: Text.ElideMiddle
                         width: parent.width
@@ -577,15 +577,15 @@ PopupWindow {
 
                         Text {
                             text: "󰸉"
-                            font.family: Theme.shellFont
+                            font.family: Theme.iconFont
                             font.pixelSize: 11
                             color: Theme.lavender
                         }
 
                         Text {
                             text: "Gallery"
-                            font.family: Theme.shellFont
-                            font.pixelSize: 10
+                            font.family: Theme.appFont
+                            font.pixelSize: Theme.fontCaption
                             font.weight: Font.DemiBold
                             color: Theme.text
                         }

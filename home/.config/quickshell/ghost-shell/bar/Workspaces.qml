@@ -93,7 +93,7 @@ Item {
 
                     Rectangle {
                         anchors.centerIn: parent
-                        width: slot.occupied ? 8 : 6
+                        width: slot.occupied ? Theme.workspaceDot : 6
                         height: width
                         radius: width / 2
                         color: slot.active ? "transparent"

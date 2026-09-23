@@ -42,7 +42,7 @@ Item {
                 Layout.fillWidth: true
                 text: "Notifications"
                 font.family: Theme.appFont
-                font.pixelSize: Theme.textSmall
+                font.pixelSize: Theme.fontCaption
                 font.weight: Font.DemiBold
                 color: Theme.subtext0
                 font.letterSpacing: 0.5
@@ -53,7 +53,7 @@ Item {
                 visible: root.notifCount > 0
                 text: "Clear all"
                 font.family: Theme.appFont
-                font.pixelSize: Theme.textSmall
+                font.pixelSize: Theme.fontCaption
                 color: clearMouse.containsMouse ? Theme.text : Theme.subtext0
                 Layout.alignment: Qt.AlignVCenter
 
@@ -92,8 +92,8 @@ Item {
                 Text {
                     anchors.horizontalCenter: parent.horizontalCenter
                     text: "󰂚"
-                    font.family: Theme.shellFont
-                    font.pixelSize: 28
+                    font.family: Theme.iconFont
+                    font.pixelSize: Theme.fontDisplay
                     color: Theme.overlay0
                 }
 
@@ -101,7 +101,7 @@ Item {
                     anchors.horizontalCenter: parent.horizontalCenter
                     text: "You're all caught up"
                     font.family: Theme.appFont
-                    font.pixelSize: Theme.textBody
+                    font.pixelSize: Theme.fontBody
                     color: Theme.overlay1
                 }
             }

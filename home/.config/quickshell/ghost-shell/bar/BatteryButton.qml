@@ -50,8 +50,8 @@ Item {
 
             text: root.icon
 
-            font.family: Theme.shellFont
-            font.pixelSize: 15
+            font.family: Theme.iconFont
+            font.pixelSize: Theme.iconNormal
 
             color: {
                 if (root.active)
@@ -77,8 +77,8 @@ Item {
                 ? Math.round(PowerService.percentage) + "%"
                 : "—"
 
-            font.family: Theme.shellFont
-            font.pixelSize: 13
+            font.family: Theme.monoFont
+            font.pixelSize: Theme.fontValue
             font.weight: Font.DemiBold
 
             color: Theme.text

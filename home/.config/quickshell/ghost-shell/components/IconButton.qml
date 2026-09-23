@@ -17,7 +17,7 @@ Rectangle {
     color: mouse.pressed ? Theme.surface2
         : mouse.containsMouse || active ? Theme.surface1
         : "transparent"
-    border.width: active ? Theme.borderWidth : 0
+    border.width: active ? Theme.surfaceBorder : 0
     border.color: active ? Theme.lavender : "transparent"
     radius: Theme.radius
     opacity: enabled ? 1 : Theme.disabledOpacity
@@ -31,7 +31,7 @@ Rectangle {
     Text {
         anchors.centerIn: parent
         text: root.icon
-        font.family: Theme.shellFont
+        font.family: Theme.iconFont
         font.pixelSize: 14
         color: root.active ? Theme.lavender : root.foreground
     }

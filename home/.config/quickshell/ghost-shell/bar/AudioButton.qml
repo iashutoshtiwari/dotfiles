@@ -38,8 +38,8 @@ Item {
 
         text: root.icon
 
-        font.family: Theme.shellFont
-        font.pixelSize: 15
+        font.family: Theme.iconFont
+        font.pixelSize: Theme.iconNormal
 
         color: root.active ? Theme.lavender : AudioService.outputMuted
             ? Theme.overlay1

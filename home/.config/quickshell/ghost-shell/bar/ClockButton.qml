@@ -24,8 +24,8 @@ Item {
 
         text: Qt.formatDateTime(clock.date, "hh:mm")
 
-        font.family: Theme.appFont
-        font.pixelSize: 13
+        font.family: Theme.monoFont
+        font.pixelSize: Theme.fontValue
         font.weight: Font.DemiBold
 
         color: root.active ? Theme.lavender : Theme.text

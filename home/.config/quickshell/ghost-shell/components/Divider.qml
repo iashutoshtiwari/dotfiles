@@ -3,6 +3,6 @@ import QtQuick
 import qs.theme
 
 Rectangle {
-    implicitHeight: 1
+    implicitHeight: Theme.surfaceBorder
     color: Theme.surface0
 }

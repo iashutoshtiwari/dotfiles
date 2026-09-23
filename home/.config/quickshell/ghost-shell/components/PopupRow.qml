@@ -10,6 +10,7 @@ Rectangle {
     property string label: ""
     property string description: ""
     property string value: ""
+    property string valueFont: Theme.appFont
     property bool selected: false
     property bool interactive: true
     property color statusColor: selected ? Theme.lavender : Theme.subtext0
@@ -25,14 +26,14 @@ Rectangle {
     Behavior on color { ColorAnimation { duration: Theme.motionFast; easing.type: Easing.OutCubic } }
 
     Rectangle {
-        width: 2
+        width: Theme.activeRail
         anchors { left: parent.left; top: parent.top; bottom: parent.bottom }
         color: Theme.lavender
         visible: root.selected
     }
 
     RowLayout {
-        anchors { fill: parent; leftMargin: 8; rightMargin: 8 }
+        anchors { fill: parent; leftMargin: Theme.spacingSm; rightMargin: Theme.spacingSm }
         spacing: Theme.spacingSm
 
         Text {
@@ -41,7 +42,7 @@ Rectangle {
             text: root.icon
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
-            font.family: Theme.shellFont
+            font.family: Theme.iconFont
             font.pixelSize: 14
             color: root.selected ? Theme.lavender : Theme.subtext1
         }
@@ -55,7 +56,7 @@ Rectangle {
                 text: root.label
                 elide: Text.ElideRight
                 font.family: Theme.appFont
-                font.pixelSize: Theme.textBody
+                font.pixelSize: Theme.fontBody
                 font.weight: root.selected ? Font.Medium : Font.Normal
                 color: Theme.text
             }
@@ -66,7 +67,7 @@ Rectangle {
                 text: root.description
                 elide: Text.ElideRight
                 font.family: Theme.appFont
-                font.pixelSize: Theme.textSmall
+                font.pixelSize: Theme.fontCaption
                 color: Theme.subtext0
             }
         }
@@ -76,8 +77,8 @@ Rectangle {
             Layout.preferredHeight: root.implicitHeight
             text: root.value
             verticalAlignment: Text.AlignVCenter
-            font.family: Theme.appFont
-            font.pixelSize: Theme.textSmall
+            font.family: root.valueFont
+            font.pixelSize: Theme.fontCaption
             color: root.statusColor
         }
     }

@@ -22,8 +22,8 @@ Item {
         Text {
             anchors.centerIn: parent
             text: "󰐥"
-            font.family: Theme.shellFont
-            font.pixelSize: 15
+            font.family: Theme.iconFont
+            font.pixelSize: Theme.iconNormal
             color: root.active ? Theme.lavender : mouseArea.containsMouse ? Theme.red : Theme.subtext1
         }
 

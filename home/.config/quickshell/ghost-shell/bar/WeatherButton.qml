@@ -29,7 +29,7 @@ Item {
         Text {
             anchors.verticalCenter: parent.verticalCenter
             text: WeatherService.conditionIcon
-            font.family: Theme.shellFont
+            font.family: Theme.iconFont
             font.pixelSize: 13
             color: root.active ? Theme.text : Theme.lavender
         }
@@ -39,8 +39,8 @@ Item {
             text: WeatherService.available
                 ? Math.round(WeatherService.temperature) + "°C"
                 : "--°C"
-            font.family: Theme.appFont
-            font.pixelSize: 12
+            font.family: Theme.monoFont
+            font.pixelSize: Theme.fontBody
             font.weight: Font.Medium
             color: Theme.text
         }

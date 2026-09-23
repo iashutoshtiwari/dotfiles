@@ -10,7 +10,7 @@ Rectangle {
     property bool pressed: false
 
     color: pressed ? Theme.surface2
-        : active ? Qt.rgba(Theme.lavender.r, Theme.lavender.g, Theme.lavender.b, 0.12)
+        : active ? Qt.rgba(Theme.lavender.r, Theme.lavender.g, Theme.lavender.b, Theme.highlightOpacity)
         : hovered ? Theme.surface0
         : "transparent"
     radius: Theme.radius
@@ -19,7 +19,7 @@ Rectangle {
 
     Rectangle {
         anchors { left: parent.left; right: parent.right; bottom: parent.bottom }
-        height: 2
+        height: Theme.activeRail
         color: Theme.lavender
         opacity: root.active ? 1 : 0
         Behavior on opacity {

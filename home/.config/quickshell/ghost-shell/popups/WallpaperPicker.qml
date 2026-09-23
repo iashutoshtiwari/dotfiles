@@ -112,15 +112,15 @@ PopupWindow {
 
                             Text {
                                 text: "󰉋"
-                                font.family: Theme.shellFont
+                                font.family: Theme.iconFont
                                 font.pixelSize: 11
                                 color: Theme.lavender
                             }
 
                             Text {
                                 text: "Folder"
-                                font.family: Theme.shellFont
-                                font.pixelSize: 10
+                                font.family: Theme.appFont
+                                font.pixelSize: Theme.fontCaption
                                 font.weight: Font.Medium
                                 color: Theme.text
                             }
@@ -145,8 +145,8 @@ PopupWindow {
                         Text {
                             anchors.centerIn: parent
                             text: "󰅖"
-                            font.family: Theme.shellFont
-                            font.pixelSize: 12
+                            font.family: Theme.iconFont
+                            font.pixelSize: Theme.iconSmall
                             color: Theme.subtext0
                         }
 
@@ -249,8 +249,8 @@ PopupWindow {
                                     Text {
                                         width: parent.width
                                         text: modelData.name
-                                        font.family: Theme.shellFont
-                                        font.pixelSize: 10
+                                        font.family: Theme.appFont
+                                        font.pixelSize: Theme.fontCaption
                                         font.weight: modelData.isCurrent ? Font.DemiBold : Font.Medium
                                         color: modelData.isCurrent ? Theme.lavender : Theme.text
                                         elide: Text.ElideMiddle

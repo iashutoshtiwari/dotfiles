@@ -26,7 +26,7 @@ Item {
     // ── Urgency accent on left edge ───────────────────────────────────
     Rectangle {
         anchors { left: parent.left; top: parent.top; bottom: parent.bottom }
-        width: 2
+        width: Theme.activeRail
         color: root.notif?.urgency === 2 ? Theme.red
             : root.notif?.urgency === 1 ? Theme.lavender
             : Theme.surface1
@@ -70,7 +70,7 @@ Item {
                 text: root.notif?.appName || "Notification"
                 elide: Text.ElideRight
                 font.family: Theme.appFont
-                font.pixelSize: Theme.textSmall
+                font.pixelSize: Theme.fontCaption
                 font.weight: Font.Medium
                 color: root.notif?.urgency === 2 ? Theme.red : Theme.lavender
             }
@@ -78,8 +78,8 @@ Item {
             // Dismiss button — small, unobtrusive
             Text {
                 text: "󰅖"
-                font.family: Theme.shellFont
-                font.pixelSize: 11
+                font.family: Theme.iconFont
+                font.pixelSize: Theme.iconSmall
                 color: dismissMouse.containsMouse ? Theme.text : Theme.subtext0
                 Layout.alignment: Qt.AlignVCenter
 
@@ -104,7 +104,7 @@ Item {
             maximumLineCount: 2
             elide: Text.ElideRight
             font.family: Theme.appFont
-            font.pixelSize: Theme.textBodyStrong
+            font.pixelSize: Theme.fontBodyStrong
             font.weight: Font.Medium
             color: Theme.text
             visible: text.length > 0
@@ -118,7 +118,7 @@ Item {
             maximumLineCount: 3
             elide: Text.ElideRight
             font.family: Theme.appFont
-            font.pixelSize: Theme.textSmall
+            font.pixelSize: Theme.fontCaption
             color: Theme.subtext1
             visible: text.length > 0
         }
@@ -148,7 +148,7 @@ Item {
                         anchors.centerIn: parent
                         text: actionBtn.modelData?.text || ""
                         font.family: Theme.appFont
-                        font.pixelSize: Theme.textSmall
+                        font.pixelSize: Theme.fontCaption
                         font.weight: Font.Medium
                         color: Theme.lavender
                     }

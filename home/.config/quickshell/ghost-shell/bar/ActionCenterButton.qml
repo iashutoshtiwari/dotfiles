@@ -40,8 +40,8 @@ Item {
         Text {
             anchors.verticalCenter: parent.verticalCenter
             text: NotificationService.dnd ? "󰂛" : "󰂚"
-            font.family: Theme.shellFont
-            font.pixelSize: 15
+            font.family: Theme.iconFont
+            font.pixelSize: Theme.iconNormal
             color: root.active       ? Theme.lavender
                  : NotificationService.dnd    ? Theme.red
                  : NotificationService.unreadCount > 0 ? Theme.lavender
@@ -63,7 +63,7 @@ Item {
                 id: badgeLabel
                 anchors.centerIn: parent
                 text: NotificationService.unreadCount > 99 ? "99+" : NotificationService.unreadCount.toString()
-                font.family: Theme.shellFont
+                font.family: Theme.monoFont
                 font.pixelSize: 9
                 font.weight: Font.Bold
                 color: Theme.crust

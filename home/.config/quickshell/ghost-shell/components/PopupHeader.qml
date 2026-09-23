@@ -26,7 +26,7 @@ Item {
             Layout.preferredHeight: root.implicitHeight
 
             text: root.icon
-            font.family: Theme.shellFont
+            font.family: Theme.iconFont
             font.pixelSize: 16
             color: Theme.lavender
             horizontalAlignment: Text.AlignHCenter
@@ -42,7 +42,7 @@ Item {
                 text: root.title
                 elide: Text.ElideRight
                 font.family: Theme.appFont
-                font.pixelSize: Theme.textHeading
+                font.pixelSize: Theme.fontHeading
                 font.weight: Font.DemiBold
                 color: Theme.text
             }
@@ -52,7 +52,7 @@ Item {
                 text: root.subtitle
                 elide: Text.ElideRight
                 font.family: Theme.appFont
-                font.pixelSize: Theme.textSmall
+                font.pixelSize: Theme.fontCaption
                 color: Theme.subtext0
             }
         }

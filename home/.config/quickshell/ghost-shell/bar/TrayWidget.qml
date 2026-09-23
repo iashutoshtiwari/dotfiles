@@ -8,7 +8,7 @@ import qs.theme
 Row {
     id: root
 
-    spacing: 4
+    spacing: Theme.spacingXs
 
     Repeater {
         model: SystemTray.items

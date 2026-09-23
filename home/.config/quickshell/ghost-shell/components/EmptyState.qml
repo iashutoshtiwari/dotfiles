@@ -14,8 +14,8 @@ ColumnLayout {
     Text {
         Layout.alignment: Qt.AlignHCenter
         text: root.icon
-        font.family: Theme.shellFont
-        font.pixelSize: 24
+        font.family: Theme.iconFont
+        font.pixelSize: Theme.iconLarge
         color: Theme.overlay0
     }
 
@@ -23,7 +23,7 @@ ColumnLayout {
         Layout.alignment: Qt.AlignHCenter
         text: root.message
         font.family: Theme.appFont
-        font.pixelSize: Theme.textBody
+        font.pixelSize: Theme.fontBody
         color: Theme.subtext0
     }
 }

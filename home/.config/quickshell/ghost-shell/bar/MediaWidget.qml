@@ -24,7 +24,7 @@ Item {
     Text {
         anchors.centerIn: parent
         text: MprisService.playing ? "󰝚" : "󰝛"
-        font.family: Theme.shellFont
+        font.family: Theme.iconFont
         font.pixelSize: 13
         color: root.active ? Theme.text : Theme.lavender
 

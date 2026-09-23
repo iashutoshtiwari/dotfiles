@@ -67,7 +67,7 @@ PopupWindow {
                 Text {
                     text: BluetoothService.discovering ? "Scanning…" : "Scan"
                     font.family: Theme.appFont
-                    font.pixelSize: Theme.textSmall
+                    font.pixelSize: Theme.fontCaption
                     font.weight: Font.Medium
                     color: BluetoothService.discovering ? Theme.sapphire : Theme.lavender
                     MouseArea {
@@ -100,6 +100,7 @@ PopupWindow {
                         ? Math.round(modelData.battery * 100) + "%"
                         : modelData.connected ? "Disconnect"
                         : modelData.paired ? "Connect" : "Pair"
+                    valueFont: modelData.batteryAvailable ? Theme.monoFont : Theme.appFont
                     selected: modelData.connected
                     statusColor: modelData.connected ? Theme.green : Theme.subtext0
                     onClicked: {

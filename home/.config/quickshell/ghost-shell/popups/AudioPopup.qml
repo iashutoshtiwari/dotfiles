@@ -72,8 +72,8 @@ PopupWindow {
 
                     Text {
                         text: AudioService.outputMuted ? "󰖁" : "󰕾"
-                        font.family: Theme.shellFont
-                        font.pixelSize: 15
+                        font.family: Theme.iconFont
+                        font.pixelSize: Theme.iconNormal
                         color: AudioService.outputMuted ? Theme.red : Theme.lavender
                     }
                     Text {
@@ -81,7 +81,7 @@ PopupWindow {
                         text: AudioService.outputName
                         elide: Text.ElideRight
                         font.family: Theme.appFont
-                        font.pixelSize: Theme.textBody
+                        font.pixelSize: Theme.fontBody
                         font.weight: Font.Medium
                         color: Theme.text
                     }
@@ -89,8 +89,8 @@ PopupWindow {
                         Layout.preferredWidth: 42
                         horizontalAlignment: Text.AlignRight
                         text: Math.round(AudioService.outputVolume * 100) + "%"
-                        font.family: Theme.appFont
-                        font.pixelSize: Theme.textValue
+                        font.family: Theme.monoFont
+                        font.pixelSize: Theme.fontValue
                         font.weight: Font.Medium
                         color: AudioService.outputMuted ? Theme.overlay0 : Theme.lavender
                     }
@@ -145,8 +145,8 @@ PopupWindow {
                     spacing: Theme.spacingSm
                     Text {
                         text: AudioService.inputMuted ? "󰍭" : "󰍬"
-                        font.family: Theme.shellFont
-                        font.pixelSize: 15
+                        font.family: Theme.iconFont
+                        font.pixelSize: Theme.iconNormal
                         color: AudioService.inputMuted ? Theme.red : Theme.sapphire
                     }
                     Text {
@@ -154,7 +154,7 @@ PopupWindow {
                         text: AudioService.inputName
                         elide: Text.ElideRight
                         font.family: Theme.appFont
-                        font.pixelSize: Theme.textBody
+                        font.pixelSize: Theme.fontBody
                         font.weight: Font.Medium
                         color: Theme.text
                     }
@@ -162,8 +162,8 @@ PopupWindow {
                         Layout.preferredWidth: 42
                         horizontalAlignment: Text.AlignRight
                         text: Math.round(AudioService.inputVolume * 100) + "%"
-                        font.family: Theme.appFont
-                        font.pixelSize: Theme.textValue
+                        font.family: Theme.monoFont
+                        font.pixelSize: Theme.fontValue
                         font.weight: Font.Medium
                         color: AudioService.inputMuted ? Theme.overlay0 : Theme.sapphire
                     }

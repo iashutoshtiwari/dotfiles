@@ -55,15 +55,15 @@ PopupWindow {
                     spacing: 0
                     Text {
                         text: Math.round(PowerService.percentage) + "%"
-                        font.family: Theme.appFont
-                        font.pixelSize: 28
+                        font.family: Theme.monoFont
+                        font.pixelSize: Theme.fontDisplay
                         font.weight: Font.DemiBold
                         color: PowerService.charging ? Theme.green : Theme.text
                     }
                     Text {
                         text: PowerService.statusText
                         font.family: Theme.appFont
-                        font.pixelSize: Theme.textSmall
+                        font.pixelSize: Theme.fontCaption
                         color: Theme.subtext0
                     }
                 }
@@ -74,8 +74,8 @@ PopupWindow {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                         text: PowerService.rateText
-                        font.family: Theme.appFont
-                        font.pixelSize: Theme.textBody
+                        font.family: Theme.monoFont
+                        font.pixelSize: Theme.fontBody
                         color: Theme.subtext1
                     }
                     Rectangle {
@@ -118,7 +118,7 @@ PopupWindow {
                             opacity: modelData.available ? 1 : Theme.disabledOpacity
                             Rectangle {
                                 anchors { left: parent.left; right: parent.right; bottom: parent.bottom }
-                                height: 2
+                                height: Theme.activeRail
                                 color: Theme.lavender
                                 visible: PowerService.profile === parent.modelData.profile
                             }
@@ -126,7 +126,7 @@ PopupWindow {
                                 anchors.centerIn: parent
                                 text: parent.modelData.label
                                 font.family: Theme.appFont
-                                font.pixelSize: Theme.textSmall
+                                font.pixelSize: Theme.fontCaption
                                 font.weight: PowerService.profile === parent.modelData.profile ? Font.DemiBold : Font.Normal
                                 color: PowerService.profile === parent.modelData.profile ? Theme.lavender : Theme.subtext1
                             }
@@ -152,10 +152,10 @@ PopupWindow {
 
                 Repeater {
                     model: [
-                        { label: "Power source", value: PowerService.onBattery ? "Battery" : "AC adapter" },
-                        { label: "Charge rate", value: PowerService.rateText },
-                        { label: "Energy", value: PowerService.energy.toFixed(1) + " / " + PowerService.capacity.toFixed(1) + " Wh" },
-                        { label: "Battery health", value: PowerService.healthAvailable ? Math.round(PowerService.health) + "%" : "Not reported" }
+                        { label: "Power source", value: PowerService.onBattery ? "Battery" : "AC adapter", isMono: false },
+                        { label: "Charge rate", value: PowerService.rateText, isMono: true },
+                        { label: "Energy", value: PowerService.energy.toFixed(1) + " / " + PowerService.capacity.toFixed(1) + " Wh", isMono: true },
+                        { label: "Battery health", value: PowerService.healthAvailable ? Math.round(PowerService.health) + "%" : "Not reported", isMono: PowerService.healthAvailable }
                     ]
                     RowLayout {
                         required property var modelData
@@ -165,13 +165,13 @@ PopupWindow {
                             Layout.fillWidth: true
                             text: parent.modelData.label
                             font.family: Theme.appFont
-                            font.pixelSize: Theme.textBody
+                            font.pixelSize: Theme.fontBody
                             color: Theme.subtext0
                         }
                         Text {
                             text: parent.modelData.value
-                            font.family: Theme.appFont
-                            font.pixelSize: Theme.textBody
+                            font.family: parent.modelData.isMono ? Theme.monoFont : Theme.appFont
+                            font.pixelSize: Theme.fontBody
                             color: Theme.text
                         }
                     }

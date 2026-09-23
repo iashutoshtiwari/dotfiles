@@ -87,7 +87,7 @@ PopupWindow {
                     spacing: 1
                     Text {
                         text: Qt.formatDateTime(clock.date, "HH:mm")
-                        font.family: Theme.appFont
+                        font.family: Theme.monoFont
                         font.pixelSize: 26
                         font.weight: Font.DemiBold
                         color: Theme.text
@@ -95,7 +95,7 @@ PopupWindow {
                     Text {
                         text: Qt.formatDate(clock.date, "dddd, d MMMM")
                         font.family: Theme.appFont
-                        font.pixelSize: Theme.textBody
+                        font.pixelSize: Theme.fontBody
                         color: Theme.subtext0
                     }
                 }
@@ -112,7 +112,7 @@ PopupWindow {
                     horizontalAlignment: Text.AlignHCenter
                     text: Qt.formatDate(new Date(root.displayYear, root.displayMonth, 1), "MMMM yyyy")
                     font.family: Theme.appFont
-                    font.pixelSize: Theme.textBodyStrong
+                    font.pixelSize: Theme.fontBodyStrong
                     font.weight: Font.DemiBold
                     color: Theme.text
                     MouseArea {
@@ -141,7 +141,7 @@ PopupWindow {
                         verticalAlignment: Text.AlignVCenter
                         text: modelData
                         font.family: Theme.appFont
-                        font.pixelSize: Theme.textSmall
+                        font.pixelSize: Theme.fontCaption
                         font.weight: Font.Medium
                         color: Theme.overlay1
                     }
@@ -167,8 +167,8 @@ PopupWindow {
                         Text {
                             anchors.centerIn: parent
                             text: parent.day > 0 ? parent.day : ""
-                            font.family: Theme.appFont
-                            font.pixelSize: Theme.textBody
+                            font.family: Theme.monoFont
+                            font.pixelSize: Theme.fontBody
                             font.weight: root.isToday(parent.day) ? Font.DemiBold : Font.Normal
                             color: root.isToday(parent.day) ? Theme.crust : Theme.subtext1
                         }

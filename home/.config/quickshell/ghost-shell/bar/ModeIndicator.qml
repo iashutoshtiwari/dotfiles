@@ -27,7 +27,7 @@ Rectangle {
 
         text: root.label
         color: Theme.accent
-        font.family: Theme.shellFont
+        font.family: Theme.monoFont
         font.pixelSize: 9
         font.weight: Font.DemiBold
     }

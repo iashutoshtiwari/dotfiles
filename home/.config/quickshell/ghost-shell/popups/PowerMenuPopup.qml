@@ -89,8 +89,8 @@ PopupWindow {
 
                 Text {
                     anchors.verticalCenter: parent.verticalCenter
-                    font.family: Theme.shellFont
-                    font.pixelSize: 12
+                    font.family: Theme.iconFont
+                    font.pixelSize: Theme.iconSmall
                     color: closeMouse.containsMouse ? Theme.red : Theme.subtext0
                     text: "󰅖"
 
@@ -133,7 +133,7 @@ PopupWindow {
 
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
-                            font.family: Theme.shellFont
+                            font.family: Theme.iconFont
                             font.pixelSize: 16
                             color: Theme.lavender
                             text: "󰌾"
@@ -146,7 +146,7 @@ PopupWindow {
 
                             Text {
                                 text: "Lock Session"
-                                font.family: Theme.shellFont
+                                font.family: Theme.appFont
                                 font.pixelSize: 11
                                 font.weight: Font.DemiBold
                                 color: Theme.text
@@ -154,7 +154,7 @@ PopupWindow {
 
                             Text {
                                 text: "Hyprlock screen lock"
-                                font.family: Theme.shellFont
+                                font.family: Theme.appFont
                                 font.pixelSize: 9
                                 color: Theme.subtext0
                             }
@@ -163,7 +163,7 @@ PopupWindow {
                         Text {
                             id: lockHint
                             anchors.verticalCenter: parent.verticalCenter
-                            font.family: Theme.shellFont
+                            font.family: Theme.monoFont
                             font.pixelSize: 9
                             color: Theme.overlay1
                             text: "Super+Esc"
@@ -200,7 +200,7 @@ PopupWindow {
 
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
-                            font.family: Theme.shellFont
+                            font.family: Theme.iconFont
                             font.pixelSize: 16
                             color: Theme.lavender
                             text: "󰤄"
@@ -212,7 +212,7 @@ PopupWindow {
 
                             Text {
                                 text: "Suspend"
-                                font.family: Theme.shellFont
+                                font.family: Theme.appFont
                                 font.pixelSize: 11
                                 font.weight: Font.DemiBold
                                 color: Theme.text
@@ -220,7 +220,7 @@ PopupWindow {
 
                             Text {
                                 text: "Sleep system to RAM"
-                                font.family: Theme.shellFont
+                                font.family: Theme.appFont
                                 font.pixelSize: 9
                                 color: Theme.subtext0
                             }
@@ -257,7 +257,7 @@ PopupWindow {
 
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
-                            font.family: Theme.shellFont
+                            font.family: Theme.iconFont
                             font.pixelSize: 16
                             color: Theme.peach
                             text: "󰗽"
@@ -269,7 +269,7 @@ PopupWindow {
 
                             Text {
                                 text: "Log Out"
-                                font.family: Theme.shellFont
+                                font.family: Theme.appFont
                                 font.pixelSize: 11
                                 font.weight: Font.DemiBold
                                 color: Theme.text
@@ -277,7 +277,7 @@ PopupWindow {
 
                             Text {
                                 text: "Terminate UWSM graphical session"
-                                font.family: Theme.shellFont
+                                font.family: Theme.appFont
                                 font.pixelSize: 9
                                 color: Theme.subtext0
                             }
@@ -316,7 +316,7 @@ PopupWindow {
 
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
-                            font.family: Theme.shellFont
+                            font.family: Theme.iconFont
                             font.pixelSize: 16
                             color: root.confirmReboot ? Theme.crust : Theme.peach
                             text: "󰜉"
@@ -328,7 +328,7 @@ PopupWindow {
 
                             Text {
                                 text: root.confirmReboot ? "Confirm Restart?" : "Restart"
-                                font.family: Theme.shellFont
+                                font.family: Theme.appFont
                                 font.pixelSize: 11
                                 font.weight: Font.DemiBold
                                 color: root.confirmReboot ? Theme.crust : Theme.text
@@ -336,7 +336,7 @@ PopupWindow {
 
                             Text {
                                 text: root.confirmReboot ? "Click again to reboot now" : "Reboot computer"
-                                font.family: Theme.shellFont
+                                font.family: Theme.appFont
                                 font.pixelSize: 9
                                 color: root.confirmReboot ? Theme.crust : Theme.subtext0
                             }
@@ -380,7 +380,7 @@ PopupWindow {
 
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
-                            font.family: Theme.shellFont
+                            font.family: Theme.iconFont
                             font.pixelSize: 16
                             color: root.confirmShutdown ? Theme.crust : Theme.red
                             text: "󰐥"
@@ -392,7 +392,7 @@ PopupWindow {
 
                             Text {
                                 text: root.confirmShutdown ? "Confirm Shut Down?" : "Shut Down"
-                                font.family: Theme.shellFont
+                                font.family: Theme.appFont
                                 font.pixelSize: 11
                                 font.weight: Font.DemiBold
                                 color: root.confirmShutdown ? Theme.crust : Theme.text
@@ -400,7 +400,7 @@ PopupWindow {
 
                             Text {
                                 text: root.confirmShutdown ? "Click again to power off now" : "Power off computer"
-                                font.family: Theme.shellFont
+                                font.family: Theme.appFont
                                 font.pixelSize: 9
                                 color: root.confirmShutdown ? Theme.crust : Theme.subtext0
                             }

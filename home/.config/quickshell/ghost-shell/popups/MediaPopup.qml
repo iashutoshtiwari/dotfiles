@@ -109,8 +109,8 @@ PopupWindow {
                         anchors.centerIn: parent
                         visible: !artwork.visible
                         text: "󰝚"
-                        font.family: Theme.shellFont
-                        font.pixelSize: 28
+                        font.family: Theme.iconFont
+                        font.pixelSize: Theme.fontDisplay
                         color: Theme.overlay1
                     }
                 }
@@ -125,8 +125,8 @@ PopupWindow {
                         elide: Text.ElideRight
                         maximumLineCount: 2
                         wrapMode: Text.Wrap
-                        font.family: "Inter"
-                        font.pixelSize: Theme.textHeading
+                        font.family: Theme.appFont
+                        font.pixelSize: Theme.fontHeading
                         font.weight: Font.DemiBold
                         color: Theme.text
                     }
@@ -134,16 +134,16 @@ PopupWindow {
                         Layout.fillWidth: true
                         text: MprisService.artist || "Unknown artist"
                         elide: Text.ElideRight
-                        font.family: "Inter"
-                        font.pixelSize: Theme.textBody
+                        font.family: Theme.appFont
+                        font.pixelSize: Theme.fontBody
                         color: Theme.subtext1
                     }
                     Text {
                         Layout.fillWidth: true
                         text: MprisService.album || MprisService.playerName
                         elide: Text.ElideRight
-                        font.family: "Inter"
-                        font.pixelSize: Theme.textSmall
+                        font.family: Theme.appFont
+                        font.pixelSize: Theme.fontCaption
                         color: Theme.subtext0
                     }
                 }
@@ -206,9 +206,9 @@ PopupWindow {
 
                 RowLayout {
                     Layout.fillWidth: true
-                    Text { text: root.formatTime(root.player?.position ?? 0); font.family: "Inter"; font.pixelSize: Theme.textSmall; color: Theme.subtext0 }
+                    Text { text: root.formatTime(root.player?.position ?? 0); font.family: Theme.monoFont; font.pixelSize: Theme.fontCaption; color: Theme.subtext0 }
                     Item { Layout.fillWidth: true }
-                    Text { text: root.formatTime(root.player?.length ?? 0); font.family: "Inter"; font.pixelSize: Theme.textSmall; color: Theme.subtext0 }
+                    Text { text: root.formatTime(root.player?.length ?? 0); font.family: Theme.monoFont; font.pixelSize: Theme.fontCaption; color: Theme.subtext0 }
                 }
             }
 
@@ -255,8 +255,8 @@ PopupWindow {
                             id: playerLabel
                             anchors.centerIn: parent
                             text: parent.modelData.identity
-                            font.family: "Inter"
-                            font.pixelSize: Theme.textSmall
+                            font.family: Theme.appFont
+                            font.pixelSize: Theme.fontCaption
                             color: parent.modelData === root.player ? Theme.lavender : Theme.subtext0
                         }
                         MouseArea {
