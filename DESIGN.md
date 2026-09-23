@@ -1,4 +1,4 @@
-# Predator Desktop Design
+# Ghost Desktop Design
 
 This repository keeps the desktop near-black, compact, and technical. Catppuccin
 Mocha supplies the depth hierarchy; Lavender is reserved for active, selected,
@@ -7,7 +7,7 @@ semantic meanings rather than becoming general decoration.
 
 ## Tokens
 
-Quickshell tokens live in `home/.config/quickshell/predator-shell/theme/Theme.qml`.
+Quickshell tokens live in `home/.config/quickshell/ghost-shell/theme/Theme.qml`.
 The spacing scale is 4/8/12/16/24px. Shell UI uses JetBrains Mono Nerd Font;
 application UI uses Inter. Borders are subtle and geometry is square by default:
 radius zero is intentional, with circular geometry reserved for status dots and
@@ -55,7 +55,7 @@ the affected component alone, and document intentional exceptions nearby.
 
 ## Action Center
 
-The Action Center is a full-height right-side drawer (`predator-shell/actioncenter/`).
+The Action Center is a full-height right-side drawer (`ghost-shell/actioncenter/`).
 It replaces the old `NotificationCenter` popup and is architected to grow into a
 general system control surface.
 
@@ -66,7 +66,7 @@ tiled windows (`exclusiveZone: 0`, Overlay layer).
 
 **Motion:** QML-owned horizontal slide — opens right→left in `motionSpatial` (~230 ms,
 OutCubic), closes left→right in `motionNormal` (~170 ms, InCubic). Hyprland has
-`no_anim` for the `predator-action-center` namespace to prevent double animation.
+`no_anim` for the `ghost-action-center` namespace to prevent double animation.
 Backdrop fades from 0 → 0.28 opacity concurrently. Both are interruptible.
 
 **Multi-monitor:** One `ActionCenter` instance per screen, created inside Bar.qml's
@@ -87,5 +87,5 @@ Notifications received while the drawer is open are also not toasted (already vi
 in `actioncenter/modules/` and insert it above `NotificationList` in `ActionCenter.qml`.
 `NotificationList` keeps `Layout.fillHeight: true` and fills remaining space.
 
-**IPC:** `qs ipc -c predator-shell call actionCenter toggle|open|close`
+**IPC:** `qs ipc -c ghost-shell call actionCenter toggle|open|close`
 **Keybind:** Super+N

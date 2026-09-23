@@ -62,7 +62,9 @@ hl.config({
 
     misc = {
         disable_hyprland_logo = true,
-        force_default_wallpaper = 0
+        force_default_wallpaper = 0,
+        animate_manual_resizes = true,
+        animate_mouse_windowdragging = true
     },
 
     dwindle = {
@@ -76,15 +78,15 @@ hl.config({
 
 -- Three curves cover entrance, exit, and directional movement. Durations are
 -- deciseconds; transforms stay deliberately small so motion reads as feedback.
-hl.curve("predatorEnter", {
+hl.curve("ghostEnter", {
     type = "bezier",
     points = {{0.16, 1.0}, {0.3, 1.0}}
 })
-hl.curve("predatorExit", {
+hl.curve("ghostExit", {
     type = "bezier",
     points = {{0.4, 0.0}, {1.0, 1.0}}
 })
-hl.curve("predatorSpatial", {
+hl.curve("ghostSpatial", {
     type = "bezier",
     points = {{0.22, 0.72}, {0.2, 1.0}}
 })
@@ -92,111 +94,107 @@ hl.curve("predatorSpatial", {
 hl.animation({
     leaf = "windows",
     enabled = true,
-    speed = 1.9,
-    bezier = "predatorEnter",
-    style = "popin 98%"
+    speed = 2.0,
+    bezier = "ghostEnter",
+    style = "popin 94%"
 })
 hl.animation({
     leaf = "windowsIn",
     enabled = true,
-    speed = 1.9,
-    bezier = "predatorEnter",
-    style = "popin 98%"
+    speed = 2.0,
+    bezier = "ghostEnter",
+    style = "popin 94%"
 })
 hl.animation({
     leaf = "windowsOut",
     enabled = true,
-    speed = 1.3,
-    bezier = "predatorExit",
-    style = "popin 99%"
-})
-hl.animation({
-    leaf = "windowsMove",
-    enabled = false
+    speed = 1.4,
+    bezier = "ghostEnter",
+    style = "popin 96%"
 })
 hl.animation({
     leaf = "workspaces",
     enabled = true,
-    speed = 2.3,
-    bezier = "predatorSpatial",
-    style = "slidefade 10%"
+    speed = 2.2,
+    bezier = "ghostEnter",
+    style = "slidefade 18%"
 })
 hl.animation({
     leaf = "specialWorkspace",
     enabled = true,
     speed = 1.8,
-    bezier = "predatorEnter",
-    style = "fade"
+    bezier = "ghostEnter",
+    style = "slidefade 12%"
 })
 hl.animation({
     leaf = "layersIn",
     enabled = true,
-    speed = 1.6,
-    bezier = "predatorEnter",
-    style = "fade"
+    speed = 1.8,
+    bezier = "ghostEnter",
+    style = "slide top"
 })
 hl.animation({
     leaf = "layersOut",
     enabled = true,
-    speed = 1.0,
-    bezier = "predatorExit",
-    style = "fade"
+    speed = 1.2,
+    bezier = "ghostEnter",
+    style = "slide top"
 })
 hl.animation({
     leaf = "fade",
     enabled = true,
     speed = 1.3,
-    bezier = "predatorEnter"
+    bezier = "ghostEnter"
 })
 hl.animation({
     leaf = "fadeOut",
     enabled = true,
     speed = 1.0,
-    bezier = "predatorExit"
+    bezier = "ghostExit"
 })
 hl.animation({
     leaf = "fadeSwitch",
     enabled = true,
     speed = 1.1,
-    bezier = "predatorEnter"
+    bezier = "ghostEnter"
 })
 hl.animation({
     leaf = "fadeLayersIn",
     enabled = true,
     speed = 1.5,
-    bezier = "predatorEnter"
+    bezier = "ghostEnter"
 })
 hl.animation({
     leaf = "fadeLayersOut",
     enabled = true,
     speed = 1.0,
-    bezier = "predatorExit"
+    bezier = "ghostExit"
 })
 hl.animation({
     leaf = "fadePopupsIn",
     enabled = true,
     speed = 1.0,
-    bezier = "predatorEnter"
+    bezier = "ghostEnter"
 })
 hl.animation({
     leaf = "fadePopupsOut",
     enabled = true,
     speed = 0.8,
-    bezier = "predatorExit"
+    bezier = "ghostExit"
 })
 hl.animation({
     leaf = "border",
     enabled = true,
     speed = 1.2,
-    bezier = "predatorEnter"
+    bezier = "ghostEnter"
 })
 
 -- Shell surfaces own their internal transitions. Disabling compositor motion
 -- here prevents the bar, OSD, notification cards, and action center from
 -- animating twice. The action center owns its own horizontal slide via QML.
 hl.layer_rule({
-    name = "predator-shell-motion-owned-by-qml",
-    match = { namespace = "^(quickshell|predator-notifications|predator-osd|predator-action-center)$" },
+    name = "ghost-shell-motion-owned-by-qml",
+    match = { namespace = "^(quickshell|ghost-notifications|ghost-osd|ghost-action-center)$" },
     no_anim = true
 })
 hl.layer_rule({
@@ -205,12 +203,7 @@ hl.layer_rule({
     no_anim = true
 })
 -- Both the application launcher and emoji picker expose the observed `rofi`
--- namespace. They appear in place with the short global layer fade.
-hl.layer_rule({
-    name = "rofi-fades-in-place",
-    match = { namespace = "^rofi$" },
-    animation = "fade"
-})
+-- namespace. They inherit the top-edge spatial slide from layersIn/layersOut.
 
 -- Five persistent workspaces
 for i = 1, 5 do
@@ -282,13 +275,13 @@ hl.window_rule({
 
 hl.window_rule({
     name = "scratchpad-terminal",
-    match = { class = "^predator-scratchpad$" },
+    match = { class = "^ghost-scratchpad$" },
     workspace = "special:scratchpad",
     float = true,
     center = true,
     size = { "monitor_w * 0.70", "monitor_h * 0.62" },
     stay_focused = true,
-    animation = "popin 98%"
+    animation = "popin 94%"
 })
 
 local mod = "SUPER"
@@ -299,8 +292,8 @@ hl.bind(mod .. " + RETURN", hl.dsp.exec_cmd("uwsm app -- kitty"))
 -- A single persistent terminal follows the special-workspace toggle. The
 -- process guard prevents Super+grave from spawning duplicates.
 hl.bind(mod .. " + grave", hl.dsp.exec_cmd(
-    "pgrep -u \"$USER\" -f 'kitty --class predator-scratchpad' >/dev/null || " ..
-    "uwsm app -- kitty --class predator-scratchpad; " ..
+    "pgrep -u \"$USER\" -f 'kitty --class ghost-scratchpad' >/dev/null || " ..
+    "uwsm app -- kitty --class ghost-scratchpad; " ..
     "hyprctl dispatch togglespecialworkspace scratchpad"
 ), {
     description = "Toggle terminal scratchpad"
@@ -406,38 +399,38 @@ hl.bind("XF86AudioMicMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SOURC
 })
 
 -- Brightness
-hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("qs ipc -c predator-shell call brightness increase || brightnessctl -e4 -n2 set 5%+"), {
+hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("qs ipc -c ghost-shell call brightness increase || brightnessctl -e4 -n2 set 5%+"), {
     locked = true,
     repeating = true
 })
 
-hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("qs ipc -c predator-shell call brightness decrease || brightnessctl -e4 -n2 set 5%-"), {
+hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("qs ipc -c ghost-shell call brightness decrease || brightnessctl -e4 -n2 set 5%-"), {
     locked = true,
     repeating = true
 })
 
 -- Lock Keys OSD
-hl.bind("Caps_Lock", hl.dsp.exec_cmd("qs ipc -c predator-shell call osd updateCapsLock"), {
+hl.bind("Caps_Lock", hl.dsp.exec_cmd("qs ipc -c ghost-shell call osd updateCapsLock"), {
     locked = true,
     non_consuming = true
 })
 
-hl.bind("Num_Lock", hl.dsp.exec_cmd("qs ipc -c predator-shell call osd updateNumLock"), {
+hl.bind("Num_Lock", hl.dsp.exec_cmd("qs ipc -c ghost-shell call osd updateNumLock"), {
     locked = true,
     non_consuming = true
 })
 
-hl.bind("Scroll_Lock", hl.dsp.exec_cmd("qs ipc -c predator-shell call osd toggleScrollLock"), {
+hl.bind("Scroll_Lock", hl.dsp.exec_cmd("qs ipc -c ghost-shell call osd toggleScrollLock"), {
     locked = true,
     non_consuming = true
 })
 
 -- Airplane Mode (Fn + F3) — Query hardware rfkill state after kernel settles
-hl.bind("XF86RFKill", hl.dsp.exec_cmd("qs ipc -c predator-shell call osd updateAirplaneMode"), {
+hl.bind("XF86RFKill", hl.dsp.exec_cmd("qs ipc -c ghost-shell call osd updateAirplaneMode"), {
     locked = true
 })
 
-hl.bind("XF86WLAN", hl.dsp.exec_cmd("qs ipc -c predator-shell call osd updateAirplaneMode"), {
+hl.bind("XF86WLAN", hl.dsp.exec_cmd("qs ipc -c ghost-shell call osd updateAirplaneMode"), {
     locked = true
 })
 
@@ -463,9 +456,9 @@ hl.bind("SUPER + SHIFT + Q", hl.dsp.exec_cmd("uwsm stop"), {
     description = "End graphical session"
 })
 
-hl.bind("SUPER + Escape", hl.dsp.exec_cmd("qs ipc -c predator-shell call popups closeAll; loginctl lock-session"))
+hl.bind("SUPER + Escape", hl.dsp.exec_cmd("qs ipc -c ghost-shell call popups closeAll; loginctl lock-session"))
 
-hl.bind("SUPER + Backspace", hl.dsp.exec_cmd("qs ipc -c predator-shell call powermenu toggle"), {
+hl.bind("SUPER + Backspace", hl.dsp.exec_cmd("qs ipc -c ghost-shell call powermenu toggle"), {
     description = "Toggle session power menu"
 })
 
@@ -474,15 +467,15 @@ hl.bind("SUPER + Backspace", hl.dsp.exec_cmd("qs ipc -c predator-shell call powe
 -- Closes drawer if open; opens on the current monitor's action center if closed.
 -- Super+Space and Super+period already call popups closeAll which closes the
 -- action center via its dismiss() path in Bar's closeAllPopups().
-hl.bind("SUPER + N", hl.dsp.exec_cmd("qs ipc -c predator-shell call actionCenter toggle"), {
+hl.bind("SUPER + N", hl.dsp.exec_cmd("qs ipc -c ghost-shell call actionCenter toggle"), {
     description = "Toggle Action Center"
 })
 
-hl.bind("SUPER + SPACE", hl.dsp.exec_cmd("qs ipc -c predator-shell call popups closeAll; rofi -show drun"), {
+hl.bind("SUPER + SPACE", hl.dsp.exec_cmd("qs ipc -c ghost-shell call popups closeAll; rofi -show drun"), {
     description = "Launch application menu"
 })
 
-hl.bind("SUPER + period", hl.dsp.exec_cmd("qs ipc -c predator-shell call popups closeAll; /home/ashutosh/.local/bin/emoji-picker"), {
+hl.bind("SUPER + period", hl.dsp.exec_cmd("qs ipc -c ghost-shell call popups closeAll; /home/ashutosh/.local/bin/emoji-picker"), {
     description = "Launch emoji and symbol picker"
 })
 
@@ -504,6 +497,6 @@ hl.bind("CTRL + Print", hl.dsp.exec_cmd("/home/ashutosh/.local/bin/screenshot wi
 })
 
 -- Wallpaper Gallery
-hl.bind("SUPER + W", hl.dsp.exec_cmd("qs ipc -c predator-shell call wallpaper toggle"), {
+hl.bind("SUPER + W", hl.dsp.exec_cmd("qs ipc -c ghost-shell call wallpaper toggle"), {
     description = "Toggle wallpaper gallery picker"
 })

@@ -11,7 +11,7 @@ PanelWindow {
 
     screen: Quickshell.screens[0]
     WlrLayershell.layer: WlrLayer.Overlay
-    WlrLayershell.namespace: "predator-notifications"
+    WlrLayershell.namespace: "ghost-notifications"
 
     exclusiveZone: 0
     color: "transparent"

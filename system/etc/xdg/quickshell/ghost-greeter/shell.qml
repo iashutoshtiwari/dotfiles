@@ -141,7 +141,7 @@ ShellRoot {
 
             // greetd expects launch promptly after authentication. UWSM owns the
             // real session, so no decorative delay is inserted here.
-            Greetd.launch(["/usr/local/libexec/predator-session"]);
+            Greetd.launch(["/usr/local/libexec/ghost-session"]);
         }
 
         function onError(error) {
@@ -191,7 +191,7 @@ ShellRoot {
             WlrLayershell.layer: WlrLayer.Overlay
             WlrLayershell.keyboardFocus:
                 isPrimary ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
-            WlrLayershell.namespace: "predator-greeter"
+            WlrLayershell.namespace: "ghost-greeter"
 
             Component.onCompleted: {
                 if (isPrimary)

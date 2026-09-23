@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-state_dir="$HOME/.local/state/predator-shell"
+state_dir="$HOME/.local/state/ghost-shell"
 state="$state_dir/wallpaper"
 if [[ $# == 1 && $1 == --current ]]; then
     [[ -L $state ]] || { echo "No wallpaper selection symlink: $state" >&2; exit 1; }

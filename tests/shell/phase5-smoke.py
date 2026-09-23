@@ -23,24 +23,24 @@ def run(cmd):
 def test_popup_coordinator_ipc():
     print("[1/5] Testing Popup Coordinator mutual exclusion & closeAll...")
     # Open audio popup
-    res = run(["qs", "ipc", "-c", "predator-shell", "call", "popups", "toggle", "audio"])
+    res = run(["qs", "ipc", "-c", "ghost-shell", "call", "popups", "toggle", "audio"])
     assert res.returncode == 0, f"Failed to toggle audio popup: {res.stderr}"
     time.sleep(0.1)
 
     # Open network popup (should automatically close audio popup)
-    res = run(["qs", "ipc", "-c", "predator-shell", "call", "popups", "toggle", "network"])
+    res = run(["qs", "ipc", "-c", "ghost-shell", "call", "popups", "toggle", "network"])
     assert res.returncode == 0, f"Failed to toggle network popup: {res.stderr}"
     time.sleep(0.1)
 
     # Dismiss all popups
-    res = run(["qs", "ipc", "-c", "predator-shell", "call", "popups", "closeAll"])
+    res = run(["qs", "ipc", "-c", "ghost-shell", "call", "popups", "closeAll"])
     assert res.returncode == 0, f"Failed to call closeAll: {res.stderr}"
     print("      call popups toggle (audio -> network -> closeAll): OK")
     print("      PASSED")
 
 def test_multiple_of_four_scaling():
     print("[2/5] Verifying multiple-of-4 subpixel scaling compliance across popups...")
-    popups_dir = os.path.join(REPO_ROOT, "home/.config/quickshell/predator-shell/popups")
+    popups_dir = os.path.join(REPO_ROOT, "home/.config/quickshell/ghost-shell/popups")
     qml_files = [os.path.join(popups_dir, f) for f in os.listdir(popups_dir) if f.endswith(".qml")]
     
     assert len(qml_files) >= 9, f"Found only {len(qml_files)} popup files"
@@ -141,7 +141,7 @@ def test_hyprland_binds_and_rules():
 
 def test_quickshell_log():
     print("[5/5] Checking quickshell runtime log for clean state...")
-    res = run(["qs", "log", "-c", "predator-shell"])
+    res = run(["qs", "log", "-c", "ghost-shell"])
     lines = res.stdout.strip().split("\n")
     recent = lines[-30:] if len(lines) >= 30 else lines
     last_reload = -1
@@ -156,7 +156,7 @@ def test_quickshell_log():
     print("      PASSED")
 
 def main():
-    print("=== Predator Shell Phase 5 Smoke Test ===")
+    print("=== Ghost Shell Phase 5 Smoke Test ===")
     try:
         test_popup_coordinator_ipc()
         test_multiple_of_four_scaling()

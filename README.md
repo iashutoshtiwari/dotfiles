@@ -1,10 +1,10 @@
-# Predator Arch Desktop
+# Ghost Arch Desktop
 
 A complete, opinionated Arch Linux desktop built around Hyprland, Quickshell and
 UWSM. It uses Catppuccin Mocha with a Lavender accent, a compact square-edged UI,
 JetBrains Mono Nerd Font in the shell, and Inter in desktop applications.
 
-![Predator desktop running Hyprland, Quickshell and Kitty](docs/screenshot.png)
+![Ghost desktop running Hyprland, Quickshell and Kitty](docs/screenshot.png)
 
 > [!WARNING]
 > This repository is primarily a personal backup and reference for one specific
@@ -38,13 +38,13 @@ and change these values first:
 | Setting | File | Current value |
 | --- | --- | --- |
 | Monitor scale | `home/.config/hypr/hyprland.lua` | `1.25` |
-| Weather city and coordinates | `home/.config/quickshell/predator-shell/services/WeatherService.qml` | Lucknow, India |
-| Wallpaper directory and helper | `home/.config/quickshell/predator-shell/services/WallpaperService.qml` | `/home/ashutosh/...` |
+| Weather city and coordinates | `home/.config/quickshell/ghost-shell/services/WeatherService.qml` | Lucknow, India |
+| Wallpaper directory and helper | `home/.config/quickshell/ghost-shell/services/WallpaperService.qml` | `/home/ashutosh/...` |
 | Screenshot helper bindings | `home/.config/hypr/hyprland.lua` | `/home/ashutosh/...` |
-| Session label | `home/.config/quickshell/predator-shell/popups/PowerMenuPopup.qml` | `ashutosh · predator` |
+| Session label | `home/.config/quickshell/ghost-shell/popups/PowerMenuPopup.qml` | `ashutosh · ghost` |
 | User PATH | `home/.config/environment.d/10-path.conf` | `/home/ashutosh/.local/bin` |
 | Qt color-scheme path | `home/.config/qt6ct/qt6ct.conf` | `/home/ashutosh/...` |
-| Greeter account | `system/etc/xdg/quickshell/predator-greeter/shell.qml` | `ashutosh` |
+| Greeter account | `system/etc/xdg/quickshell/ghost-greeter/shell.qml` | `ashutosh` |
 
 Replace `/home/ashutosh` with your home directory and change the greeter account
 before deploying the login screen. Review every match with:
@@ -106,7 +106,7 @@ Make the machine-specific edits listed above before creating links.
 ## 3. Link the user configuration
 
 Use the safe bootstrap script. It detects existing files, safely backs up any collisions
-into `~/.config/predator-dotfiles-backup-<timestamp>`, copies bundled wallpapers, and validates
+into `~/.config/ghost-dotfiles-backup-<timestamp>`, copies bundled wallpapers, and validates
 all symlinks:
 
 ```bash
@@ -120,7 +120,7 @@ If you prefer linking manually, run:
 mkdir -p ~/.config ~/.config/quickshell ~/.config/autostart ~/.config/environment.d ~/.config/fontconfig ~/.config/kvantum ~/.config/qt6ct ~/.config/xdg-desktop-portal ~/.local/bin ~/Pictures/Wallpapers
 
 ln -s "$PWD/home/.config/hypr" ~/.config/hypr
-ln -s "$PWD/home/.config/quickshell/predator-shell" ~/.config/quickshell/predator-shell
+ln -s "$PWD/home/.config/quickshell/ghost-shell" ~/.config/quickshell/ghost-shell
 ln -s "$PWD/home/.config/kitty" ~/.config/kitty
 ln -s "$PWD/home/.config/rofi" ~/.config/rofi
 ln -s "$PWD/home/.config/gtk-3.0" ~/.config/gtk-3.0
@@ -136,7 +136,7 @@ ln -s "$PWD/home/.config/fontconfig/fonts.conf" ~/.config/fontconfig/fonts.conf
 ln -s "$PWD/home/.config/kvantum/kvantum.kvconfig" ~/.config/kvantum/kvantum.kvconfig
 ln -s "$PWD/home/.config/qt6ct/qt6ct.conf" ~/.config/qt6ct/qt6ct.conf
 ln -s "$PWD/home/.config/qt6ct/style-colors.conf" ~/.config/qt6ct/style-colors.conf
-ln -s "$PWD/home/.config/autostart/predator-shell.desktop" ~/.config/autostart/predator-shell.desktop
+ln -s "$PWD/home/.config/autostart/ghost-shell.desktop" ~/.config/autostart/ghost-shell.desktop
 ln -s "$PWD/home/.config/xdg-desktop-portal/hyprland-portals.conf" ~/.config/xdg-desktop-portal/hyprland-portals.conf
 ln -s "$PWD/home/.local/bin/set-wallpaper" ~/.local/bin/set-wallpaper
 ln -s "$PWD/home/.local/bin/screenshot" ~/.local/bin/screenshot
@@ -178,7 +178,7 @@ set-wallpaper ~/Pictures/Wallpapers/your-wallpaper.jpg
 ```
 
 The selector stores an atomic symlink at
-`~/.local/state/predator-shell/wallpaper`. Hyprpaper and Hyprlock share it, so the
+`~/.local/state/ghost-shell/wallpaper`. Hyprpaper and Hyprlock share it, so the
 desktop and lock screen use the same image.
 
 ## 5. Start the desktop
@@ -193,7 +193,7 @@ The XDG autostart entry launches one Quickshell instance inside the UWSM session
 If you need to test the shell independently:
 
 ```bash
-qs -c predator-shell
+qs -c ghost-shell
 ```
 
 Keep another TTY or SSH session available during the first run. Confirm the bar,
@@ -208,9 +208,9 @@ the live system. The login path is:
 ```text
 greetd
   → temporary minimal Hyprland compositor
-  → Quickshell Predator greeter
+  → Quickshell Ghost greeter
   → greetd/PAM authentication
-  → predator-session
+  → ghost-session
   → UWSM
   → the real user Hyprland session
 ```
@@ -219,22 +219,22 @@ The greeter uses its own system-readable wallpaper because the restricted
 `greeter` account cannot and should not traverse the user's private home
 directory. Missing artwork falls back to Catppuccin Crust, and nonessential
 visual failures do not change PAM or session behavior. Its interface uses
-JetBrains Mono Nerd Font to match Predator Shell.
+JetBrains Mono Nerd Font to match Ghost Shell.
 
 Before deployment, change both `accountName` and `displayName` in
-`system/etc/xdg/quickshell/predator-greeter/shell.qml`. Keep TTY or SSH recovery
+`system/etc/xdg/quickshell/ghost-greeter/shell.qml`. Keep TTY or SSH recovery
 access available and inspect the exact deployment:
 
 ```bash
 hyprland --verify-config --config system/etc/greetd/hyprland-greeter.lua
-sh -n system/usr/local/libexec/predator-greeter
-sh -n system/usr/local/libexec/predator-session
+sh -n system/usr/local/libexec/ghost-greeter
+sh -n system/usr/local/libexec/ghost-session
 scripts/deploy-system.sh --dry-run
 sudo scripts/deploy-system.sh --apply
 ```
 
 The apply mode backs up every changed destination under
-`/var/backups/predator-desktop.*` and prints a recovery manifest. It deliberately
+`/var/backups/ghost-desktop.*` and prints a recovery manifest. It deliberately
 does not restart greetd. From a recovery TTY, enable it only after the regular
 UWSM session has been proven:
 
@@ -251,8 +251,8 @@ the journal:
 
 ```bash
 journalctl -b -u greetd.service
-journalctl -b -t predator-greeter-compositor
-journalctl -b -t predator-session
+journalctl -b -t ghost-greeter-compositor
+journalctl -b -t ghost-session
 ```
 
 After deployment, test wrong and correct passwords, an empty submission,
@@ -268,7 +268,7 @@ sudo systemctl stop greetd.service
 ```
 
 Restore the affected files using the manifest in the newest
-`/var/backups/predator-desktop.*` directory, then start greetd again. The deploy
+`/var/backups/ghost-desktop.*` directory, then start greetd again. The deploy
 script never changes `/etc/pam.d/greetd`.
 
 ## Key bindings
@@ -312,14 +312,14 @@ scripts/snapshot.sh
 ```
 
 The Quickshell source is organized by responsibility under
-`home/.config/quickshell/predator-shell/`: `bar/`, `components/`, `popups/`,
+`home/.config/quickshell/ghost-shell/`: `bar/`, `components/`, `popups/`,
 `services/`, `notifications/`, `osd/` and `theme/`. Design rules and tokens are
 documented in [DESIGN.md](DESIGN.md). Remaining machine-level verification is
 tracked in [CHECKLIST.md](CHECKLIST.md).
 
 For recovery, restore only the affected link or file from your backup. Avoid
 whole-tree resets on a live symlinked configuration. For a failed system-file
-deployment, follow the manifest in the newest `/var/backups/predator-desktop.*`
+deployment, follow the manifest in the newest `/var/backups/ghost-desktop.*`
 directory from a TTY or SSH session.
 
 ## Scope

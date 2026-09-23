@@ -35,7 +35,7 @@ launcher. Shell configuration adoption needs a separate audit.
   root:root 0644 and libexec scripts root:root 0755.
 - UWSM's Hyprland service and session targets are active. Hyprland reports no
   config errors. This does not imply all bindings behave correctly.
-- Quickshell has one listed Predator shell instance, and its log says
+- Quickshell has one listed Ghost shell instance, and its log says
   `Configuration Loaded`. The current log has a Qt portal registration warning;
   no QML load error appeared in the inspected log.
 - greetd, NetworkManager, Bluetooth, tlp-pd, UPower, Hypridle, Hyprpaper, PipeWire
@@ -63,7 +63,7 @@ launcher. Shell configuration adoption needs a separate audit.
   persistence have not been tested. Hyprlock consumes the state path, but no
   unlock or wallpaper rendering test was performed.
 - Shell startup depends on an untracked live XDG autostart desktop entry.
-  Its command is `/usr/bin/qs -c predator-shell`. This is a reinstall gap.
+  Its command is `/usr/bin/qs -c ghost-shell`. This is a reinstall gap.
 - Native services and popups exist for audio, networking/DNS, Bluetooth, media,
   calendar and power profiles. Their interactive operations, hotplug, errors,
   dismissal and multiple monitors still need functional tests.

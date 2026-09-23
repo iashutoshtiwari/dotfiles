@@ -44,7 +44,7 @@ def test_binaries():
 
 def test_quickshell_ipc_targets():
     res = subprocess.run(
-        ["qs", "ipc", "-c", "predator-shell", "show"],
+        ["qs", "ipc", "-c", "ghost-shell", "show"],
         capture_output=True,
         text=True,
         check=True,

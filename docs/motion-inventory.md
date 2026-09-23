@@ -7,13 +7,13 @@ for animation.
 
 | Surface / file | Previous behavior | Unified behavior | Unchanged? |
 | --- | --- | --- | --- |
-| Hyprland windows | 200ms `popin 94%` with one ease-out | 190ms `popin 98%` plus fade | No |
-| Hyprland window close | 140ms reverse-like `popin 96%` | 130ms `popin 99%`, dedicated ease-in/fade-out | No |
-| Hyprland move/resize | Inherited window interpolation | Disabled so pointer motion remains direct | No |
-| Hyprland workspace | 220ms `slidefade 18%` | 230ms `slidefade 10%`, spatial curve | No |
-| Special workspace / scratchpad | 180ms `slidefade 12%`; scratchpad forced `popin 94%` | 180ms fade; scratchpad `popin 98%` | No |
-| Global layer in/out | 180/120ms `slide top` | 160/100ms fade in place | No |
-| Rofi launcher and emoji | Inherited top-edge layer slide | Observed namespace `rofi`; explicit in-place fade | No |
+| Hyprland windows | 200ms `popin 94%` with one ease-out | 200ms `popin 94%` with dedicated `ghostEnter` | Yes |
+| Hyprland window close | 140ms reverse-like `popin 96%` | 140ms `popin 96%`, dedicated `ghostEnter` | Yes |
+| Hyprland move/resize | Inherited window interpolation | Inherited window interpolation (`windows` / `ghostEnter`) | Yes |
+| Hyprland workspace | 220ms `slidefade 18%` | 220ms `slidefade 18%`, enter curve (`ghostEnter`) | Yes |
+| Special workspace / scratchpad | 180ms `slidefade 12%`; scratchpad forced `popin 94%` | 180ms `slidefade 12%`; scratchpad `popin 94%` | Yes |
+| Global layer in/out | 180/120ms `slide top` | 180/120ms `slide top` with enter curve (`ghostEnter`) | Yes |
+| Rofi launcher and emoji | Inherited top-edge layer slide | Inherited top-edge layer slide (`slide top`) | Yes |
 | Persistent shell / wallpaper | Inherited global layer motion | Observed `quickshell` and `hyprpaper`; compositor animation disabled | No |
 | Notifications / OSD layers | Could inherit compositor layer motion | Namespaced QML owners excluded from compositor motion | No |
 | Wayland app popups | Inherited generic fade | Dedicated 100ms in / 80ms out fade | No |

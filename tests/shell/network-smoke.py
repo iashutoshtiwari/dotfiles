@@ -50,7 +50,7 @@ elif 'reapply' not in args:
 
 def run(root):
     candidate = root / 'shell'
-    shutil.copytree(REPO / 'home/.config/quickshell/predator-shell', candidate,
+    shutil.copytree(REPO / 'home/.config/quickshell/ghost-shell', candidate,
                     ignore=shutil.ignore_patterns('.qmlls.ini'))
     (candidate / 'shell.qml').write_text(FIXTURE)
     mock = root / 'bin'
@@ -131,5 +131,5 @@ def run(root):
 
 
 if __name__ == '__main__':
-    with tempfile.TemporaryDirectory(prefix='predator-network-test-') as directory:
+    with tempfile.TemporaryDirectory(prefix='ghost-network-test-') as directory:
         run(Path(directory))

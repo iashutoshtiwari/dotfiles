@@ -12,7 +12,7 @@ PanelWindow {
     screen: Quickshell.screens[0]
 
     WlrLayershell.layer: WlrLayer.Overlay
-    WlrLayershell.namespace: "predator-osd"
+    WlrLayershell.namespace: "ghost-osd"
 
     exclusiveZone: 0
     color: "transparent"
@@ -216,13 +216,13 @@ PanelWindow {
                 root.criticalBatteryNotified = true;
                 root.lowBatteryNotified = true;
                 Quickshell.execDetached([
-                    "notify-send", "-a", "Predator Shell", "-u", "critical",
+                    "notify-send", "-a", "Ghost Shell", "-u", "critical",
                     "Critical Battery", percentage + "% remaining. Connect power now."
                 ]);
             } else if (percentage <= 15 && !root.lowBatteryNotified) {
                 root.lowBatteryNotified = true;
                 Quickshell.execDetached([
-                    "notify-send", "-a", "Predator Shell", "-u", "normal",
+                    "notify-send", "-a", "Ghost Shell", "-u", "normal",
                     "Low Battery", percentage + "% remaining."
                 ]);
             }

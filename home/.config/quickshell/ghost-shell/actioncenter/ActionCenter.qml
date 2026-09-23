@@ -15,7 +15,7 @@
 // (enforced by Bar's popup coordinator via present()/dismiss() calls).
 //
 // Motion: QML-owned horizontal slide (Theme.motionSpatial open, Theme.motionNormal close).
-// Hyprland must have no_anim for predator-action-center namespace (see hyprland.lua).
+// Hyprland must have no_anim for ghost-action-center namespace (see hyprland.lua).
 //
 // Popup coordinator interface:
 //   open     property bool  — true when drawer is open
@@ -24,7 +24,7 @@
 // Bar.qml checks `actionCenterOverlay.open` (not .visible) when deciding whether
 // to close this surface before opening another popup.
 //
-// IPC: qs ipc -c predator-shell call actionCenter toggle|open|close
+// IPC: qs ipc -c ghost-shell call actionCenter toggle|open|close
 
 import QtQuick
 import QtQuick.Layouts
@@ -44,7 +44,7 @@ PanelWindow {
     screen: modelData
 
     WlrLayershell.layer: WlrLayer.Overlay
-    WlrLayershell.namespace: "predator-action-center"
+    WlrLayershell.namespace: "ghost-action-center"
     WlrLayershell.keyboardFocus: open ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
 
     // ── Geometry: full-screen transparent overlay ─────────────────────

@@ -80,7 +80,7 @@ PopupWindow {
                     }
 
                     Text {
-                        text: "ashutosh · predator"
+                        text: "ashutosh · ghost"
                         font.family: Theme.appFont
                         font.pixelSize: 10
                         color: Theme.subtext0

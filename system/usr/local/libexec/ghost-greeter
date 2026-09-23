@@ -3,7 +3,7 @@ set -u
 
 # Output is inherited by the compositor's systemd-cat pipe, keeping the VT
 # clean while retaining diagnostics in the journal.
-/usr/bin/quickshell --no-duplicate --no-color -c predator-greeter
+/usr/bin/quickshell --no-duplicate --no-color -c ghost-greeter
 status=$?
 
 # This is the temporary greeter compositor, not the user's UWSM session.

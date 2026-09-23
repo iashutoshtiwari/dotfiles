@@ -1,4 +1,4 @@
-# Predator Arch Desktop
+# Ghost Arch Desktop
 
 This repository is the source of truth for my custom Arch Linux + Hyprland desktop.
 
@@ -59,7 +59,7 @@ This repository is the source of truth for my custom Arch Linux + Hyprland deskt
 
 The main shell lives at:
 
-`home/.config/quickshell/predator-shell/`
+`home/.config/quickshell/ghost-shell/`
 
 Keep services, bar components, popups, launcher, notifications, and OSDs
 separated by responsibility.

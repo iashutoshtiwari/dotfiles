@@ -35,10 +35,10 @@ def test_notification_dispatch():
 
 def test_powermenu_ipc():
     print("[3/5] Testing Power Menu IPC target...")
-    res1 = run(["qs", "ipc", "-c", "predator-shell", "call", "powermenu", "open"])
+    res1 = run(["qs", "ipc", "-c", "ghost-shell", "call", "powermenu", "open"])
     assert res1.returncode == 0, f"Failed to open powermenu: {res1.stderr}"
     time.sleep(0.1)
-    res2 = run(["qs", "ipc", "-c", "predator-shell", "call", "powermenu", "close"])
+    res2 = run(["qs", "ipc", "-c", "ghost-shell", "call", "powermenu", "close"])
     assert res2.returncode == 0, f"Failed to close powermenu: {res2.stderr}"
     print("      call powermenu open / close: OK")
     print("      PASSED")
@@ -54,7 +54,7 @@ def test_hyprland_binds():
 
 def test_quickshell_log():
     print("[5/5] Checking quickshell log for errors or warnings...")
-    res = run(["qs", "log", "-c", "predator-shell"])
+    res = run(["qs", "log", "-c", "ghost-shell"])
     lines = res.stdout.strip().split("\n")
     recent = lines[-30:] if len(lines) >= 30 else lines
     # Verify no unhandled exceptions in the recent reload window
@@ -70,7 +70,7 @@ def test_quickshell_log():
     print("      PASSED")
 
 def main():
-    print("=== Predator Shell Phase 3 Smoke Test ===")
+    print("=== Ghost Shell Phase 3 Smoke Test ===")
     try:
         test_dbus_notification_server()
         test_notification_dispatch()

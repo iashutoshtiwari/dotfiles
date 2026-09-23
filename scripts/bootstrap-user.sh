@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Safe, idempotent dotfiles linker for Predator Arch Desktop
+# Safe, idempotent dotfiles linker for Ghost Arch Desktop
 set -euo pipefail
 export LC_ALL=C
 
@@ -19,7 +19,7 @@ mode=${1:---dry-run}
 # Directories that are linked as an entire directory
 dir_links=(
     "home/.config/hypr:.config/hypr"
-    "home/.config/quickshell/predator-shell:.config/quickshell/predator-shell"
+    "home/.config/quickshell/ghost-shell:.config/quickshell/ghost-shell"
     "home/.config/kitty:.config/kitty"
     "home/.config/rofi:.config/rofi"
     "home/.config/gtk-3.0:.config/gtk-3.0"
@@ -39,7 +39,7 @@ file_links=(
     "home/.config/kvantum/kvantum.kvconfig:.config/kvantum/kvantum.kvconfig"
     "home/.config/qt6ct/qt6ct.conf:.config/qt6ct/qt6ct.conf"
     "home/.config/qt6ct/style-colors.conf:.config/qt6ct/style-colors.conf"
-    "home/.config/autostart/predator-shell.desktop:.config/autostart/predator-shell.desktop"
+    "home/.config/autostart/ghost-shell.desktop:.config/autostart/ghost-shell.desktop"
     "home/.config/xdg-desktop-portal/hyprland-portals.conf:.config/xdg-desktop-portal/hyprland-portals.conf"
     "home/.config/zsh/.zshenv:.zshenv"
     "home/.local/bin/set-wallpaper:.local/bin/set-wallpaper"
@@ -69,7 +69,7 @@ init_backup() {
     if [[ -z $backup_dir ]]; then
         local timestamp
         timestamp=$(date +%Y%m%d-%H%M%S)
-        backup_dir="$HOME/.config/predator-dotfiles-backup-$timestamp"
+        backup_dir="$HOME/.config/ghost-dotfiles-backup-$timestamp"
         mkdir -p -- "$backup_dir"
         backup_manifest="$backup_dir/manifest.txt"
         printf 'Backup initiated at %s\n' "$timestamp" > "$backup_manifest"

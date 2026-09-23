@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=Application
-Name=Predator Shell
+Name=Ghost Shell
 Comment=Quickshell desktop shell
-Exec=/usr/bin/qs --no-duplicate -c predator-shell
+Exec=/usr/bin/qs --no-duplicate -c ghost-shell
 Terminal=false
 NoDisplay=true

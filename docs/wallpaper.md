@@ -7,7 +7,7 @@ Validated against installed Hyprpaper 0.8.4 and Hyprlock 0.9.6. The current
 and [Hyprlock image loader](https://github.com/hyprwm/hyprlock/blob/v0.9.6/src/renderer/widgets/Background.cpp)
 were checked before this change.
 
-`~/.local/state/predator-shell/wallpaper` is now an image symlink, not a text file.
+`~/.local/state/ghost-shell/wallpaper` is now an image symlink, not a text file.
 Hyprpaper's fixed config resolves it at startup, while Hyprlock's image command
 returns its target. The selector writes neither configuration nor a second copy
 of the selected path. A future picker can call `set-wallpaper` and read

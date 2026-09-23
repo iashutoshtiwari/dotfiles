@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-osd-extensions-smoke.py — Verification suite for predator-shell OSD extensions & fixes:
+osd-extensions-smoke.py — Verification suite for ghost-shell OSD extensions & fixes:
 - Hyprland compositor device status (numLock, capsLock)
 - rfkill radio status query
 - Quickshell IPC OSD trigger responsiveness
@@ -50,7 +50,7 @@ def test_quickshell_ipc():
         "updateAirplaneMode"
     ]
     for method in methods:
-        cmd = ["qs", "ipc", "-c", "predator-shell", "call", "osd", method]
+        cmd = ["qs", "ipc", "-c", "ghost-shell", "call", "osd", method]
         res = run(cmd)
         assert res.returncode == 0, f"IPC call failed for {method}: {res.stderr}"
         print(f"      call osd {method}: OK")
@@ -94,7 +94,7 @@ def test_hyprland_binds():
     print("      PASSED")
 
 def main():
-    print("=== Predator Shell OSD Extensions & Fixes Smoke Test ===")
+    print("=== Ghost Shell OSD Extensions & Fixes Smoke Test ===")
     try:
         test_compositor_keyboard()
         test_rfkill()

@@ -40,8 +40,8 @@ def test_weather_api():
     print("      PASSED")
 
 def test_weather_ipc():
-    print("[2/7] Testing Weather IPC handler in predator-shell...")
-    res = run(["qs", "ipc", "-c", "predator-shell", "call", "weather", "refresh"])
+    print("[2/7] Testing Weather IPC handler in ghost-shell...")
+    res = run(["qs", "ipc", "-c", "ghost-shell", "call", "weather", "refresh"])
     assert res.returncode == 0, f"Weather IPC call failed: {res.stderr}"
     print("      call weather refresh: OK")
     print("      PASSED")
@@ -63,10 +63,10 @@ def test_wallpaper_service():
 
 def test_wallpaper_ipc():
     print("[4/7] Testing Wallpaper Picker IPC handler...")
-    res1 = run(["qs", "ipc", "-c", "predator-shell", "call", "wallpaper", "open"])
+    res1 = run(["qs", "ipc", "-c", "ghost-shell", "call", "wallpaper", "open"])
     assert res1.returncode == 0, f"Failed to open wallpaper picker: {res1.stderr}"
     time.sleep(0.1)
-    res2 = run(["qs", "ipc", "-c", "predator-shell", "call", "wallpaper", "close"])
+    res2 = run(["qs", "ipc", "-c", "ghost-shell", "call", "wallpaper", "close"])
     assert res2.returncode == 0, f"Failed to close wallpaper picker: {res2.stderr}"
     print("      call wallpaper open / close: OK")
     print("      PASSED")
@@ -115,7 +115,7 @@ def test_hyprland_binds():
 
 def test_quickshell_log():
     print("[7/7] Checking quickshell log for errors post-reload...")
-    res = run(["qs", "log", "-c", "predator-shell"])
+    res = run(["qs", "log", "-c", "ghost-shell"])
     lines = res.stdout.strip().split("\n")
     recent = lines[-40:] if len(lines) >= 40 else lines
     last_reload = -1
@@ -130,7 +130,7 @@ def test_quickshell_log():
     print("      PASSED")
 
 def main():
-    print("=== Predator Shell Phase 4 Smoke Test ===")
+    print("=== Ghost Shell Phase 4 Smoke Test ===")
     try:
         test_weather_api()
         test_weather_ipc()

@@ -11,7 +11,7 @@ gtk_hash='bce962098f32c676a0170f909b737eed0905d53b6e774f04f152256b5b6dce77'
 themes_dir="${XDG_DATA_HOME:-$HOME/.local/share}/themes"
 gtk_theme_dir="$themes_dir/catppuccin-mocha-lavender-standard+default"
 
-tmp_dir=$(mktemp -d "${TMPDIR:-/tmp}/predator-theme.XXXXXX")
+tmp_dir=$(mktemp -d "${TMPDIR:-/tmp}/ghost-theme.XXXXXX")
 trap 'rm -rf "$tmp_dir"' EXIT HUP INT TERM
 
 # 1. Install KDE color scheme
