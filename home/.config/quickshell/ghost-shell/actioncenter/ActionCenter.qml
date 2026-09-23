@@ -35,6 +35,7 @@ import Quickshell.Hyprland
 
 import qs.theme
 import qs.services
+import qs.components
 
 PanelWindow {
     id: root
@@ -245,44 +246,18 @@ PanelWindow {
                 }
 
                 // DND toggle button
-                Rectangle {
-                    id: dndBtn
+                IconButton {
                     Layout.preferredWidth: 32
                     Layout.preferredHeight: 32
-                    color: dndMouse.containsMouse
-                        ? Theme.surface0
-                        : (NotificationService.dnd
-                            ? Qt.rgba(Theme.red.r, Theme.red.g, Theme.red.b, 0.15)
-                            : "transparent")
-                    radius: Theme.radius
-
-                    Behavior on color { ColorAnimation { duration: Theme.motionFast } }
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: NotificationService.dnd ? "󰂛" : "󰂚"
-                        font.family: Theme.iconFont
-                        font.pixelSize: 16
-                        color: NotificationService.dnd ? Theme.red : Theme.subtext0
-                        Behavior on color { ColorAnimation { duration: Theme.motionFast } }
-                    }
-
-                    MouseArea {
-                        id: dndMouse
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: NotificationService.toggleDnd()
-                    }
+                    icon: NotificationService.dnd ? "󰂛" : "󰂚"
+                    active: NotificationService.dnd
+                    danger: NotificationService.dnd
+                    onClicked: NotificationService.toggleDnd()
                 }
             }
 
             // ── Divider ─────────────────────────────────────────────────
-            Rectangle {
-                Layout.fillWidth: true
-                Layout.preferredHeight: 1
-                color: Theme.surface0
-            }
+            Divider { Layout.fillWidth: true }
 
             // ── Content area (extensible) ──────────────────────────────
             // The notification section fills all remaining space.

@@ -5,6 +5,7 @@ import Quickshell.Widgets
 
 import qs.theme
 import qs.services
+import qs.components
 
 PanelWindow {
     id: root
@@ -174,30 +175,15 @@ PanelWindow {
                         }
 
                         // Close button
-                        Rectangle {
+                        IconButton {
                             width: 20
                             height: 20
-                            color: closeMouse.containsMouse ? Theme.surface0 : "transparent"
-                            radius: Theme.radius
-
-                            Text {
-                                anchors.centerIn: parent
-                                font.family: Theme.iconFont
-                                font.pixelSize: Theme.iconSmall
-                                color: Theme.subtext0
-                                text: "󰅖"
-                            }
-
-                            MouseArea {
-                                id: closeMouse
-                                anchors.fill: parent
-                                hoverEnabled: true
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: {
-                                    if (toastCard.modelData) {
-                                        toastCard.modelData.dismiss();
-                                        root.removeToast(toastCard.modelData.id);
-                                    }
+                            icon: "󰅖"
+                            danger: true
+                            onClicked: {
+                                if (toastCard.modelData) {
+                                    toastCard.modelData.dismiss();
+                                    root.removeToast(toastCard.modelData.id);
                                 }
                             }
                         }

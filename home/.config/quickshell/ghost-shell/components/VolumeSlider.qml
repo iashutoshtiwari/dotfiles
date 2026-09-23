@@ -6,6 +6,8 @@ Item {
     id: root
 
     property real value: 0
+    property color accentColor: Theme.accent
+    property color trackColor: Theme.surface1
 
     signal userChanged(real value)
 
@@ -25,7 +27,7 @@ Item {
         width: parent.width
         height: 3
 
-        color: Theme.surface1
+        color: root.trackColor
     }
 
     Rectangle {
@@ -38,7 +40,7 @@ Item {
         width: track.width * root.clamp(root.value)
         height: track.height
 
-        color: Theme.accent
+        color: root.accentColor
 
         Behavior on width {
             enabled: !mouseArea.pressed
@@ -63,7 +65,7 @@ Item {
 
         radius: 0
 
-        color: Theme.accent
+        color: root.accentColor
 
         Behavior on x {
             enabled: !mouseArea.pressed

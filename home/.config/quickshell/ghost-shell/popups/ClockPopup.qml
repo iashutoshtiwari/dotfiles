@@ -106,7 +106,7 @@ PopupWindow {
 
             RowLayout {
                 Layout.fillWidth: true
-                IconButton { icon: "󰅁"; onClicked: root.shiftMonth(-1) }
+                IconButton { icon: "chevron_left"; onClicked: root.shiftMonth(-1) }
                 Text {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignHCenter
@@ -121,7 +121,7 @@ PopupWindow {
                         onClicked: root.returnToToday()
                     }
                 }
-                IconButton { icon: "󰅂"; onClicked: root.shiftMonth(1) }
+                IconButton { icon: "chevron_right"; onClicked: root.shiftMonth(1) }
             }
 
             GridLayout {

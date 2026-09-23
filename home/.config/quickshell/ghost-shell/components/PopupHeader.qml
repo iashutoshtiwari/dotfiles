@@ -22,15 +22,14 @@ Item {
 
         Text {
             Layout.preferredWidth: 22
+            Layout.preferredHeight: 22
             Layout.alignment: Qt.AlignVCenter
-            Layout.preferredHeight: root.implicitHeight
-
             text: root.icon
             font.family: Theme.iconFont
-            font.pixelSize: 16
-            color: Theme.lavender
+            font.pixelSize: Theme.iconNormal
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
+            color: Theme.lavender
         }
 
         ColumnLayout {

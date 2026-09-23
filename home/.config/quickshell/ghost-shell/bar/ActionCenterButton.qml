@@ -42,6 +42,8 @@ Item {
             text: NotificationService.dnd ? "󰂛" : "󰂚"
             font.family: Theme.iconFont
             font.pixelSize: Theme.iconNormal
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
             color: root.active       ? Theme.lavender
                  : NotificationService.dnd    ? Theme.red
                  : NotificationService.unreadCount > 0 ? Theme.lavender

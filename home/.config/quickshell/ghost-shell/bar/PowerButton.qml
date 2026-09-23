@@ -24,6 +24,8 @@ Item {
             text: "󰐥"
             font.family: Theme.iconFont
             font.pixelSize: Theme.iconNormal
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
             color: root.active ? Theme.lavender : mouseArea.containsMouse ? Theme.red : Theme.subtext1
         }
 

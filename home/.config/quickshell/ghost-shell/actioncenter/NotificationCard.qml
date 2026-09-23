@@ -76,23 +76,12 @@ Item {
             }
 
             // Dismiss button — small, unobtrusive
-            Text {
-                text: "󰅖"
-                font.family: Theme.iconFont
-                font.pixelSize: Theme.iconSmall
-                color: dismissMouse.containsMouse ? Theme.text : Theme.subtext0
-                Layout.alignment: Qt.AlignVCenter
-
-                Behavior on color { ColorAnimation { duration: Theme.motionFast } }
-
-                MouseArea {
-                    id: dismissMouse
-                    anchors.fill: parent
-                    anchors.margins: -6
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: root.dismissRequested()
-                }
+            IconButton {
+                Layout.preferredWidth: 20
+                Layout.preferredHeight: 20
+                icon: "󰅖"
+                danger: true
+                onClicked: root.dismissRequested()
             }
         }
 

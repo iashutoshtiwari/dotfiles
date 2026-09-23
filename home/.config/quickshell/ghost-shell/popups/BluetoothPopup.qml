@@ -56,26 +56,18 @@ PopupWindow {
 
             Divider { Layout.fillWidth: true }
 
-            RowLayout {
+            SectionHeader {
                 Layout.fillWidth: true
                 visible: BluetoothService.enabled
+                title: BluetoothService.connectedCount > 0 ? "DEVICES" : "AVAILABLE DEVICES"
 
-                SectionLabel {
-                    Layout.fillWidth: true
-                    text: BluetoothService.connectedCount > 0 ? "Devices" : "Available devices"
-                }
-                Text {
+                ControlButton {
                     text: BluetoothService.discovering ? "Scanning…" : "Scan"
-                    font.family: Theme.appFont
-                    font.pixelSize: Theme.fontCaption
-                    font.weight: Font.Medium
-                    color: BluetoothService.discovering ? Theme.sapphire : Theme.lavender
-                    MouseArea {
-                        anchors.fill: parent
-                        anchors.margins: -8
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: BluetoothService.toggleDiscovery()
-                    }
+                    icon: "󰂯"
+                    accentColor: BluetoothService.discovering ? Theme.sapphire : Theme.lavender
+                    active: BluetoothService.discovering
+                    compact: true
+                    onClicked: BluetoothService.toggleDiscovery()
                 }
             }
 

@@ -95,7 +95,7 @@ PopupWindow {
 
                 PopupHeader {
                     Layout.fillWidth: true
-                    icon: NetworkService.connected ? "󰤨" : "󰤮"
+                    icon: NetworkService.connected ? (NetworkService.wiredConnected ? "󰈀" : "󰤨") : "󰤮"
                     title: "Network"
                     subtitle: NetworkService.wiredConnected ? "Ethernet · Connected"
                         : NetworkService.wifiConnected ? NetworkService.ssid + " · Connected"
@@ -122,21 +122,18 @@ PopupWindow {
                     onClicked: NetworkService.disconnectWifi()
                 }
 
-                RowLayout {
+                SectionHeader {
                     Layout.fillWidth: true
                     visible: NetworkService.wifiEnabled
-                    SectionLabel { Layout.fillWidth: true; text: "Available networks" }
-                    Text {
+                    title: "AVAILABLE NETWORKS"
+
+                    ControlButton {
                         text: NetworkService.scanning ? "Scanning…" : "Rescan"
-                        font.family: Theme.appFont
-                        font.pixelSize: Theme.fontCaption
-                        color: NetworkService.scanning ? Theme.sapphire : Theme.lavender
-                        MouseArea {
-                            anchors.fill: parent
-                            anchors.margins: -8
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: NetworkService.startScanning()
-                        }
+                        icon: "󰑐"
+                        accentColor: NetworkService.scanning ? Theme.sapphire : Theme.lavender
+                        active: NetworkService.scanning
+                        compact: true
+                        onClicked: NetworkService.startScanning()
                     }
                 }
 
@@ -340,21 +337,17 @@ PopupWindow {
                 }
                 RowLayout {
                     Layout.alignment: Qt.AlignRight
-                    spacing: Theme.spacingLg
-                    Text {
+                    spacing: Theme.spacingMd
+                    ControlButton {
                         text: "Cancel"
-                        font.family: Theme.appFont
-                        font.pixelSize: Theme.fontCaption
-                        color: Theme.subtext0
-                        MouseArea { anchors.fill: parent; anchors.margins: -6; cursorShape: Qt.PointingHandCursor; onClicked: { root.pendingNetwork = null; passwordInput.text = ""; } }
+                        compact: true
+                        onClicked: { root.pendingNetwork = null; passwordInput.text = ""; }
                     }
-                    Text {
+                    ControlButton {
                         text: "Connect"
-                        font.family: Theme.appFont
-                        font.pixelSize: Theme.fontCaption
-                        font.weight: Font.DemiBold
-                        color: Theme.lavender
-                        MouseArea { anchors.fill: parent; anchors.margins: -6; cursorShape: Qt.PointingHandCursor; onClicked: { NetworkService.connectWithPassword(root.pendingNetwork, passwordInput.text); root.pendingNetwork = null; passwordInput.text = ""; } }
+                        primary: true
+                        compact: true
+                        onClicked: { NetworkService.connectWithPassword(root.pendingNetwork, passwordInput.text); root.pendingNetwork = null; passwordInput.text = ""; }
                     }
                 }
             }

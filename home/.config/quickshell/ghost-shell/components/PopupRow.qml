@@ -38,12 +38,13 @@ Rectangle {
 
         Text {
             Layout.preferredWidth: 22
-            Layout.preferredHeight: root.implicitHeight
+            Layout.preferredHeight: 22
+            Layout.alignment: Qt.AlignVCenter
             text: root.icon
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
             font.family: Theme.iconFont
             font.pixelSize: 14
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
             color: root.selected ? Theme.lavender : Theme.subtext1
         }
 

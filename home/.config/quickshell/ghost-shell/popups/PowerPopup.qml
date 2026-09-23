@@ -91,90 +91,59 @@ PopupWindow {
                 }
             }
 
-            SectionLabel { text: "Power mode" }
-            Rectangle {
-                Layout.fillWidth: true
-                height: 36
-                color: Theme.base
-                border.width: 1
-                border.color: Theme.surface1
-
-                RowLayout {
-                    anchors.fill: parent
-                    spacing: 0
-                    Repeater {
-                        model: [
-                            { label: "Power Saver", profile: PowerProfile.PowerSaver, available: true },
-                            { label: "Balanced", profile: PowerProfile.Balanced, available: true },
-                            { label: "Performance", profile: PowerProfile.Performance, available: PowerService.performanceAvailable }
-                        ]
-                        Rectangle {
-                            required property var modelData
-                            Layout.fillWidth: true
-                            Layout.fillHeight: true
-                            color: PowerService.profile === modelData.profile
-                                ? Qt.rgba(Theme.lavender.r, Theme.lavender.g, Theme.lavender.b, 0.16)
-                                : segmentMouse.containsMouse ? Theme.surface0 : "transparent"
-                            opacity: modelData.available ? 1 : Theme.disabledOpacity
-                            Rectangle {
-                                anchors { left: parent.left; right: parent.right; bottom: parent.bottom }
-                                height: Theme.activeRail
-                                color: Theme.lavender
-                                visible: PowerService.profile === parent.modelData.profile
-                            }
-                            Text {
-                                anchors.centerIn: parent
-                                text: parent.modelData.label
-                                font.family: Theme.appFont
-                                font.pixelSize: Theme.fontCaption
-                                font.weight: PowerService.profile === parent.modelData.profile ? Font.DemiBold : Font.Normal
-                                color: PowerService.profile === parent.modelData.profile ? Theme.lavender : Theme.subtext1
-                            }
-                            MouseArea {
-                                id: segmentMouse
-                                anchors.fill: parent
-                                enabled: parent.modelData.available
-                                hoverEnabled: true
-                                cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
-                                onClicked: PowerService.setProfile(parent.modelData.profile)
-                            }
-                        }
-                    }
-                }
+            SectionHeader {
+                title: "POWER MODE"
             }
 
-            SectionLabel { text: "Device details" }
-            GridLayout {
+            SegmentedControl {
                 Layout.fillWidth: true
-                columns: 2
-                columnSpacing: Theme.spacingLg
-                rowSpacing: Theme.spacingSm
+                model: [
+                    { label: "Power Saver", value: PowerProfile.PowerSaver, available: true },
+                    { label: "Balanced", value: PowerProfile.Balanced, available: true },
+                    { label: "Performance", value: PowerProfile.Performance, available: PowerService.performanceAvailable }
+                ]
+                currentValue: PowerService.profile
+                onSelected: val => PowerService.setProfile(val)
+            }
 
-                Repeater {
-                    model: [
-                        { label: "Power source", value: PowerService.onBattery ? "Battery" : "AC adapter", isMono: false },
-                        { label: "Charge rate", value: PowerService.rateText, isMono: true },
-                        { label: "Energy", value: PowerService.energy.toFixed(1) + " / " + PowerService.capacity.toFixed(1) + " Wh", isMono: true },
-                        { label: "Battery health", value: PowerService.healthAvailable ? Math.round(PowerService.health) + "%" : "Not reported", isMono: PowerService.healthAvailable }
-                    ]
-                    RowLayout {
-                        required property var modelData
-                        Layout.columnSpan: 2
-                        Layout.fillWidth: true
-                        Text {
-                            Layout.fillWidth: true
-                            text: parent.modelData.label
-                            font.family: Theme.appFont
-                            font.pixelSize: Theme.fontBody
-                            color: Theme.subtext0
-                        }
-                        Text {
-                            text: parent.modelData.value
-                            font.family: parent.modelData.isMono ? Theme.monoFont : Theme.appFont
-                            font.pixelSize: Theme.fontBody
-                            color: Theme.text
-                        }
-                    }
+            SectionHeader {
+                title: "DEVICE DETAILS"
+            }
+
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: Theme.spacingSm
+
+                ValueLabel {
+                    Layout.fillWidth: true
+                    label: "Power source"
+                    value: PowerService.onBattery ? "Battery" : "AC adapter"
+                    valueFont: Theme.appFont
+                    valueColor: Theme.text
+                }
+
+                ValueLabel {
+                    Layout.fillWidth: true
+                    label: "Charge rate"
+                    value: PowerService.rateText
+                    valueFont: Theme.monoFont
+                    valueColor: Theme.subtext1
+                }
+
+                ValueLabel {
+                    Layout.fillWidth: true
+                    label: "Energy"
+                    value: PowerService.energy.toFixed(1) + " / " + PowerService.capacity.toFixed(1) + " Wh"
+                    valueFont: Theme.monoFont
+                    valueColor: Theme.text
+                }
+
+                ValueLabel {
+                    Layout.fillWidth: true
+                    label: "Battery health"
+                    value: PowerService.healthAvailable ? Math.round(PowerService.health) + "%" : "Not reported"
+                    valueFont: PowerService.healthAvailable ? Theme.monoFont : Theme.appFont
+                    valueColor: Theme.text
                 }
             }
 

@@ -16,6 +16,8 @@ ColumnLayout {
         text: root.icon
         font.family: Theme.iconFont
         font.pixelSize: Theme.iconLarge
+        horizontalAlignment: Text.AlignHCenter
+        verticalAlignment: Text.AlignVCenter
         color: Theme.overlay0
     }
 

@@ -26,9 +26,11 @@ Item {
         text: MprisService.playing ? "󰝚" : "󰝛"
         font.family: Theme.iconFont
         font.pixelSize: 13
+        horizontalAlignment: Text.AlignHCenter
+        verticalAlignment: Text.AlignVCenter
         color: root.active ? Theme.text : Theme.lavender
 
-        Behavior on color { ColorAnimation { duration: Theme.motionFast; easing.type: Easing.OutCubic } }
+        Behavior on color { ColorAnimation { duration: Theme.motionFast } }
     }
 
     MouseArea {

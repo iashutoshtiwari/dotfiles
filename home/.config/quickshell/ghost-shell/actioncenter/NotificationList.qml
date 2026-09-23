@@ -9,6 +9,7 @@ import QtQuick.Controls
 
 import qs.theme
 import qs.services
+import qs.components
 
 Item {
     id: root
@@ -80,31 +81,13 @@ Item {
         }
 
         // ── Empty state ─────────────────────────────────────────────────
-        Item {
+        EmptyState {
+            Layout.alignment: Qt.AlignCenter
             Layout.fillWidth: true
             Layout.fillHeight: true
             visible: root.notifCount === 0
-
-            Column {
-                anchors.centerIn: parent
-                spacing: Theme.spacingSm
-
-                Text {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    text: "󰂚"
-                    font.family: Theme.iconFont
-                    font.pixelSize: Theme.fontDisplay
-                    color: Theme.overlay0
-                }
-
-                Text {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    text: "You're all caught up"
-                    font.family: Theme.appFont
-                    font.pixelSize: Theme.fontBody
-                    color: Theme.overlay1
-                }
-            }
+            icon: "󰂚"
+            message: "You're all caught up"
         }
 
         // ── Scrollable notification list ────────────────────────────────

@@ -62,111 +62,26 @@ PopupWindow {
             spacing: 12
 
             // HEADER ROW
-            Item {
+            SectionHeader {
                 width: parent.width
-                height: 32
+                title: "WALLPAPERS"
+                subtitle: WallpaperService.wallpaperCount + " available in ~/Pictures/Wallpapers"
 
-                Column {
-                    anchors {
-                        left: parent.left
-                        right: headerBtns.left
-                        rightMargin: 8
-                        verticalCenter: parent.verticalCenter
-                    }
-                    spacing: 2
-
-                    Text {
-                        text: "WALLPAPERS"
-                        font.family: Theme.appFont
-                        font.pixelSize: 13
-                        font.weight: Font.DemiBold
-                        color: Theme.text
-                    }
-
-                    Text {
-                        text: WallpaperService.wallpaperCount + " available in ~/Pictures/Wallpapers"
-                        font.family: Theme.appFont
-                        font.pixelSize: 10
-                        color: Theme.subtext0
-                        elide: Text.ElideRight
-                        width: parent.width
-                    }
+                ControlButton {
+                    icon: "󰉋"
+                    text: "Folder"
+                    compact: true
+                    onClicked: WallpaperService.openFolder()
                 }
 
-                Row {
-                    id: headerBtns
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.right: parent.right
-                    spacing: 6
-
-                    // OPEN FOLDER BUTTON
-                    Rectangle {
-                        width: 74
-                        height: 26
-                        color: openFolderMouse.containsMouse ? Theme.surface1 : Theme.surface0
-                        radius: Theme.radius
-
-                        Row {
-                            anchors.centerIn: parent
-                            spacing: 4
-
-                            Text {
-                                text: "󰉋"
-                                font.family: Theme.iconFont
-                                font.pixelSize: 11
-                                color: Theme.lavender
-                            }
-
-                            Text {
-                                text: "Folder"
-                                font.family: Theme.appFont
-                                font.pixelSize: Theme.fontCaption
-                                font.weight: Font.Medium
-                                color: Theme.text
-                            }
-                        }
-
-                        MouseArea {
-                            id: openFolderMouse
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: WallpaperService.openFolder()
-                        }
-                    }
-
-                    // CLOSE BUTTON
-                    Rectangle {
-                        width: 26
-                        height: 26
-                        color: closeMouse.containsMouse ? Theme.surface1 : Theme.surface0
-                        radius: Theme.radius
-
-                        Text {
-                            anchors.centerIn: parent
-                            text: "󰅖"
-                            font.family: Theme.iconFont
-                            font.pixelSize: Theme.iconSmall
-                            color: Theme.subtext0
-                        }
-
-                        MouseArea {
-                            id: closeMouse
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: root.visible = false
-                        }
-                    }
+                IconButton {
+                    icon: "󰅖"
+                    danger: true
+                    onClicked: root.visible = false
                 }
             }
 
-            // SEPARATOR
-            Rectangle {
-                width: parent.width
-                height: 1
-                color: Theme.surface0
-            }
+            Divider { width: parent.width }
 
             // WALLPAPERS GRID SCROLLER
             Flickable {
@@ -191,11 +106,24 @@ PopupWindow {
                             height: 138
 
                             color: Theme.surface0
-                            border.width: modelData.isCurrent ? 2 : 1
+                            border.width: 1
                             border.color: modelData.isCurrent
                                 ? Theme.lavender
                                 : (cardMouse.containsMouse ? Theme.surface1 : Theme.surface0)
                             radius: Theme.radius
+
+                            // Ghost signature active rail
+                            Rectangle {
+                                anchors {
+                                    left: parent.left
+                                    right: parent.right
+                                    bottom: parent.bottom
+                                }
+                                height: Theme.activeRail
+                                color: Theme.lavender
+                                visible: modelData.isCurrent
+                                z: 2
+                            }
 
                             Column {
                                 anchors.fill: parent

@@ -35,12 +35,11 @@ Item {
 
     Text {
         anchors.centerIn: parent
-
         text: root.icon
-
         font.family: Theme.iconFont
         font.pixelSize: Theme.iconNormal
-
+        horizontalAlignment: Text.AlignHCenter
+        verticalAlignment: Text.AlignVCenter
         color: root.active ? Theme.lavender : AudioService.outputMuted
             ? Theme.overlay1
             : Theme.text

@@ -24,16 +24,16 @@ Item {
             return "󰃟";
         return "󰃞";
     }
+
     BarButtonBackground { anchors.fill: parent; active: root.active; hovered: mouse.containsMouse; pressed: mouse.pressed }
 
     Text {
         anchors.centerIn: parent
-
         text: root.icon
-
         font.family: Theme.iconFont
         font.pixelSize: Theme.iconNormal
-
+        horizontalAlignment: Text.AlignHCenter
+        verticalAlignment: Text.AlignVCenter
         color: root.active ? Theme.lavender : NightLightService.enabled
             ? Theme.peach
             : Theme.text

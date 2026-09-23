@@ -60,7 +60,14 @@ PopupWindow {
             }
 
             Divider { Layout.fillWidth: true }
-            SectionLabel { text: "Output" }
+
+            SectionHeader {
+                Layout.fillWidth: true
+                title: "OUTPUT"
+                icon: AudioService.outputMuted ? "󰖁" : "󰕾"
+                value: Math.round(AudioService.outputVolume * 100) + "%"
+                valueColor: AudioService.outputMuted ? Theme.red : Theme.lavender
+            }
 
             ColumnLayout {
                 Layout.fillWidth: true
@@ -71,12 +78,6 @@ PopupWindow {
                     spacing: Theme.spacingSm
 
                     Text {
-                        text: AudioService.outputMuted ? "󰖁" : "󰕾"
-                        font.family: Theme.iconFont
-                        font.pixelSize: Theme.iconNormal
-                        color: AudioService.outputMuted ? Theme.red : Theme.lavender
-                    }
-                    Text {
                         Layout.fillWidth: true
                         text: AudioService.outputName
                         elide: Text.ElideRight
@@ -84,15 +85,6 @@ PopupWindow {
                         font.pixelSize: Theme.fontBody
                         font.weight: Font.Medium
                         color: Theme.text
-                    }
-                    Text {
-                        Layout.preferredWidth: 42
-                        horizontalAlignment: Text.AlignRight
-                        text: Math.round(AudioService.outputVolume * 100) + "%"
-                        font.family: Theme.monoFont
-                        font.pixelSize: Theme.fontValue
-                        font.weight: Font.Medium
-                        color: AudioService.outputMuted ? Theme.overlay0 : Theme.lavender
                     }
                 }
 
@@ -104,19 +96,23 @@ PopupWindow {
                         Layout.preferredHeight: 30
                         icon: AudioService.outputMuted ? "󰖁" : "󰕾"
                         active: AudioService.outputMuted
-                        foreground: AudioService.outputMuted ? Theme.red : Theme.subtext1
+                        danger: AudioService.outputMuted
                         onClicked: AudioService.toggleOutputMute()
                     }
                     VolumeSlider {
                         Layout.fillWidth: true
                         value: AudioService.outputVolume
+                        accentColor: AudioService.outputMuted ? Theme.red : Theme.lavender
                         enabled: AudioService.ready
                         onUserChanged: value => AudioService.setOutputVolume(value)
                     }
                 }
             }
 
-            SectionLabel { text: "Output device" }
+            SectionHeader {
+                Layout.fillWidth: true
+                title: "OUTPUT DEVICE"
+            }
             ColumnLayout {
                 Layout.fillWidth: true
                 spacing: 2
@@ -135,20 +131,23 @@ PopupWindow {
             }
 
             Divider { Layout.fillWidth: true }
-            SectionLabel { text: "Input" }
+            SectionHeader {
+                Layout.fillWidth: true
+                title: "INPUT"
+                icon: AudioService.inputMuted ? "󰍭" : "󰍬"
+                iconColor: AudioService.inputMuted ? Theme.red : Theme.sapphire
+                value: Math.round(AudioService.inputVolume * 100) + "%"
+                valueColor: AudioService.inputMuted ? Theme.red : Theme.sapphire
+            }
 
             ColumnLayout {
                 Layout.fillWidth: true
                 spacing: Theme.spacingSm
+
                 RowLayout {
                     Layout.fillWidth: true
                     spacing: Theme.spacingSm
-                    Text {
-                        text: AudioService.inputMuted ? "󰍭" : "󰍬"
-                        font.family: Theme.iconFont
-                        font.pixelSize: Theme.iconNormal
-                        color: AudioService.inputMuted ? Theme.red : Theme.sapphire
-                    }
+
                     Text {
                         Layout.fillWidth: true
                         text: AudioService.inputName
@@ -158,16 +157,8 @@ PopupWindow {
                         font.weight: Font.Medium
                         color: Theme.text
                     }
-                    Text {
-                        Layout.preferredWidth: 42
-                        horizontalAlignment: Text.AlignRight
-                        text: Math.round(AudioService.inputVolume * 100) + "%"
-                        font.family: Theme.monoFont
-                        font.pixelSize: Theme.fontValue
-                        font.weight: Font.Medium
-                        color: AudioService.inputMuted ? Theme.overlay0 : Theme.sapphire
-                    }
                 }
+
                 RowLayout {
                     Layout.fillWidth: true
                     spacing: Theme.spacingSm
@@ -176,19 +167,23 @@ PopupWindow {
                         Layout.preferredHeight: 30
                         icon: AudioService.inputMuted ? "󰍭" : "󰍬"
                         active: AudioService.inputMuted
-                        foreground: AudioService.inputMuted ? Theme.red : Theme.subtext1
+                        danger: AudioService.inputMuted
                         onClicked: AudioService.toggleInputMute()
                     }
                     VolumeSlider {
                         Layout.fillWidth: true
                         value: AudioService.inputVolume
+                        accentColor: AudioService.inputMuted ? Theme.red : Theme.sapphire
                         enabled: AudioService.ready
                         onUserChanged: value => AudioService.setInputVolume(value)
                     }
                 }
             }
 
-            SectionLabel { text: "Input device" }
+            SectionHeader {
+                Layout.fillWidth: true
+                title: "INPUT DEVICE"
+            }
             ColumnLayout {
                 Layout.fillWidth: true
                 spacing: 2

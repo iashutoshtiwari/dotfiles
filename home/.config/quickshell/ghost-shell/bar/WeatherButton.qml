@@ -31,6 +31,8 @@ Item {
             text: WeatherService.conditionIcon
             font.family: Theme.iconFont
             font.pixelSize: 13
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
             color: root.active ? Theme.text : Theme.lavender
         }
 

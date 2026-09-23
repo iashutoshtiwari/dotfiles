@@ -5,6 +5,7 @@ import Quickshell.Io
 
 import qs.theme
 import qs.services
+import qs.components
 
 PanelWindow {
     id: root
@@ -150,11 +151,13 @@ PanelWindow {
                 return;
 
             const pct = BrightnessService.brightnessPercent;
-            let icon = "󰃠";
+            let icon;
             if (pct < 30)
                 icon = "󰃞";
             else if (pct < 70)
                 icon = "󰃟";
+            else
+                icon = "󰃠";
 
             root.showOsd(
                 icon,
@@ -503,10 +506,14 @@ PanelWindow {
             Text {
                 id: iconDisplay
                 anchors.verticalCenter: parent.verticalCenter
+                width: 22
+                height: 22
+                text: root.currentIcon
                 font.family: Theme.iconFont
                 font.pixelSize: 22
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
                 color: root.isMuted ? Theme.red : Theme.lavender
-                text: root.currentIcon
             }
 
             Column {

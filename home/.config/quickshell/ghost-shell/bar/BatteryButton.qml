@@ -35,6 +35,7 @@ Item {
 
         return "󰂎";
     }
+
     BarButtonBackground { anchors.fill: parent; active: root.active; hovered: mouse.containsMouse; pressed: mouse.pressed }
 
     Row {
@@ -49,7 +50,6 @@ Item {
             verticalAlignment: Text.AlignVCenter
 
             text: root.icon
-
             font.family: Theme.iconFont
             font.pixelSize: Theme.iconNormal
 

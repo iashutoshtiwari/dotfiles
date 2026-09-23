@@ -41,7 +41,7 @@ PopupWindow {
     Timer {
         interval: 1000
         repeat: true
-        running: root.visible && root.player?.isPlaying && root.progressAvailable
+        running: Boolean(root.visible && root.player?.isPlaying && root.progressAvailable)
         onTriggered: root.player.positionChanged()
     }
 
@@ -110,7 +110,9 @@ PopupWindow {
                         visible: !artwork.visible
                         text: "󰝚"
                         font.family: Theme.iconFont
-                        font.pixelSize: Theme.fontDisplay
+                        font.pixelSize: 32
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
                         color: Theme.overlay1
                     }
                 }
@@ -244,26 +246,13 @@ PopupWindow {
                 SectionLabel { text: "Player" }
                 Repeater {
                     model: MprisService.players
-                    Rectangle {
+                    ControlButton {
                         required property var modelData
-                        implicitWidth: playerLabel.implicitWidth + Theme.spacingMd
-                        implicitHeight: 24
-                        color: modelData === root.player ? Theme.surface1 : "transparent"
-                        border.width: modelData === root.player ? 1 : 0
-                        border.color: Theme.lavender
-                        Text {
-                            id: playerLabel
-                            anchors.centerIn: parent
-                            text: parent.modelData.identity
-                            font.family: Theme.appFont
-                            font.pixelSize: Theme.fontCaption
-                            color: parent.modelData === root.player ? Theme.lavender : Theme.subtext0
-                        }
-                        MouseArea {
-                            anchors.fill: parent
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: MprisService.selectPlayer(parent.modelData)
-                        }
+                        text: modelData.identity
+                        compact: true
+                        active: modelData === root.player
+                        hasRail: true
+                        onClicked: MprisService.selectPlayer(modelData)
                     }
                 }
             }

@@ -105,7 +105,7 @@ PopupWindow {
                 }
             }
 
-            SectionLabel { text: "3-day forecast" }
+            SectionHeader { title: "3-DAY FORECAST" }
             ColumnLayout {
                 Layout.fillWidth: true
                 spacing: 2
