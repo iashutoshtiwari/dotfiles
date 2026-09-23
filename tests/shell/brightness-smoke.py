@@ -51,9 +51,10 @@ def test_quickshell_ipc_targets():
     )
     targets = res.stdout
     assert "target brightness" in targets, f"Missing brightness target: {targets}"
+    assert "target keyboardBacklight" in targets, f"Missing keyboardBacklight target: {targets}"
     assert "target nightlight" in targets, f"Missing nightlight target: {targets}"
     assert "target osd" in targets, f"Missing osd target: {targets}"
-    print("PASS: quickshell IPC targets registered (brightness, nightlight, osd)")
+    print("PASS: quickshell IPC targets registered (brightness, keyboardBacklight, nightlight, osd)")
 
 
 if __name__ == "__main__":

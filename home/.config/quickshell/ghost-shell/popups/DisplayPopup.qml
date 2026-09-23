@@ -28,6 +28,13 @@ PopupWindow {
     color: "transparent"
     grabFocus: true
 
+    onVisibleChanged: {
+        if (visible) {
+            BrightnessService.refresh();
+            KeyboardBacklightService.refresh(false);
+        }
+    }
+
     PopupSurface {
         anchors.fill: parent
         presented: root.visible
@@ -127,6 +134,214 @@ PopupWindow {
                 width: parent.width
                 height: 1
                 color: Theme.surface0
+            }
+
+            // KEYBOARD BACKLIGHT SECTION
+            Column {
+                width: parent.width
+                spacing: 10
+                visible: KeyboardBacklightService.available
+
+                // KEYBOARD BACKLIGHT HEADER
+                Row {
+                    width: parent.width
+
+                    Row {
+                        width: parent.width - 80
+                        spacing: 8
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        Text {
+                            text: "󰌌"
+                            font.family: Theme.shellFont
+                            font.pixelSize: 13
+                            color: KeyboardBacklightService.brightness > 0 ? Theme.lavender : Theme.overlay1
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+
+                        Text {
+                            text: "KEYBOARD BACKLIGHT"
+                            font.family: Theme.shellFont
+                            font.pixelSize: 12
+                            font.weight: Font.DemiBold
+                            color: Theme.text
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                    }
+
+                    Text {
+                        width: 80
+                        horizontalAlignment: Text.AlignRight
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: {
+                            if (KeyboardBacklightService.maximum === 2) {
+                                if (KeyboardBacklightService.brightness === 0)
+                                    return "Off";
+                                if (KeyboardBacklightService.brightness === 1)
+                                    return "Low";
+                                return "High";
+                            }
+                            return KeyboardBacklightService.brightness + " / " + KeyboardBacklightService.maximum;
+                        }
+                        font.family: Theme.shellFont
+                        font.pixelSize: 11
+                        font.weight: Font.DemiBold
+                        color: KeyboardBacklightService.brightness > 0 ? Theme.lavender : Theme.subtext0
+                    }
+                }
+
+                // DISCRETE SLIDER TRACK & STEPS
+                Item {
+                    id: kbdSlider
+                    width: parent.width
+                    height: 20
+
+                    readonly property int maxSteps: Math.max(1, KeyboardBacklightService.maximum)
+                    readonly property real normalized: KeyboardBacklightService.normalizedBrightness
+
+                    // Track Background
+                    Rectangle {
+                        id: kbdTrack
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: parent.width
+                        height: 3
+                        color: Theme.surface1
+
+                        // Active Fill
+                        Rectangle {
+                            anchors {
+                                left: parent.left
+                                top: parent.top
+                                bottom: parent.bottom
+                            }
+                            width: parent.width * kbdSlider.normalized
+                            color: Theme.accent
+
+                            Behavior on width {
+                                enabled: !kbdMouse.pressed
+                                NumberAnimation { duration: Theme.motionFast; easing.type: Easing.OutCubic }
+                            }
+                        }
+
+                        // Tick marks for discrete steps
+                        Repeater {
+                            model: kbdSlider.maxSteps + 1
+
+                            delegate: Rectangle {
+                                required property int index
+                                width: 2
+                                height: 7
+                                anchors.verticalCenter: parent.verticalCenter
+                                x: Math.round((parent.width - width) * (index / kbdSlider.maxSteps))
+                                color: index <= KeyboardBacklightService.brightness ? Theme.accent : Theme.surface2
+                            }
+                        }
+                    }
+
+                    // Thumb
+                    Rectangle {
+                        id: kbdThumb
+                        anchors.verticalCenter: kbdTrack.verticalCenter
+                        width: 10
+                        height: 10
+                        radius: 0
+                        color: Theme.accent
+
+                        x: Math.max(0, Math.min(kbdTrack.width - width, kbdTrack.width * kbdSlider.normalized - width / 2))
+
+                        Behavior on x {
+                            enabled: !kbdMouse.pressed
+                            NumberAnimation { duration: Theme.motionFast; easing.type: Easing.OutCubic }
+                        }
+                    }
+
+                    MouseArea {
+                        id: kbdMouse
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+
+                        function updateLevel() {
+                            const ratio = Math.max(0, Math.min(1, mouseX / width));
+                            const step = Math.round(ratio * kbdSlider.maxSteps);
+                            if (step !== KeyboardBacklightService.brightness) {
+                                KeyboardBacklightService.setLevel(step);
+                            }
+                        }
+
+                        onPressed: updateLevel()
+                        onPositionChanged: {
+                            if (pressed)
+                                updateLevel();
+                        }
+
+                        onWheel: wheel => {
+                            if (wheel.angleDelta.y > 0)
+                                KeyboardBacklightService.increase();
+                            else if (wheel.angleDelta.y < 0)
+                                KeyboardBacklightService.decrease();
+                            wheel.accepted = true;
+                        }
+                    }
+                }
+
+                // LABELS (Off, Low, High for max=2; dynamic for other steps)
+                Item {
+                    width: parent.width
+                    height: 16
+
+                    Repeater {
+                        model: KeyboardBacklightService.maximum + 1
+
+                        delegate: Item {
+                            required property int index
+                            readonly property int totalSteps: KeyboardBacklightService.maximum
+                            readonly property string labelText: {
+                                if (totalSteps === 2) {
+                                    if (index === 0) return "Off";
+                                    if (index === 1) return "Low";
+                                    return "High";
+                                }
+                                if (index === 0) return "Off";
+                                if (index === totalSteps) return "Max";
+                                return index.toString();
+                            }
+
+                            width: labelItem.implicitWidth + 8
+                            height: parent.height
+
+                            x: {
+                                if (index === 0)
+                                    return 0;
+                                if (index === totalSteps)
+                                    return parent.width - width;
+                                return Math.round((parent.width - width) * (index / totalSteps));
+                            }
+
+                            Text {
+                                id: labelItem
+                                anchors.centerIn: parent
+                                text: parent.labelText
+                                font.family: Theme.shellFont
+                                font.pixelSize: 10
+                                font.weight: KeyboardBacklightService.brightness === parent.index ? Font.DemiBold : Font.Normal
+                                color: KeyboardBacklightService.brightness === parent.index ? Theme.lavender : Theme.overlay1
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: KeyboardBacklightService.setLevel(parent.index)
+                            }
+                        }
+                    }
+                }
+
+                // SEPARATOR
+                Rectangle {
+                    width: parent.width
+                    height: 1
+                    color: Theme.surface0
+                }
             }
 
             // NIGHT LIGHT SECTION HEADER

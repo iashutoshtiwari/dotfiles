@@ -167,6 +167,41 @@ PanelWindow {
         }
     }
 
+    // KEYBOARD BACKLIGHT TRACKING
+    Connections {
+        target: KeyboardBacklightService
+
+        function onBrightnessChanged(): void {
+            if (!root.initialized || !KeyboardBacklightService.available)
+                return;
+
+            const max = KeyboardBacklightService.maximum;
+            const current = KeyboardBacklightService.brightness;
+            const pct = max > 0 ? Math.round((current / max) * 100) : 0;
+
+            let valueStr = pct + "%";
+            if (max === 2) {
+                if (current === 0)
+                    valueStr = "Off";
+                else if (current === 1)
+                    valueStr = "Low";
+                else
+                    valueStr = "High";
+            }
+
+            const icon = current === 0 ? "󰌎" : "󰌌";
+
+            root.showOsd(
+                icon,
+                "Keyboard Backlight",
+                valueStr,
+                pct,
+                false,
+                true
+            );
+        }
+    }
+
     // POWER AND BATTERY FEEDBACK
     Connections {
         target: PowerService
